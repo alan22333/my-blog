@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="在使用 git commit -m 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gitcommit">
+<meta property="og:url" content="http://example.com/2025/05/03/gitcommit/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="在使用 git commit -m 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-03T13:34:37.000Z">
+<meta property="article:modified_time" content="2025-05-03T15:58:16.509Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/05/03/gitcommit/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/05/03/gitcommit/","path":"2025/05/03/gitcommit/","title":"gitcommit"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>gitcommit | Hello there! I'm alan</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"http://example.com/2025/05/03/gitcommit/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">4</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">4</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-fix"><span class="nav-number">1.</span> <span class="nav-text">1. fix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-feat"><span class="nav-number">2.</span> <span class="nav-text">2. feat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-docs"><span class="nav-number">3.</span> <span class="nav-text">3. docs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-style"><span class="nav-number">4.</span> <span class="nav-text">4. style</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-refactor"><span class="nav-number">5.</span> <span class="nav-text">5. refactor</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-test"><span class="nav-number">6.</span> <span class="nav-text">6. test</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-chore"><span class="nav-number">7.</span> <span class="nav-text">7. chore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-perf"><span class="nav-number">8.</span> <span class="nav-text">8. perf</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-ci"><span class="nav-number">9.</span> <span class="nav-text">9. ci</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#10-revert"><span class="nav-number">10.</span> <span class="nav-text">10. revert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#11-build"><span class="nav-number">11.</span> <span class="nav-text">11. build</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#12-wip"><span class="nav-number">12.</span> <span class="nav-text">12. wip</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#13-hotfix"><span class="nav-number">13.</span> <span class="nav-text">13. hotfix</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#14-init"><span class="nav-number">14.</span> <span class="nav-text">14. init</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#15-merge"><span class="nav-number">15.</span> <span class="nav-text">15. merge</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF%E6%A0%BC%E5%BC%8F%E5%BB%BA%E8%AE%AE"><span class="nav-number">16.</span> <span class="nav-text">提交信息格式建议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">17.</span> <span class="nav-text">总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前即将读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/alan_root@outlook.com" title="E-Mail → alan_root@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+<div style="margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <iframe style="border-radius:12px" src="https://open.spotify.com/artist/40tNK2YedBV2jRFAHxpifB"
+    width="100%" height="380" frameBorder="0" allowfullscreen=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+</div>
+
+<style>
+  .sidebar-music-player .aplayer {
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    background: #222 !important;
+    color: #fff !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .sidebar-music-player .aplayer-list {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    background: #222 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-info {
+    background: #222 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-title,
+  .sidebar-music-player .aplayer-author {
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-list-light {
+    background: #333 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-lrc {
+    color: #fff !important;
+  }
+</style>
+<div class="sidebar-music-player" style="margin: 20px 0;">
+  <meting-js
+    server="netease"
+    type="playlist"
+    id="607483838"
+    fixed="false"
+    autoplay="false"
+    theme="#2980b9"
+    loop="all"
+    order="list"
+    preload="auto"
+    volume="0.7"
+  ></meting-js>
+</div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/03/gitcommit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前即将读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="gitcommit | Hello there! I'm alan">
+      <meta itemprop="description" content="在使用 git commit -m 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gitcommit
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-03 21:34:37" itemprop="dateCreated datePublished" datetime="2025-05-03T21:34:37+08:00">2025-05-03</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">在使用 git commit -m 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在使用 <code>git commit -m</code> 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的。这些前缀有助于团队更好地理解提交的内容，尤其是在查看提交历史或生成变更日志时。以下是一些常用的前缀及其含义：</p>
+<hr>
+<h3 id="1-fix"><a href="#1-fix" class="headerlink" title="1. fix"></a>1. <strong><code>fix</code></strong></h3><p>表示修复了一个 bug 或问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;fix: 修复登录页面无法加载的问题&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="2-feat"><a href="#2-feat" class="headerlink" title="2. feat"></a>2. <strong><code>feat</code></strong></h3><p>表示新增了一个功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;feat: 添加用户注册功能&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="3-docs"><a href="#3-docs" class="headerlink" title="3. docs"></a>3. <strong><code>docs</code></strong></h3><p>表示文档相关的更改（如 README、注释等）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;docs: 更新项目 README 文件&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="4-style"><a href="#4-style" class="headerlink" title="4. style"></a>4. <strong><code>style</code></strong></h3><p>表示代码风格的更改（如格式化、缩进等），不涉及功能或逻辑的修改。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;style: 格式化代码缩进&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="5-refactor"><a href="#5-refactor" class="headerlink" title="5. refactor"></a>5. <strong><code>refactor</code></strong></h3><p>表示代码重构，既不修复 bug 也不添加新功能。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;refactor: 重构用户模块的代码结构&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="6-test"><a href="#6-test" class="headerlink" title="6. test"></a>6. <strong><code>test</code></strong></h3><p>表示测试相关的更改（如添加或修改测试用例）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;test: 添加用户登录功能的单元测试&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="7-chore"><a href="#7-chore" class="headerlink" title="7. chore"></a>7. <strong><code>chore</code></strong></h3><p>表示日常维护或工具相关的更改（如依赖更新、构建配置等）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;chore: 更新项目依赖包&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="8-perf"><a href="#8-perf" class="headerlink" title="8. perf"></a>8. <strong><code>perf</code></strong></h3><p>表示性能优化相关的更改。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;perf: 优化数据库查询性能&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="9-ci"><a href="#9-ci" class="headerlink" title="9. ci"></a>9. <strong><code>ci</code></strong></h3><p>表示持续集成（CI）相关的更改（如 GitHub Actions、Travis CI 等）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;ci: 添加 GitHub Actions 自动化测试&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="10-revert"><a href="#10-revert" class="headerlink" title="10. revert"></a>10. <strong><code>revert</code></strong></h3><p>表示回滚之前的提交。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;revert: 回滚错误的用户注册功能提交&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="11-build"><a href="#11-build" class="headerlink" title="11. build"></a>11. <strong><code>build</code></strong></h3><p>表示构建系统或外部依赖的更改（如 Webpack、Gulp 等）。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;build: 更新 Webpack 配置&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="12-wip"><a href="#12-wip" class="headerlink" title="12. wip"></a>12. <strong><code>wip</code></strong></h3><p>表示正在进行中的工作（Work In Progress），通常用于临时提交。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;wip: 用户模块开发中&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="13-hotfix"><a href="#13-hotfix" class="headerlink" title="13. hotfix"></a>13. <strong><code>hotfix</code></strong></h3><p>表示紧急修复生产环境中的问题。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;hotfix: 紧急修复支付接口崩溃问题&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="14-init"><a href="#14-init" class="headerlink" title="14. init"></a>14. <strong><code>init</code></strong></h3><p>表示项目初始化或首次提交。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;init: 初始化项目&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="15-merge"><a href="#15-merge" class="headerlink" title="15. merge"></a>15. <strong><code>merge</code></strong></h3><p>表示合并分支。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;merge: 合并 feature/login 分支到 main&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="提交信息格式建议"><a href="#提交信息格式建议" class="headerlink" title="提交信息格式建议"></a>提交信息格式建议</h3><p>通常推荐使用以下格式：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;类型&gt;: &lt;描述&gt;</span><br></pre></td></tr></table></figure>
+
+
+<p>例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;feat: 添加用户登录功能&quot;</span><br></pre></td></tr></table></figure>
+
+
+<p>如果需要更详细的描述，可以使用多行提交信息：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git commit -m &quot;fix: 修复登录页面无法加载的问题</span><br><span class="line"></span><br><span class="line">- 修复了登录页面因 API 接口错误导致的加载失败问题</span><br><span class="line">- 优化了错误提示信息&quot;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ul>
+<li><p>使用清晰的前缀（如 <code>fix</code>、<code>feat</code>、<code>docs</code> 等）来描述提交的类型。</p>
+</li>
+<li><p>提交信息应简洁明了，便于团队协作和代码审查。</p>
+</li>
+<li><p>如果需要更详细的描述，可以使用多行提交信息。</p>
+</li>
+</ul>
+<p>这些规范可以帮助团队更好地管理提交历史，并生成更有意义的变更日志。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/git/" rel="tag"># git</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/" rel="prev" title="Solidity中的自定义错误">
+                  <i class="fa fa-angle-left"></i> Solidity中的自定义错误
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/04/%E8%80%83%E7%A0%94%E7%BB%8F%E9%AA%8C%E5%88%86%E4%BA%AB/" rel="next" title="考研经验分享">
+                  考研经验分享 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>

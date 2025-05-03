@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 require 语句更高效的错误处理方式，可以显著节省 Gas 消耗">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Solidity中的自定义错误">
+<meta property="og:url" content="http://example.com/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 require 语句更高效的错误处理方式，可以显著节省 Gas 消耗">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-03T13:26:17.000Z">
+<meta property="article:modified_time" content="2025-05-03T15:59:13.529Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="技术">
+<meta property="article:tag" content="Solidity">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/","path":"2025/05/03/Solidity中的自定义错误/","title":"Solidity中的自定义错误"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Solidity中的自定义错误 | Hello there! I'm alan</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"http://example.com/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">4</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">2</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">4</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E8%83%BD%E8%8A%82%E7%9C%81-Gas"><span class="nav-number">1.</span> <span class="nav-text">为什么自定义错误能节省 Gas</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">3.</span> <span class="nav-text">最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%BA%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF%E6%9D%A1%E4%BB%B6%E5%AE%9A%E4%B9%89%E6%98%8E%E7%A1%AE%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">3.1.</span> <span class="nav-text">1. 为常见错误条件定义明确的错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9C%A8%E5%A4%8D%E6%9D%82%E5%90%88%E7%BA%A6%E4%B8%AD%E7%BB%84%E7%BB%87%E9%94%99%E8%AF%AF"><span class="nav-number">3.2.</span> <span class="nav-text">2. 在复杂合约中组织错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%8F%90%E4%BE%9B%E6%9C%89%E7%94%A8%E7%9A%84%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BF%A1%E6%81%AF"><span class="nav-number">3.3.</span> <span class="nav-text">3. 提供有用的上下文信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%B8%8E-require-%E5%AF%B9%E6%AF%94"><span class="nav-number">3.4.</span> <span class="nav-text">4. 与 require 对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%9C%A8%E6%8E%A5%E5%8F%A3%E4%B8%AD%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF"><span class="nav-number">3.5.</span> <span class="nav-text">5. 在接口中定义错误</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gas-%E8%8A%82%E7%9C%81%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">Gas 节省示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA"><span class="nav-number">5.</span> <span class="nav-text">结论</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前即将读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/alan_root@outlook.com" title="E-Mail → alan_root@outlook.com" rel="noopener me"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+<div style="margin: 20px 0; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+  <iframe style="border-radius:12px" src="https://open.spotify.com/artist/40tNK2YedBV2jRFAHxpifB"
+    width="100%" height="380" frameBorder="0" allowfullscreen=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+</div>
+
+<style>
+  .sidebar-music-player .aplayer {
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    background: #222 !important;
+    color: #fff !important;
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .sidebar-music-player .aplayer-list {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    background: #222 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-info {
+    background: #222 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-title,
+  .sidebar-music-player .aplayer-author {
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-list-light {
+    background: #333 !important;
+    color: #fff !important;
+  }
+  .sidebar-music-player .aplayer-lrc {
+    color: #fff !important;
+  }
+</style>
+<div class="sidebar-music-player" style="margin: 20px 0;">
+  <meting-js
+    server="netease"
+    type="playlist"
+    id="607483838"
+    fixed="false"
+    autoplay="false"
+    theme="#2980b9"
+    loop="all"
+    order="list"
+    preload="auto"
+    volume="0.7"
+  ></meting-js>
+</div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2025/05/03/Solidity%E4%B8%AD%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前即将读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Solidity中的自定义错误 | Hello there! I'm alan">
+      <meta itemprop="description" content="Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 require 语句更高效的错误处理方式，可以显著节省 Gas 消耗">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Solidity中的自定义错误
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-03 21:26:17" itemprop="dateCreated datePublished" datetime="2025-05-03T21:26:17+08:00">2025-05-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Solidity%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">Solidity学习</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 require 语句更高效的错误处理方式，可以显著节省 Gas 消耗</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 <code>require</code> 语句更高效的错误处理方式，可以显著节省 Gas 消耗。</p>
+<h2 id="为什么自定义错误能节省-Gas"><a href="#为什么自定义错误能节省-Gas" class="headerlink" title="为什么自定义错误能节省 Gas"></a>为什么自定义错误能节省 Gas</h2><ol>
+<li><p><strong>更小的字节码</strong>：自定义错误不需要存储错误字符串</p>
+</li>
+<li><p><strong>更低的运行时成本</strong>：回滚时只需传递 4 字节的选择器，而不是完整的字符串</p>
+</li>
+<li><p><strong>更少的存储开销</strong>：字符串错误信息需要存储在合约字节码中</p>
+</li>
+</ol>
+<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 定义自定义错误</span><br><span class="line">error InsufficientBalance(uint256 available, uint256 required);</span><br><span class="line"></span><br><span class="line">contract MyContract &#123;</span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        uint256 balance = address(this).balance;</span><br><span class="line">        if (balance &lt; amount) &#123;</span><br><span class="line">            revert InsufficientBalance(balance, amount);</span><br><span class="line">        &#125;</span><br><span class="line">        // 其他逻辑...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="最佳实践"><a href="#最佳实践" class="headerlink" title="最佳实践"></a>最佳实践</h2><h3 id="1-为常见错误条件定义明确的错误"><a href="#1-为常见错误条件定义明确的错误" class="headerlink" title="1. 为常见错误条件定义明确的错误"></a>1. 为常见错误条件定义明确的错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">error Unauthorized();</span><br><span class="line">error InvalidAddress();</span><br><span class="line">error ValueTooLow(uint256 min, uint256 actual);</span><br><span class="line">error DeadlineExpired(uint256 deadline);</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="2-在复杂合约中组织错误"><a href="#2-在复杂合约中组织错误" class="headerlink" title="2. 在复杂合约中组织错误"></a>2. 在复杂合约中组织错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">library Errors &#123;</span><br><span class="line">    error Unauthorized();</span><br><span class="line">    error InsufficientBalance(uint256 available, uint256 required);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">contract MyContract &#123;</span><br><span class="line">    using Errors for *;</span><br><span class="line">    </span><br><span class="line">    function withdraw(uint256 amount) public &#123;</span><br><span class="line">        if (msg.sender != owner) revert Errors.Unauthorized();</span><br><span class="line">        // ...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="3-提供有用的上下文信息"><a href="#3-提供有用的上下文信息" class="headerlink" title="3. 提供有用的上下文信息"></a>3. 提供有用的上下文信息</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">error TransferFailed(address from, address to, uint256 amount);</span><br><span class="line"></span><br><span class="line">function transfer(address to, uint256 amount) public &#123;</span><br><span class="line">    bool success = _transfer(msg.sender, to, amount);</span><br><span class="line">    if (!success) revert TransferFailed(msg.sender, to, amount);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="4-与-require-对比"><a href="#4-与-require-对比" class="headerlink" title="4. 与 require 对比"></a>4. 与 require 对比</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 传统方式 - 消耗更多 Gas</span><br><span class="line">require(balance &gt;= amount, &quot;Insufficient balance&quot;);</span><br><span class="line"></span><br><span class="line">// 自定义错误方式 - 更高效</span><br><span class="line">if (balance &lt; amount) revert InsufficientBalance(balance, amount);</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="5-在接口中定义错误"><a href="#5-在接口中定义错误" class="headerlink" title="5. 在接口中定义错误"></a>5. 在接口中定义错误</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">interface IERC20 &#123;</span><br><span class="line">    error InsufficientBalance();</span><br><span class="line">    error InsufficientAllowance();</span><br><span class="line">    </span><br><span class="line">    function transfer(address to, uint256 amount) external;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Gas-节省示例"><a href="#Gas-节省示例" class="headerlink" title="Gas 节省示例"></a>Gas 节省示例</h2><p>假设一个简单的转账合约：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">// 使用 require</span><br><span class="line">function transferWithRequire(address to, uint256 amount) public &#123;</span><br><span class="line">    require(balances[msg.sender] &gt;= amount, &quot;Insufficient balance&quot;);</span><br><span class="line">    balances[msg.sender] -= amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 使用自定义错误</span><br><span class="line">error InsufficientBalance(uint256 available, uint256 required);</span><br><span class="line"></span><br><span class="line">function transferWithError(address to, uint256 amount) public &#123;</span><br><span class="line">    uint256 available = balances[msg.sender];</span><br><span class="line">    if (available &lt; amount) revert InsufficientBalance(available, amount);</span><br><span class="line">    balances[msg.sender] = available - amount;</span><br><span class="line">    balances[to] += amount;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>Gas 消耗比较</strong>：<br>• <code>require</code> 版本：约 22,000 Gas（成功时），失败时更高<br>• 自定义错误版本：约 21,500 Gas（成功时），失败时显著更低</p>
+<p>失败时的 Gas 节省更为明显，因为不需要存储和传递错误字符串。</p>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>自定义错误是 Solidity 中优化 Gas 消耗的重要工具，特别是在频繁可能失败的函数中。通过遵循这些最佳实践，你可以编写出更高效、更清晰的智能合约代码。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+              <a href="/tags/Solidity/" rel="tag"># Solidity</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/03/hello-world/" rel="prev" title="Hello World">
+                  <i class="fa fa-angle-left"></i> Hello World
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/03/gitcommit/" rel="next" title="gitcommit">
+                  gitcommit <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+</body>
+</html>
