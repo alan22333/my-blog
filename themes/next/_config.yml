@@ -941,5 +941,4 @@ images: images
 
 # Netlify CMS 支持
 skip_render:
-  - admin/**  # 避免 Hexo 渲染 CMS 文件
   - admin/config.yml
