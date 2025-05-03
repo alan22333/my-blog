@@ -937,3 +937,8 @@ vendors:
 css: css
 js: js
 images: images
+
+
+# Netlify CMS 支持
+skip_render:
+  - _admin/**  # 避免 Hexo 渲染 CMS 文件
