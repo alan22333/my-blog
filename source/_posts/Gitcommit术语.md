@@ -1,5 +1,5 @@
 ---
-title: gitcommit
+title: Git Commit术语
 description: '在使用 git commit -m 提交代码时，通常会在提交信息中使用一些常见的前缀来描述提交的类型和目的'
 date: 2025-05-03 21:34:37
 tags: git
