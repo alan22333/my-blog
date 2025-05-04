@@ -2,7 +2,7 @@
 title: Solidity中的自定义错误
 description: 'Solidity 0.8.4 引入了自定义错误(Custom Errors)功能，这是一种比传统 require 语句更高效的错误处理方式，可以显著节省 Gas 消耗'
 date: 2025-05-03 21:26:17
-tags: ['技术','Solidity']
+tags: ['Solidity']
 categories: Solidity学习
 toc: true
 ---
