@@ -158,7 +158,7 @@ site_state: true
 # `||` 分隔符前的值是目标永久链接，分隔符后的值是 Font Awesome 图标名称
 social:
   Gitee: https://gitee.com/alan223 || fab fa-github
-  E-Mail: alan_root@outlook.com || fa fa-envelope
+  E-Mail: mail:alan_root@outlook.com || fa fa-envelope
   #Weibo: https://weibo.com/yourname || fab fa-weibo
   #Twitter: https://twitter.com/yourname || fab fa-twitter
   #FB Page: https://www.facebook.com/yourname || fab fa-facebook
