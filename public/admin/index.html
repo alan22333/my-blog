@@ -22,15 +22,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="博客内容管理                        &#x2F;* 重置和隔离样式 *&#x2F;         body {             margin: 0;             padding: 0;             font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Rob">
+    <meta name="description" content="博客内容管理              &#x2F;* 重置和隔离样式 *&#x2F;         body {             margin: 0;             padding: 0;             font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helve">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Hello there! I&#39;m alan">
 <meta property="og:url" content="http://example.com/admin/index.html">
 <meta property="og:site_name" content="Hello there! I&#39;m alan">
-<meta property="og:description" content="博客内容管理                        &#x2F;* 重置和隔离样式 *&#x2F;         body {             margin: 0;             padding: 0;             font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Rob">
+<meta property="og:description" content="博客内容管理              &#x2F;* 重置和隔离样式 *&#x2F;         body {             margin: 0;             padding: 0;             font-family: -apple-system, BlinkMacSystemFont, &quot;Segoe UI&quot;, Roboto, Helve">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2025-05-04T01:35:23.095Z">
-<meta property="article:modified_time" content="2025-05-04T01:35:23.095Z">
+<meta property="article:published_time" content="2025-05-04T01:44:40.060Z">
+<meta property="article:modified_time" content="2025-05-04T01:44:40.060Z">
 <meta property="article:author" content="Alan">
 <meta property="article:tag" content="考研, 技术, 生活">
 <meta name="twitter:card" content="summary">
@@ -258,8 +258,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>博客内容管理</title>
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         /* 重置和隔离样式 */
         body {
@@ -280,23 +278,45 @@
             background: white !important;
         }
     </style>
+    <!-- Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script>
-        // 自定义预览样式
-        CMS.registerPreviewStyle("/css/style.css");
-        
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/admin/";
+        // 确保 netlifyIdentity 已加载
+        if (!window.netlifyIdentity) {
+            document.addEventListener('DOMContentLoaded', function() {
+                // 重新加载 netlifyIdentity
+                const script = document.createElement('script');
+                script.src = 'https://identity.netlify.com/v1/netlify-identity-widget.js';
+                script.onload = function() {
+                    window.netlifyIdentity.on('init', user => {
+                        if (!user) {
+                            window.netlifyIdentity.open();
+                        }
                     });
+                };
+                document.head.appendChild(script);
+            });
+        } else {
+            window.netlifyIdentity.on('init', user => {
+                if (!user) {
+                    window.netlifyIdentity.open();
                 }
             });
         }
+
+        // 登录成功后的处理
+        window.netlifyIdentity.on('login', () => {
+            window.location.reload();
+        });
+
+        // 登出后的处理
+        window.netlifyIdentity.on('logout', () => {
+            window.location.href = '/';
+        });
     </script>
   </body>
 </html>

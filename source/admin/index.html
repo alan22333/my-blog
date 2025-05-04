@@ -4,8 +4,6 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>博客内容管理</title>
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <style>
         /* 重置和隔离样式 */
         body {
@@ -26,23 +24,45 @@
             background: white !important;
         }
     </style>
+    <!-- Netlify Identity Widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script>
-        // 自定义预览样式
-        CMS.registerPreviewStyle("/css/style.css");
-        
-        if (window.netlifyIdentity) {
-            window.netlifyIdentity.on("init", user => {
-                if (!user) {
-                    window.netlifyIdentity.on("login", () => {
-                        document.location.href = "/admin/";
+        // 确保 netlifyIdentity 已加载
+        if (!window.netlifyIdentity) {
+            document.addEventListener('DOMContentLoaded', function() {
+                // 重新加载 netlifyIdentity
+                const script = document.createElement('script');
+                script.src = 'https://identity.netlify.com/v1/netlify-identity-widget.js';
+                script.onload = function() {
+                    window.netlifyIdentity.on('init', user => {
+                        if (!user) {
+                            window.netlifyIdentity.open();
+                        }
                     });
+                };
+                document.head.appendChild(script);
+            });
+        } else {
+            window.netlifyIdentity.on('init', user => {
+                if (!user) {
+                    window.netlifyIdentity.open();
                 }
             });
         }
+
+        // 登录成功后的处理
+        window.netlifyIdentity.on('login', () => {
+            window.location.reload();
+        });
+
+        // 登出后的处理
+        window.netlifyIdentity.on('logout', () => {
+            window.location.href = '/';
+        });
     </script>
   </body>
 </html>
