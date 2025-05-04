@@ -544,7 +544,7 @@ pdf:
 
 # Mermaid 标签
 mermaid:
-  enable: false
+  enable: true
   # 可用主题: default | dark | forest | neutral
   theme:
     light: default
