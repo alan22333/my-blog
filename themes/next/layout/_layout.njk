@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ page.lang }}">
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{{ page.title }} - {{ config.title }}{% endblock %}</title> {# Added a more standard title block #}
   {{ partial('_partials/head/head.njk', {}, {cache: theme.cache.enable}) }}
   {%- include '_partials/head/head-unique.njk' -%}
-  <title>{% block title %}{% endblock %}</title>
+  {# Title block was already here, moved it up for standard practice #}
   {{ partial('_third-party/analytics/index.njk', {}, {cache: theme.cache.enable}) }}
-  {{ partial('_scripts/index.njk', {}, {cache: theme.cache.enable}) }}
+  {{ partial('_scripts/index.njk', {}, {cache: theme.cache.enable}) }} {# This partial might load other scripts #}
   {{ partial('_third-party/index.njk', {}, {cache: theme.cache.enable}) }}
   {{ partial('_third-party/statistics/index.njk', {}, {cache: theme.cache.enable}) }}
   {%- include '_third-party/math/index.njk' -%}
@@ -17,36 +20,8 @@
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage"{% if theme.motion.enable %} class="use-motion"{% endif %}>
-  <script src="https://unpkg.com/@netlify/identity-widget@^1/dist/netlify-identity-widget.js"></script>
+  {# 移除之前直接放在 <body> 后的脚本 #}
 
-  <script>
-    // 检查 window.netlifyIdentity 是否存在，然后进行初始化
-    if (window.netlifyIdentity) {
-      window.netlifyIdentity.on("init", user => {
-        // 当 widget 初始化时触发，检查用户是否已登录
-        // 如果你在 /admin/ 页面，这个会检查管理员登录状态
-        // 如果你在主页，这个会检查普通用户登录状态 (虽然普通用户通常不需要 Identity)
-        // 但这个监听器是必需的，因为它会处理 URL 中的 token！
-        console.log("Netlify Identity widget initialized"); // 可选的调试信息
-      });
-
-      // 添加监听器来处理登录/退出后的重载，特别是处理邀请链接后的逻辑
-      // Identity widget 会自动处理 URL 中的 #invite_token 或 #token=...
-      // 当它成功处理 token（比如用户设置了密码或登录了）后，通常会触发一次重载或重定向
-       window.netlifyIdentity.on("login", () => {
-           console.log("Netlify Identity login event"); // 可选调试信息
-           // Identity widget 应该自己处理邀请流程后的重定向，这里的重载是额外的安全措施
-          // document.location.reload(); // 移除或注释掉这行，让 widget 自己控制
-       });
-      // window.netlifyIdentity.on("logout", () => document.location.reload()); // 可选
-      // window.netlifyIdentity.on("error", err => console.error("Identity error", err)); // 可选
-    } else {
-         console.error("Netlify Identity widget script not loaded!"); // 可选调试信息
-    }
-
-    // Identity widget 通常会自动检查 URL 中的 token 并在加载后处理
-    // 不需要手动调用 window.netlifyIdentity.open() unless you want to force the modal open
-  </script>
   <div class="headband"></div>
 
   <main class="main">
@@ -75,6 +50,41 @@
 
   {{ partial('_partials/widgets.njk', {}, {cache: theme.cache.enable}) }}
 
+  {#
+    *** 将 Netlify Identity Widget 脚本放在这里，就在 </body> 结束标签之前 ***
+    这个位置通常在所有主要的页面内容和 widgets partial 加载之后，
+    是一个标准的放置第三方脚本以确保 DOM 元素已准备好的位置。
+  #}
+
+  <script src="https://unpkg.com/@netlify/identity-widget@^1/dist/netlify-identity-widget.js"></script>
+
+  <script>
+    // 检查 window.netlifyIdentity 是否存在，然后进行初始化
+    // 如果之前的 <script> 标签加载失败或脚本执行出错，window.netlifyIdentity 将会是 undefined
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        // 当 widget 初始化时触发，检查用户是否已登录
+        // 这个监听器是必需的，因为它负责处理 URL 中的 #invite_token 或 #token=...
+        console.log("Netlify Identity widget initialized. User:", user); // 打印初始化状态和用户（如果已登录）
+        // Widget 会自动检测 URL 中的 token 并显示相应的界面（如设置密码、登录框）
+      });
+
+      // *** 重要提示: 如果你希望用户点击邀请链接后能看到设置密码/登录界面，
+      // 不需要在这里手动调用 window.netlifyIdentity.open()。
+      // widget 会在 init 时自动检查 URL 中的 token 并显示界面。
+      // window.netlifyIdentity.open(); // 不要在此处解除注释，除非你想每次打开网站就弹出登录框
+    } else {
+        // 如果 Identity Widget 脚本没有成功加载或执行，会进入这里
+        console.error("Netlify Identity widget script tag was present, but window.netlifyIdentity is not defined. Please check your browser's Network tab and Console for loading errors (e.g., Content Security Policy blocking unpkg.com).");
+    }
+
+    // 可选：添加登录/退出/错误事件监听器用于调试
+    // window.netlifyIdentity.on("login", user => console.log("Netlify Identity login event for user:", user));
+    // window.netlifyIdentity.on("logout", () => console.log("Netlify Identity logout event"));
+    // window.netlifyIdentity.on("error", err => console.error("Netlify Identity error:", err));
+  </script>
+
+  {# NexT 主题可能在这里注入其他内容，保持它在其位置 #}
   {{- next_inject('bodyEnd') }}
 </body>
 </html>
