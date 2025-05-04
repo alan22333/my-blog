@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>博客内容管理</title>
     <link href="/images/favicon-16x16-next.png" rel="icon" type="image/png" sizes="16x16">
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <!-- 重置默认样式 -->
     <style>
       html,
@@ -30,19 +29,11 @@
     <!-- 为 CMS 创建一个专门的容器 -->
     <div id="nc-root"></div>
     
+    <!-- Auth0 SDK -->
+    <script src="https://cdn.auth0.com/js/auth0/9.19.0/auth0.min.js"></script>
     <!-- Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" defer></script>
     <script>
-      if (window.netlifyIdentity) {
-        window.netlifyIdentity.on("init", user => {
-          if (!user) {
-            window.netlifyIdentity.on("login", () => {
-              document.location.href = "/admin/";
-            });
-          }
-        });
-      }
-
       // 等待 DOM 和 CMS 脚本都加载完成
       document.addEventListener('DOMContentLoaded', function() {
         // 确保 CMS 脚本已加载
@@ -50,16 +41,26 @@
           if (window.CMS) {
             clearInterval(waitForCMS);
             
+            // 初始化 Auth0 客户端
+            const auth0 = new window.auth0.WebAuth({
+              domain: 'your-domain.auth0.com',
+              clientID: 'your-client-id',
+              redirectUri: window.location.origin + '/admin/',
+              responseType: 'token id_token',
+              scope: 'openid profile email'
+            });
+
             // 配置 CMS
-            window.CMS.init();
-          }
-        }, 100);
-      });
-                  base_url: 'https://api.netlify.com',
-                  auth_endpoint: '/.netlify/identity'
+            window.CMS.init({
+              config: {
+                load_config_file: true,
+                local_backend: false,
+                backend: {
+                  name: 'auth0',
+                  auth0: auth0
                 }
               }
-            });
+            })
           }
         }, 100);
       });

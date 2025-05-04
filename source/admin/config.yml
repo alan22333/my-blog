@@ -1,8 +1,10 @@
 backend:
   name: git-gateway
   branch: main
-  base_url: https://alan-blog.netlify.app
-  auth_endpoint: /.netlify/identity
+  auth_type: auth0
+  auth0:
+    domain: '%env(AUTH0_DOMAIN)%'
+    clientId: '%env(AUTH0_CLIENT_ID)%'
 
 media_folder: source/images/uploads
 public_folder: /images/uploads
