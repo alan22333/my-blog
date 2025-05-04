@@ -1,11 +1,19 @@
 backend:
   name: git-gateway
   branch: main
+  commit_messages:
+    create: '创建文章: {{path}}'
+    update: '更新文章: {{path}}'
+    delete: '删除文章: {{path}}'
+    uploadMedia: '上传媒体文件: {{path}}'
+    deleteMedia: '删除媒体文件: {{path}}'
 
 media_folder: "source/images/uploads"
 public_folder: "/images/uploads"
 
 locale: 'zh_Hans'
+
+publish_mode: editorial_workflow
 
 collections:
   - name: "posts"
@@ -35,3 +43,4 @@ collections:
       - { label: "正文", name: "body", widget: "markdown" }
 
 show_preview_links: true
+display_url: https://alan-blog.netlify.app
