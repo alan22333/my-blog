@@ -17,6 +17,36 @@
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage"{% if theme.motion.enable %} class="use-motion"{% endif %}>
+  <script src="https://unpkg.com/@netlify/identity-widget@^1/dist/netlify-identity-widget.js"></script>
+
+  <script>
+    // 检查 window.netlifyIdentity 是否存在，然后进行初始化
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        // 当 widget 初始化时触发，检查用户是否已登录
+        // 如果你在 /admin/ 页面，这个会检查管理员登录状态
+        // 如果你在主页，这个会检查普通用户登录状态 (虽然普通用户通常不需要 Identity)
+        // 但这个监听器是必需的，因为它会处理 URL 中的 token！
+        console.log("Netlify Identity widget initialized"); // 可选的调试信息
+      });
+
+      // 添加监听器来处理登录/退出后的重载，特别是处理邀请链接后的逻辑
+      // Identity widget 会自动处理 URL 中的 #invite_token 或 #token=...
+      // 当它成功处理 token（比如用户设置了密码或登录了）后，通常会触发一次重载或重定向
+       window.netlifyIdentity.on("login", () => {
+           console.log("Netlify Identity login event"); // 可选调试信息
+           // Identity widget 应该自己处理邀请流程后的重定向，这里的重载是额外的安全措施
+          // document.location.reload(); // 移除或注释掉这行，让 widget 自己控制
+       });
+      // window.netlifyIdentity.on("logout", () => document.location.reload()); // 可选
+      // window.netlifyIdentity.on("error", err => console.error("Identity error", err)); // 可选
+    } else {
+         console.error("Netlify Identity widget script not loaded!"); // 可选调试信息
+    }
+
+    // Identity widget 通常会自动检查 URL 中的 token 并在加载后处理
+    // 不需要手动调用 window.netlifyIdentity.open() unless you want to force the modal open
+  </script>
   <div class="headband"></div>
 
   <main class="main">
