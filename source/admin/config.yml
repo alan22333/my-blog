@@ -1,5 +1,8 @@
 backend:
-  name: git-gateway
+  name: auth0
+  auth_endpoint: https://dev-8u5pdmfzvnoqyixb.us.auth0.com/authorize
+  api_root: https://api.github.com
+  repo: alan22333/my-blog # 例如：alan/my-blog
   branch: main
   commit_messages:
     create: '创建文章: {{path}}'

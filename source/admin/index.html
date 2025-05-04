@@ -24,45 +24,38 @@
             background: white !important;
         }
     </style>
-    <!-- Netlify Identity Widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
     <!-- Include the script that builds the page and powers Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Auth0 scripts -->
+    <script src="https://cdn.auth0.com/js/auth0/9.14/auth0.min.js"></script>
     <script>
-        // 确保 netlifyIdentity 已加载
-        if (!window.netlifyIdentity) {
-            document.addEventListener('DOMContentLoaded', function() {
-                // 重新加载 netlifyIdentity
-                const script = document.createElement('script');
-                script.src = 'https://identity.netlify.com/v1/netlify-identity-widget.js';
-                script.onload = function() {
-                    window.netlifyIdentity.on('init', user => {
-                        if (!user) {
-                            window.netlifyIdentity.open();
-                        }
-                    });
-                };
-                document.head.appendChild(script);
-            });
-        } else {
-            window.netlifyIdentity.on('init', user => {
-                if (!user) {
-                    window.netlifyIdentity.open();
-                }
-            });
-        }
+      const auth0 = new auth0.WebAuth({
+        domain: 'dev-8u5pdmfzvnoqyixb.us.auth0.com',
+        clientID: 'KfQEOXvJA7ogtYDG0fctbsrywDLFyxQS',
+        redirectUri: 'https://alan-blog.netlify.app/admin/',
+        responseType: 'token id_token',
+        scope: 'openid profile email'
+      });
 
-        // 登录成功后的处理
-        window.netlifyIdentity.on('login', () => {
-            window.location.reload();
-        });
-
-        // 登出后的处理
-        window.netlifyIdentity.on('logout', () => {
+      // 配置 Decap CMS 使用 Auth0
+      window.CMS.registerBackend('auth0', {
+        init: () => ({
+          login: () => {
+            auth0.authorize();
+          },
+          logout: () => {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('id_token');
+            localStorage.removeItem('expires_at');
             window.location.href = '/';
-        });
+          },
+          getToken: () => {
+            return localStorage.getItem('access_token');
+          }
+        })
+      });
     </script>
   </body>
 </html>
