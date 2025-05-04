@@ -1,24 +1,34 @@
-<!doctype html>
-<html>
-<head>
+<!DOCTYPE html>
+<html lang="en"> <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Content Manager</title>
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  <script src="https://unpkg.com/@netlify/identity-widget@^1/dist/netlify-identity-widget.js"></script>
+  <style>
+    body { margin: 0; padding: 0; }
+  </style>
 </head>
 <body>
+  <div id="nc-root"></div>
+
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  <script src="https://unpkg.com/@netlify/identity-widget@^1/dist/netlify-identity-widget.js"></script>
+
   <script>
-    // 如果使用 Netlify Identity，初始化 Identity Widget
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
         if (!user) {
-          window.netlifyIdentity.on("login", () => {
-            document.location.reload();
-          });
+          // If no user is logged in, open the login modal
+          // window.netlifyIdentity.open(); // Optional: auto-open login
         }
       });
+      // Optional: Call the identity widget on any click to handle redirects/popups
+      // window.netlifyIdentity.on("login", () => document.location.reload());
+      // window.netlifyIdentity.on("logout", () => document.location.reload());
+      // window.netlifyIdentity.on("error", err => console.error("Identity error", err));
     }
+
+    // Decap CMS 初始化通常由其库文件自动完成，不需要手动 CMS.init()
+    // 如果上面的脚本加载正常，并且 config.yml 没有致命错误，CMS应该会自动启动
   </script>
 </body>
 </html>
