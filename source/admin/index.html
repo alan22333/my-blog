@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>博客内容管理</title>
     <link href="/images/favicon-16x16-next.png" rel="icon" type="image/png" sizes="16x16">
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <!-- 重置默认样式 -->
     <style>
       html,
@@ -32,6 +33,16 @@
     <!-- Decap CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" defer></script>
     <script>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
+
       // 等待 DOM 和 CMS 脚本都加载完成
       document.addEventListener('DOMContentLoaded', function() {
         // 确保 CMS 脚本已加载
@@ -40,14 +51,10 @@
             clearInterval(waitForCMS);
             
             // 配置 CMS
-            window.CMS.init({
-              config: {
-                load_config_file: true,
-                local_backend: false,
-                backend: {
-                  name: 'github',
-                  repo: 'alan22333/my-blog',
-                  branch: 'main',
+            window.CMS.init();
+          }
+        }, 100);
+      });
                   base_url: 'https://api.netlify.com',
                   auth_endpoint: '/.netlify/identity'
                 }

@@ -1,7 +1,7 @@
 backend:
   name: git-gateway
   branch: main
-  base_url: https://api.netlify.com
+  base_url: https://alan-blog.netlify.app
   auth_endpoint: /.netlify/identity
 
 media_folder: source/images/uploads
