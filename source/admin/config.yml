@@ -11,11 +11,11 @@
 
 backend:
   name: git-gateway
-  branch: main # 或者你的 Git 分支名称
+  branch: main
   auth_type: auth0
   auth0:
-    domain: dev-8u5pdmfzvnoqyixb.us.auth0.com
-    clientId: KfQEOXvJA7ogtYDG0fctbsrywDLFyxQS
+    domain: '%env(AUTH0_DOMAIN)%'
+    clientId: '%env(AUTH0_CLIENT_ID)%'
 
 media_folder: source/images/uploads
 public_folder: /images/uploads
