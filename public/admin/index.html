@@ -26,15 +26,36 @@
     </style>
   </head>
   <body>
+    <!-- 为 CMS 创建一个专门的容器 -->
+    <div id="nc-root"></div>
+    
     <!-- Decap CMS -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" defer></script>
     <script>
-      // 确保 CMS 配置加载完成
-      if (window.CMS) {
-        window.CMS.init();
-      } else {
-        console.error('CMS 未能正确加载');
-      }
+      // 等待 DOM 和 CMS 脚本都加载完成
+      document.addEventListener('DOMContentLoaded', function() {
+        // 确保 CMS 脚本已加载
+        const waitForCMS = setInterval(function() {
+          if (window.CMS) {
+            clearInterval(waitForCMS);
+            
+            // 配置 CMS
+            window.CMS.init({
+              config: {
+                load_config_file: true,
+                local_backend: false,
+                backend: {
+                  name: 'github',
+                  repo: 'alan22333/my-blog',
+                  branch: 'main',
+                  base_url: location.origin,
+                  auth_endpoint: 'api/auth'
+                }
+              }
+            });
+          }
+        }, 100);
+      });
     </script>
   </body>
 </html>

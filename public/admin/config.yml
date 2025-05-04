@@ -1,23 +1,44 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: alan22333/my-blog
   branch: main
-  auth_type: auth0
-  auth0:
-    domain: '%env(AUTH0_DOMAIN)%'
-    clientId: '%env(AUTH0_CLIENT_ID)%'
+  base_url: https://alan-blog.netlify.app
+  auth_endpoint: api/auth
 
-media_folder: source/images/uploads
-public_folder: /images/uploads
+media_folder: "source/images/uploads"
+public_folder: "/images/uploads"
+
+locale: 'zh_Hans'
+
+publish_mode: editorial_workflow
 
 collections:
-  - name: 'blog'
-    label: 'Blog'
-    folder: 'source/_posts'
+  - name: "posts"
+    label: "文章"
+    folder: "source/_posts"
     create: true
-    slug: '{{year}}-{{month}}-{{day}}-{{slug}}'
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
-      - { label: 'Title', name: 'title', widget: 'string' }
-      - { label: 'Publish Date', name: 'date', widget: 'datetime' }
-      - { label: 'Featured Image', name: 'featured_image', widget: 'image' }
-      - { label: 'Body', name: 'body', widget: 'markdown' }
-      - { label: 'Tags', name: 'tags', widget: 'list' }
+      - {label: "标题", name: "title", widget: "string"}
+      - {label: "发布日期", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss"}
+      - {label: "更新日期", name: "updated", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss", required: false}
+      - {label: "标签", name: "tags", widget: "list", required: false}
+      - {label: "分类", name: "categories", widget: "list", required: false}
+      - {label: "描述", name: "description", widget: "text", required: false}
+      - {label: "是否显示目录", name: "toc", widget: "boolean", default: true, required: false}
+      - {label: "是否置顶", name: "sticky", widget: "number", required: false}
+      - {label: "正文", name: "body", widget: "markdown"}
+
+  - name: "pages"
+    label: "页面"
+    folder: "source/_pages"
+    create: true
+    fields:
+      - {label: "标题", name: "title", widget: "string"}
+      - {label: "发布日期", name: "date", widget: "datetime"}
+      - {label: "更新日期", name: "updated", widget: "datetime", required: false}
+      - {label: "正文", name: "body", widget: "markdown"}
+
+site_url: https://alan-blog.netlify.app
+display_url: https://alan-blog.netlify.app
+logo_url: https://alan-blog.netlify.app/images/logo.svg
