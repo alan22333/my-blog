@@ -5,18 +5,33 @@ backend:
 media_folder: "source/images/uploads"
 public_folder: "/images/uploads"
 
+locale: 'zh_Hans'
+
 collections:
   - name: "posts"
     label: "文章"
     folder: "source/_posts"
     create: true
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
-    extension: "md"
     fields:
       - { label: "标题", name: "title", widget: "string" }
-      - { label: "描述", name: "description", widget: "string", required: false }
-      - { label: "日期", name: "date", widget: "datetime" }
+      - { label: "发布日期", name: "date", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss", date_format: "YYYY-MM-DD", time_format: "HH:mm:ss" }
+      - { label: "更新日期", name: "updated", widget: "datetime", format: "YYYY-MM-DD HH:mm:ss", required: false }
       - { label: "标签", name: "tags", widget: "list", required: false }
-      - { label: "分类", name: "categories", widget: "string", required: false }
-      - { label: "目录", name: "toc", widget: "boolean", default: true, required: false }
+      - { label: "分类", name: "categories", widget: "list", required: false }
+      - { label: "描述", name: "description", widget: "text", required: false }
+      - { label: "是否显示目录", name: "toc", widget: "boolean", default: true, required: false }
+      - { label: "是否置顶", name: "sticky", widget: "number", required: false }
       - { label: "正文", name: "body", widget: "markdown" }
+
+  - name: "pages"
+    label: "页面"
+    folder: "source/_pages"
+    create: true
+    fields:
+      - { label: "标题", name: "title", widget: "string" }
+      - { label: "发布日期", name: "date", widget: "datetime" }
+      - { label: "更新日期", name: "updated", widget: "datetime", required: false }
+      - { label: "正文", name: "body", widget: "markdown" }
+
+show_preview_links: true
