@@ -11,6 +11,8 @@ categories:
 
 # Go 语言学习笔记 - Lesson 01
 
+项目地址：https://gitee.com/alan223/gobyexample
+
 ## 1. 基础语法特点
 
 ### 1.1 包管理
