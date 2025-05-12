@@ -1,6 +1,6 @@
 ---
 title: gobyexample学习笔记01
-description: ''
+description: 'golang基础语法'
 tags: ['go']
 toc: false
 date: 2025-05-12 19:41:03
