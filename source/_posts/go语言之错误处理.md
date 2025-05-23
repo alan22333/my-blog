@@ -1,5 +1,5 @@
 ---
-title: go语言中之错误处理
+title: go语言之错误处理
 description: 'Go 不使用异常机制（try-catch），而是通过返回错误值来显式地处理错误'
 tags: ['go']
 toc: false

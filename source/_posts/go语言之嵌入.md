@@ -1,5 +1,5 @@
 ---
-title: go语言中之嵌入
+title: go语言之嵌入
 description: 'Go 语言中嵌入（embedding）摒弃了传统面向对象语言中“类继承”的复杂性，取而代之的是一种显式组合'
 tags: ['go']
 toc: false

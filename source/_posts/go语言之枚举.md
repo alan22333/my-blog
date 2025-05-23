@@ -1,5 +1,5 @@
 ---
-title: go语言中之枚举
+title: go语言之枚举
 description: '为什么 Go 没有 enum？'
 tags: ['go']
 toc: false

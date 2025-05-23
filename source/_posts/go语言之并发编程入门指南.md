@@ -1,5 +1,5 @@
 ---
-title: go语言并发编程入门指南
+title: go语言之并发编程入门指南
 description: '快速熟悉go语言并发编程的基础知识，本文相当于一个目录性质的文章，想要学会go的并发编程还得下功夫'
 tags: ['go']
 toc: false

@@ -1,5 +1,5 @@
 ---
-title: go语言中之无缓冲通道
+title: go语言之无缓冲通道
 description: 'go语言中的无缓冲通道为何会造成阻塞，何种情况下适合使用？'
 tags: ['go']
 toc: false
