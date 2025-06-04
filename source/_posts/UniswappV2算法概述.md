@@ -1,11 +1,11 @@
 ---
-title: UniswappV2算法概述
+title: UniswapV2算法概述
 description: '了解经典的AMM机制的基本原理原理和公式'
-tags: ['web3','uniswapp']
+tags: ['web3','uniswap']
 toc: false
 date: 2025-06-02 09:09:25
 categories:
-    - uniswapp系列
+    - uniswap系列
 ---
 
 ## 解锁 DeFi 世界的钥匙：深入剖析 Uniswap v2 算法
