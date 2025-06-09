@@ -26,7 +26,7 @@
     "hexo-tag-aplayer": "^3.0.4",
     "hexo-tag-dplayer": "^0.3.3",
     "hexo-theme-landscape": "^1.0.0",
-    "hexo-theme-next": "^8.23.0",
+    "hexo-theme-next": "^8.23.1",
     "katex": "^0.16.22",
     "netlify-cms-app": "^2.15.72"
   }
