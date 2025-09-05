@@ -6,7 +6,7 @@ toc: false
 date: 2025-07-17 18:02:00
 categories:
     - go
-    - datebase
+    - database
 ---
 
 
