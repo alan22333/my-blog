@@ -5,15 +5,15 @@
 # Site
 title: Hello there! I'm alan
 subtitle: '这是我的博客，欢迎交流学习'
-description: '一个技术小白，目前正在读研'
-keywords: '技术, 生活, 学习'
+description: '一个喜欢探索的技术小白，目前正在读研'
+keywords: '考研, 技术, 生活'
 author: Alan
 language: en
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://alan-blog.netlify.app/
+url: http://example.com
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
