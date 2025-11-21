@@ -17,14 +17,6 @@ Hyperledger Caliper 是一个区块链性能基准测试工具，支持多种区
 
 本教程基于 Fabric Samples 的 test-network 和 asset-transfer-basic 的 **Go 语言链码**版本，演示如何测试区块链上的基本资产创建和读取操作。
 
-## 前提条件
-
-- **操作系统**: macOS、Linux 或 Windows (推荐使用 WSL)
-- **Node.js**: 版本 14.x 或更高
-- **Docker 和 Docker Compose**: 用于运行 Fabric 网络
-- **Git**: 用于克隆代码仓库
-- **基本知识**: 对 Hyperledger Fabric 有基本了解
-
 ## 安装和设置
 
 ### 1. 安装 Fabric Samples
