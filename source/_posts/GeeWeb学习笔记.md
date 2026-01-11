@@ -1,6 +1,6 @@
 ---
 title: GeeWeb学习笔记
-description: '记录一下在geektutu系列博客中学到的一些知识以及这个小项目的设计'
+description: '学习Geektutu博客中的第一个开源项目GeeWeb：手搓一个gin风格的web框架'
 tags: ['go']
 toc: false
 date: 2025-12-06 16:43:49
@@ -366,4 +366,192 @@ func main() {
 ```
 
 ## day5中间件
+
+### 什么是中间件
+
+中间件(middlewares)，简单说，就是非业务的技术类组件。
+Web 框架本身不可能去理解所有的业务，因而不可能实现所有的功能。因此，框架需要有一个插口，允许用户自己定义功能，嵌入到框架中，仿佛这个功能是框架原生支持的一样，例如：日志、鉴权、错误处理等等
+
+再简单点的，在当前的框架中，中间件本质上也是一个个HandlerFunc，他们通过求情的context获取需要的信息，然后完成相应的功能，并且像链条一样往后执行（Next），直到最后一步到达我们的业务处理HandlerFunc，执行完之后再沿着这个链条返回回去（其中可能中间件还有代码要执行）。
+
+### 中间件设计
+
+就以最简单的统计请求处理时长为例：
+
+```Go
+func Logger() HandlerFunc {
+	return func(c *Context) {
+		t := time.Now()
+		// 往后执行中间件or实际业务（压盏）
+		c.Next()
+		log.Printf("[%d] %s in %v", c.StatusCode, c.R.RequestURI, time.Since(t))
+	}
+}
+
+```
+
+
+中间件是加在 RouterGroup（路由分组）上的。如果把中间件加在最顶层的 Group(engine)，就是全局中间件，所有请求都会经过它。
+
+> 那为什么不直接把中间件加在每一条路由上呢？其实如果只针对某一条路由用中间件，还不如直接在 Handler 里写逻辑，反而更直观。中间件的意义就在于“通用”，如果只服务于一条路由，灵活性和复用性都很差，也就不适合叫中间件了。
+
+在我们的框架设计里，请求进来后会先匹配路由，然后把请求的所有信息都放到 Context 里。中间件也是一样：请求进来后，先找到所有应该作用在这条路由上的中间件，按顺序放进 Context，然后依次执行。为什么要这样？因为中间件不仅可以在业务 Handler 之前做事，还可以在 Handler 执行完之后继续处理（比如日志、收尾工作等），所以需要统一管理。
+
+为此，我们给 Context 增加了两个参数，并定义了 Next 方法：
+
+```Go
+type Context struct {
+	// origin objects
+	Writer http.ResponseWriter
+	Req    *http.Request
+	// request info
+	Path   string
+	Method string
+	Params map[string]string
+	// response info
+	StatusCode int
+	// middleware
+	handlers []HandlerFunc
+	index    int
+}
+
+func newContext(w http.ResponseWriter, req *http.Request) *Context {
+	return &Context{
+		Path:   req.URL.Path,
+		Method: req.Method,
+		Req:    req,
+		Writer: w,
+		index:  -1,
+	}
+}
+
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ; c.index < s; c.index++ {
+		c.handlers[c.index](c)
+	}
+}
+
+```
+
+### 框架实现
+
+直接看全文+注释
+
+```Go
+package gee
+
+import (
+	"log"
+	"net/http"
+	"strings"
+)
+
+type Engine struct {
+	*RouterGroup
+	router *router
+	groups []*RouterGroup // store all groups
+}
+
+type RouterGroup struct {
+	prefix      string
+	middlewares []HandlerFunc // support middleware
+	engine      *Engine       // all groups share a Engine instance
+}
+
+func New() *Engine {
+	engine := &Engine{router: NewRouter()}
+	// engine.groups = []*RouterGroup{}
+	engine.groups = []*RouterGroup{engine.RouterGroup}
+	engine.RouterGroup = &RouterGroup{engine: engine}
+	return engine
+}
+
+// Group is defined to create a new RouterGroup
+// remember all groups share the same Engine instance
+func (rg *RouterGroup) Group(prefix string) *RouterGroup {
+	engine := rg.engine // share engine
+	newRg := &RouterGroup{
+		prefix: rg.prefix + prefix,
+		engine: engine,
+	}
+	engine.groups = append(engine.groups, newRg)
+	return newRg
+}
+
+// 路由相关的方法全部定义到 rg 上
+// 由于engine中嵌入了 rg ，所以engine也可以直接调用
+func (rg *RouterGroup) addRoute(method string, comp string, handler HandlerFunc) {
+	pattern := rg.prefix + comp
+	log.Printf("Route %4s - %s", method, pattern)
+	rg.engine.router.addRoute(method, pattern, handler)
+}
+
+// 定义一些基本的方法的添加
+func (rg *RouterGroup) GET(pattern string, handler HandlerFunc) {
+	rg.addRoute("GET", pattern, handler)
+}
+
+func (rg *RouterGroup) POST(pattern string, handler HandlerFunc) {
+	rg.addRoute("POST", pattern, handler)
+}
+
+func (e *Engine) Run(addr string) error {
+	// e 必须得实现接口方法
+	return http.ListenAndServe(addr, e)
+}
+
+// func (e *Engine) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+// 	// 一次请求，创建一个context
+// 	context := newContext(w, r)
+// 	e.router.handle(context)
+// }
+
+// step1
+func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	// 检查所有的分组，如果当前请求属于这个分组，则把这个分组的中间件添加到context里去
+	for _, group := range engine.groups {
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
+	c := newContext(w, req)
+	c.handlers = middlewares
+	// 开始处理handlers，同时在handle()添加业务处理的HandlerFunc
+	engine.router.handle(c)
+}
+
+// Use is defined to add middleware to the group
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
+```
+
+相应的handle方法也要更新，主要是添加上业务handlerFunc + 启动这个链条的执行（第一个调用Next）
+```Go
+// step2
+func (r *router) handle(c *Context) {
+	n, params := r.getRoute(c.Method, c.Path)
+
+	if n != nil {
+		key := c.Method + "-" + n.pattern
+		c.Params = params
+		// 添加业务处理的Handler到链条的尾部，最后执行
+		c.handlers = append(c.handlers, r.handlers[key])
+	} else {
+		c.handlers = append(c.handlers, func(c *Context) {
+			c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.Path)
+		})
+	}
+	// 开始按顺序处理handlers，这是第一次调用，处理链条中的第一个
+	// 中间的每一个“中间件”都要会调用Next往后执行（也可以不调用，但是我没见过）
+	// 注意：业务HandlerFunc不会Next，他们会正常执行，然后返回到上一层的Next的“after”位置做收尾工作（如果有的话）
+	// 例如，Logger开始计时后，执行所有的请求处理，结束后回到Logger统计时间，打印日志
+	c.Next()
+}
+
+```
 
