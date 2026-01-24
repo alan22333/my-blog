@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>简单DEX合约案例 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="简化的流动性合约">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单DEX合约案例">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="简化的流动性合约">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-02T11:38:40.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.067Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="web3">
+<meta property="article:tag" content="uniswap">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/","path":"2025/06/02/简单DEX合约案例/","title":"简单DEX合约案例"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%B5%81%E5%8A%A8%E6%80%A7%E5%90%88%E7%BA%A6-Simple-Liquidity-Pool-%E5%AD%A6%E4%B9%A0%E6%96%87%E6%A1%A3"><span class="nav-number">1.</span> <span class="nav-text">简单流动性合约 (Simple Liquidity Pool) 学习文档</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%BC%95%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">1. 引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">2. 核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%90%88%E7%BA%A6%E7%BB%93%E6%9E%84%E6%A6%82%E8%A7%88"><span class="nav-number">1.3.</span> <span class="nav-text">3. 合约结构概览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BB%A3%E7%A0%81%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.4.</span> <span class="nav-text">4. 代码详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AF%BC%E5%85%A5"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1. 导入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%90%88%E7%BA%A6%E5%A3%B0%E6%98%8E%E5%92%8C%E7%8A%B6%E6%80%81%E5%8F%98%E9%87%8F"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2. 合约声明和状态变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%BA%8B%E4%BB%B6"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3. 事件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.4.</span> <span class="nav-text">4.4. 构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E5%86%85%E9%83%A8%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.5.</span> <span class="nav-text">4.5. 内部函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-%E5%A4%96%E9%83%A8%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.6.</span> <span class="nav-text">4.6. 外部函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-7-%E4%BF%AE%E9%A5%B0%E5%99%A8"><span class="nav-number">1.4.7.</span> <span class="nav-text">4.7. 修饰器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8"><span class="nav-number">1.5.</span> <span class="nav-text">5. 如何使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="nav-number">1.6.</span> <span class="nav-text">6. 完整代码</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="简单DEX合约案例 | Hello there! I'm alan">
+      <meta itemprop="description" content="简化的流动性合约">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          简单DEX合约案例
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-02 19:38:40" itemprop="dateCreated datePublished" datetime="2025-06-02T19:38:40+08:00">2025-06-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/uniswap%E7%B3%BB%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">uniswap系列</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">简化的流动性合约</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="简单流动性合约-Simple-Liquidity-Pool-学习文档">简单流动性合约 (Simple Liquidity Pool) 学习文档</h1>
+<h2 id="1-引言">1. 引言</h2>
+<p>本文档旨在介绍一个简化的流动性合约，其设计思想来源于 UniswapV2 的 Pair 合约。通过学习这个简单的合约，你将了解去中心化交易平台中流动性池子的基本运作原理。</p>
+<h2 id="2-核心概念">2. 核心概念</h2>
+<p>在深入代码之前，我们需要了解几个核心概念：</p>
+<ul>
+<li><strong>流动性提供者 (Liquidity Provider, LP)</strong>：向流动性池子中存入两种代币的用户。</li>
+<li><strong>流动性池子 (Liquidity Pool)</strong>：一个存储了两种或多种代币的智能合约，用于支持交易。</li>
+<li><strong>流动性代币 (LP Tokens)</strong>：当流动性提供者存入代币时，合约会铸造代表其在池子中份额的 LP 代币给他们。</li>
+<li><strong>储备量 (Reserves)</strong>：池子中每种代币的存量。</li>
+<li><strong>恒定乘积公式 (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>×</mo><mi>y</mi><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">x \times y = k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>)</strong>: 这是 UniswapV2 等 AMM (Automated Market Maker) 的核心。其中，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span> 和 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span> 分别代表池子中两种代币的储备量，<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span> 是一个（在没有交易费用时）保持不变的常数。这个公式决定了交易的价格。</li>
+<li><strong>滑点 (Slippage)</strong>：由于交易会改变池子中的储备量，导致执行价格与预期价格之间的差异。较大的交易通常会有更高的滑点。</li>
+</ul>
+<h2 id="3-合约结构概览">3. 合约结构概览</h2>
+<p>我们实现的 <code>SimpleLiquidityPool</code> 合约主要包含以下几个部分：</p>
+<ul>
+<li><strong>状态变量</strong>: 存储合约的关键信息，如代币地址、储备量、LP 代币总供应量等。</li>
+<li><strong>事件</strong>: 用于记录合约中发生的关键操作，方便在链下追踪。</li>
+<li><strong>构造函数</strong>: 在合约部署时初始化。</li>
+<li><strong>内部函数</strong>: 执行一些底层操作，例如更新储备量、铸造和销毁 LP 代币、安全地转移代币。</li>
+<li><strong>外部函数</strong>: 允许用户与合约交互的主要接口，例如提供流动性 (<code>mint</code>)、移除流动性 (<code>burn</code>)、进行代币交换 (<code>swap</code>)。</li>
+<li><strong>修饰器 (Modifier)</strong>: 用于修改函数的行为，例如这里的 <code>lock</code> 用于简单的重入保护。</li>
+</ul>
+<h2 id="4-代码详解">4. 代码详解</h2>
+<h3 id="4-1-导入">4.1. 导入</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">import &quot;@openzeppelin/contracts/token/ERC20/IERC20.sol&quot;;</span><br><span class="line">import &quot;@openzeppelin/contracts/utils/math/SafeMath.sol&quot;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>IERC20.sol</code>: 导入 ERC-20 代币的标准接口，使得我们的合约可以与任何符合 ERC-20 标准的代币进行交互。</li>
+<li><code>SafeMath.sol</code>: 导入 SafeMath 库，用于执行安全的算术运算，防止溢出。</li>
+</ul>
+<h3 id="4-2-合约声明和状态变量">4.2. 合约声明和状态变量</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">contract SimpleLiquidityPool &#123;</span><br><span class="line">    using SafeMath for uint256;</span><br><span class="line"></span><br><span class="line">    IERC20 public token0;</span><br><span class="line">    IERC20 public token1;</span><br><span class="line">    uint256 public reserve0;</span><br><span class="line">    uint256 public reserve1;</span><br><span class="line">    uint256 public totalSupply;</span><br><span class="line">    mapping(address =&gt; uint256) public balanceOf;</span><br><span class="line"></span><br><span class="line">    uint256 constant MINIMUM_LIQUIDITY = 10**3;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>token0</code> 和 <code>token1</code>: 存储这个流动性池子支持的两种 ERC-20 代币的合约地址。</li>
+<li><code>reserve0</code> 和 <code>reserve1</code>: 记录当前池子中 <code>token0</code> 和 <code>token1</code> 的储备数量。</li>
+<li><code>totalSupply</code>: 记录流动性代币（LP tokens）的总发行量。</li>
+<li><code>balanceOf</code>: 一个映射，记录每个地址拥有的 LP 代币数量。</li>
+<li><code>MINIMUM_LIQUIDITY</code>: 在首次提供流动性时，会有一小部分 LP 代币发送到零地址并永久锁定，这是为了防止 <code>totalSupply</code> 在初始状态为零时可能导致的一些除零错误。</li>
+</ul>
+<h3 id="4-3-事件">4.3. 事件</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">event Mint(address indexed sender, uint256 amount0, uint256 amount1);</span><br><span class="line">event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to);</span><br><span class="line">event Swap(</span><br><span class="line">    address indexed sender,</span><br><span class="line">    uint256 amount0In,</span><br><span class="line">    uint256 amount1In,</span><br><span class="line">    uint256 amount0Out,</span><br><span class="line">    uint256 amount1Out,</span><br><span class="line">    address indexed to</span><br><span class="line">);</span><br><span class="line">event Sync(uint256 reserve0, uint256 reserve1);</span><br></pre></td></tr></table></figure>
+<p>这些事件在合约执行关键操作时发出，例如提供流动性 (<code>Mint</code>)、移除流动性 (<code>Burn</code>)、代币交换 (<code>Swap</code>) 和同步储备量 (<code>Sync</code>)。这对于在区块链外部追踪合约的状态非常有用。</p>
+<h3 id="4-4-构造函数">4.4. 构造函数</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">constructor(IERC20 _token0, IERC20 _token1) &#123;</span><br><span class="line">    token0 = _token0;</span><br><span class="line">    token1 = _token1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>构造函数在合约部署时被调用，用于初始化 <code>token0</code> 和 <code>token1</code> 的地址。</p>
+<h3 id="4-5-内部函数">4.5. 内部函数</h3>
+<ul>
+<li><code>_update(uint256 balance0, uint256 balance1)</code>: 更新 <code>reserve0</code> 和 <code>reserve1</code> 的值，并触发 <code>Sync</code> 事件。</li>
+<li><code>_mint(address to, uint256 value)</code>: 增加 <code>totalSupply</code> 并将 <code>value</code> 数量的 LP 代币分配给地址 <code>to</code>。</li>
+<li><code>_burn(address from, uint256 value) returns (uint256 amount0, uint256 amount1)</code>: 销毁地址 <code>from</code> 的 <code>value</code> 数量的 LP 代币，并根据其在总供应量中的比例计算出应返还的 <code>token0</code> 和 <code>token1</code> 的数量。</li>
+<li><code>_safeTransfer(IERC20 token, address to, uint256 value)</code>: 安全地转移 ERC-20 代币，如果转移失败会触发 <code>require</code> 错误。</li>
+</ul>
+<h3 id="4-6-外部函数">4.6. 外部函数</h3>
+<ul>
+<li>
+<p><strong><code>mint(address to)</code> (提供流动性)</strong>:</p>
+<ul>
+<li>计算用户存入的两种代币数量。</li>
+<li>如果是首次提供流动性（<code>totalSupply</code> 为 0），则根据几何平均值计算铸造的 LP 代币数量，并永久锁定 <code>MINIMUM_LIQUIDITY</code>。</li>
+<li>否则，根据用户提供的代币相对于现有储备的比例来计算铸造的 LP 代币数量。</li>
+<li>将计算出的 LP 代币铸造给流动性提供者。</li>
+<li>更新储备量。</li>
+<li>触发 <code>Mint</code> 事件。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>burn(address to) returns (uint256 amount0, uint256 amount1)</code> (移除流动性)</strong>:</p>
+<ul>
+<li>获取调用者拥有的 LP 代币数量。</li>
+<li>根据其持有的 LP 代币占总供应量的比例，计算出应返还的两种代币数量。</li>
+<li>销毁调用者的 LP 代币。</li>
+<li>将计算出的两种代币返还给调用者。</li>
+<li>更新储备量。</li>
+<li>触发 <code>Burn</code> 事件。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>swap(uint256 amount0Out, uint256 amount1Out, address to)</code> (代币交换)</strong>:</p>
+<ul>
+<li>要求用户指定想要输出的一种代币的数量 (<code>amount0Out</code> 或 <code>amount1Out</code>)，另一个输出量必须为 0。</li>
+<li>根据恒定乘积公式 (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>×</mo><mi>y</mi><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">x \times y = k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.6667em;vertical-align:-0.0833em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6944em;"></span><span class="mord mathnormal" style="margin-right:0.03148em;">k</span></span></span></span>) 计算用户需要输入的另一种代币的数量。例如，如果用户想要输出 <code>amount0Out</code> 的 <code>token0</code>，则需要计算出需要输入的 <code>token1</code> 的数量，以保持（近似）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mi>e</mi><mi>s</mi><mi>e</mi><mi>r</mi><mi>v</mi><mi>e</mi><mn>0</mn><mo>×</mo><mi>r</mi><mi>e</mi><mi>s</mi><mi>e</mi><mi>r</mi><mi>v</mi><mi>e</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">reserve0 \times reserve1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">reser</span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mord mathnormal">e</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">reser</span><span class="mord mathnormal" style="margin-right:0.03588em;">v</span><span class="mord mathnormal">e</span><span class="mord">1</span></span></span></span> 的恒定。</li>
+<li>将用户输入的代币转移到合约。</li>
+<li>更新储备量。</li>
+<li>将输出的代币转移给接收者。</li>
+<li>触发 <code>Swap</code> 事件。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>skim(address to)</code></strong>: 允许在合约实际持有的代币数量与记录的储备量不一致时，将多余的代币发送到指定地址。</p>
+</li>
+<li>
+<p><strong><code>sync()</code></strong>: 允许外部强制更新合约的储备量，使其与合约实际持有的代币数量一致。</p>
+</li>
+</ul>
+<h3 id="4-7-修饰器">4.7. 修饰器</h3>
+<ul>
+<li><strong><code>lock()</code></strong>: 一个简单的修饰器，用于防止潜在的重入攻击。</li>
+</ul>
+<h2 id="5-如何使用">5. 如何使用</h2>
+<ol>
+<li><strong>部署 ERC-20 代币</strong>: 首先需要部署你想要在这个流动性池中交易的两种 ERC-20 代币合约。</li>
+<li><strong>部署流动性池合约</strong>: 部署 <code>SimpleLiquidityPool</code> 合约，并将上述两个 ERC-20 代币合约的地址作为构造函数的参数传入。</li>
+<li><strong>批准代币转移</strong>: 用户需要调用他们持有的 ERC-20 代币合约的 <code>approve</code> 函数，授权给 <code>SimpleLiquidityPool</code> 合约可以从他们的账户转移一定数量的代币。</li>
+<li><strong>提供流动性</strong>: 调用 <code>mint</code> 函数，将一定数量的两种代币存入池子。你会收到相应的 LP 代币作为回报。</li>
+<li><strong>移除流动性</strong>: 调用 <code>burn</code> 函数，发送你的 LP 代币到合约，合约会销毁这些 LP 代币，并返还相应的两种代币给你。</li>
+<li><strong>进行交易</strong>: 调用 <code>swap</code> 函数，指定你想要输出的代币数量，合约会计算并发送给你相应的另一种代币。</li>
+</ol>
+<h2 id="6-完整代码">6. 完整代码</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line">// SPDX-License-Identifier: MIT</span><br><span class="line">pragma solidity ^0.8.0;</span><br><span class="line"></span><br><span class="line">import &quot;@openzeppelin/contracts/token/ERC20/IERC20.sol&quot;; // 导入 ERC-20 接口</span><br><span class="line">import &quot;@openzeppelin/contracts/utils/math/SafeMath.sol&quot;; // 导入 SafeMath 库以进行安全的算术运算</span><br><span class="line"></span><br><span class="line">contract SimpleLiquidityPool &#123;</span><br><span class="line">    using SafeMath for uint256; // 使用 SafeMath 库处理 uint256 类型的运算</span><br><span class="line"></span><br><span class="line">    IERC20 public token0; // 第一个 ERC-20 代币的接口</span><br><span class="line">    IERC20 public token1; // 第二个 ERC-20 代币的接口</span><br><span class="line">    uint256 public reserve0; // 池子中 token0 的储备量</span><br><span class="line">    uint256 public reserve1; // 池子中 token1 的储备量</span><br><span class="line">    uint256 public totalSupply; // 流动性代币（LP tokens）的总发行量</span><br><span class="line">    mapping(address =&gt; uint256) public balanceOf; // 记录每个地址拥有的 LP 代币数量</span><br><span class="line"></span><br><span class="line">    uint256 constant MINIMUM_LIQUIDITY = 10**3; // 首次提供流动性时，发送给零地址的最小流动性数量，用于防止 totalSupply 为零</span><br><span class="line"></span><br><span class="line">    // 定义事件，方便在链下监听合约状态变化</span><br><span class="line">    event Mint(address indexed sender, uint256 amount0, uint256 amount1); // 当提供流动性时触发</span><br><span class="line">    event Burn(address indexed sender, uint256 amount0, uint256 amount1, address indexed to); // 当移除流动性时触发</span><br><span class="line">    event Swap(</span><br><span class="line">        address indexed sender,</span><br><span class="line">        uint256 amount0In,</span><br><span class="line">        uint256 amount1In,</span><br><span class="line">        uint256 amount0Out,</span><br><span class="line">        uint256 amount1Out,</span><br><span class="line">        address indexed to</span><br><span class="line">    ); // 当进行代币交换时触发</span><br><span class="line">    event Sync(uint256 reserve0, uint256 reserve1); // 当储备量更新时触发</span><br><span class="line"></span><br><span class="line">    // 构造函数，在合约部署时被调用</span><br><span class="line">    constructor(IERC20 _token0, IERC20 _token1) &#123;</span><br><span class="line">        token0 = _token0; // 设置 token0 的合约地址</span><br><span class="line">        token1 = _token1; // 设置 token1 的合约地址</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 获取当前的储备量</span><br><span class="line">    function getReserves() public view returns (uint256 _reserve0, uint256 _reserve1) &#123;</span><br><span class="line">        return (reserve0, reserve1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 内部函数：更新储备量并触发 Sync 事件</span><br><span class="line">    function _update(uint256 balance0, uint256 balance1) internal &#123;</span><br><span class="line">        reserve0 = balance0;</span><br><span class="line">        reserve1 = balance1;</span><br><span class="line">        emit Sync(reserve0, reserve1);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 内部函数：铸造流动性代币</span><br><span class="line">    function _mint(address to, uint256 value) internal &#123;</span><br><span class="line">        totalSupply = totalSupply.add(value);</span><br><span class="line">        balanceOf[to] = balanceOf[to].add(value);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 内部函数：销毁流动性代币，并计算应返还的两种代币数量</span><br><span class="line">    function _burn(address from, uint256 value) internal returns (uint256 amount0, uint256 amount1) &#123;</span><br><span class="line">        require(balanceOf[from] &gt;= value, &quot;INSUFFICIENT_LIQUIDITY&quot;);</span><br><span class="line">        balanceOf[from] = balanceOf[from].sub(value);</span><br><span class="line">        totalSupply = totalSupply.sub(value, &quot;INSUFFICIENT_TOTAL_SUPPLY&quot;);</span><br><span class="line">        amount0 = value.mul(reserve0).div(totalSupply); // 根据持有的 LP 比例计算应得的 token0</span><br><span class="line">        amount1 = value.mul(reserve1).div(totalSupply); // 根据持有的 LP 比例计算应得的 token1</span><br><span class="line">        _safeTransfer(token0, from, amount0); // 安全地转移 token0 给用户</span><br><span class="line">        _safeTransfer(token1, from, amount1); // 安全地转移 token1 给用户</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 内部函数：安全地转移 ERC-20 代币</span><br><span class="line">    function _safeTransfer(IERC20 token, address to, uint256 value) internal &#123;</span><br><span class="line">        bool success = token.transfer(to, value);</span><br><span class="line">        require(success, &quot;TRANSFER_FAILED&quot;);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 外部函数：提供流动性</span><br><span class="line">    function mint(address to) external lock &#123;</span><br><span class="line">        uint256 balance0 = token0.balanceOf(address(this)); // 获取合约中当前的 token0 余额</span><br><span class="line">        uint256 balance1 = token1.balanceOf(address(this)); // 获取合约中当前的 token1 余额</span><br><span class="line">        uint256 amount0 = balance0.sub(reserve0); // 用户存入的 token0 数量</span><br><span class="line">        uint256 amount1 = balance1.sub(reserve1); // 用户存入的 token1 数量</span><br><span class="line"></span><br><span class="line">        // 在首次提供流动性时，需要特殊处理来初始化 totalSupply</span><br><span class="line">        uint256 liquidity;</span><br><span class="line">        if (totalSupply == 0) &#123;</span><br><span class="line">            liquidity = SafeMath.sqrt(amount0.mul(amount1)).sub(MINIMUM_LIQUIDITY);</span><br><span class="line">            _mint(address(0), MINIMUM_LIQUIDITY); // 永久锁定一部分 LP 代币</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            // 根据已有的储备量和提供的代币比例计算应铸造的 LP 代币数量</span><br><span class="line">            liquidity = SafeMath.min(amount0.mul(totalSupply) / reserve0, amount1.mul(totalSupply) / reserve1);</span><br><span class="line">        &#125;</span><br><span class="line">        require(liquidity &gt; 0, &quot;INSUFFICIENT_LIQUIDITY_MINTED&quot;);</span><br><span class="line">        _mint(to, liquidity); // 将计算出的 LP 代币铸造给提供者</span><br><span class="line">        _update(balance0, balance1); // 更新储备量</span><br><span class="line">        emit Mint(to, amount0, amount1); // 触发 Mint 事件</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 外部函数：移除流动性</span><br><span class="line">    function burn(address to) external lock returns (uint256 amount0, uint256 amount1) &#123;</span><br><span class="line">        uint256 liquidity = balanceOf[msg.sender]; // 获取调用者拥有的 LP 代币数量</span><br><span class="line">        require(liquidity &gt; 0, &quot;BURN_ZERO_LIQUIDITY&quot;);</span><br><span class="line"></span><br><span class="line">        amount0 = liquidity.mul(reserve0).div(totalSupply); // 计算应返还的 token0 数量</span><br><span class="line">        amount1 = liquidity.mul(reserve1).div(totalSupply); // 计算应返还的 token1 数量</span><br><span class="line"></span><br><span class="line">        _burn(msg.sender, liquidity); // 销毁调用者的 LP 代币</span><br><span class="line">        _safeTransfer(token0, to, amount0); // 将 token0 返还给调用者</span><br><span class="line">        _safeTransfer(token1, to, amount1); // 将 token1 返还给调用者</span><br><span class="line">        emit Burn(msg.sender, amount0, amount1, to); // 触发 Burn 事件</span><br><span class="line">        _update(token0.balanceOf(address(this)), token1.balanceOf(address(this))); // 更新储备量</span><br><span class="line">        return (amount0, amount1); // 返回返还的代币数量</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 外部函数：进行代币交换</span><br><span class="line">    function swap(uint256 amount0Out, uint256 amount1Out, address to) external lock &#123;</span><br><span class="line">        require(amount0Out &gt; 0 ^ amount1Out &gt; 0, &quot;INVALID_OUTPUT_AMOUNT&quot;); // 确保只输出一种代币</span><br><span class="line">        (uint112 _reserve0, uint112 _reserve1,) = (uint112(reserve0), uint112(reserve1), uint112(block.timestamp)); // gas 优化，读取储备量</span><br><span class="line"></span><br><span class="line">        require(amount0Out &lt; _reserve0 &amp;&amp; amount1Out &lt; _reserve1, &quot;INSUFFICIENT_LIQUIDITY&quot;); // 确保输出量小于储备量</span><br><span class="line"></span><br><span class="line">        uint256 amount0In;</span><br><span class="line">        uint256 amount1In;</span><br><span class="line"></span><br><span class="line">        // 根据输出量计算输入量（遵循 x * y = k 原则）</span><br><span class="line">        if (amount0Out &gt; 0) &#123; // 用户想要输出 token0</span><br><span class="line">            uint256 numerator = _reserve0.mul(amount1Out);</span><br><span class="line">            uint256 denominator = _reserve1.sub(amount1Out);</span><br><span class="line">            amount0In = (numerator.div(denominator)).add(1); // +1 避免精度损失</span><br><span class="line">            require(amount0In &gt; 0 &amp;&amp; token0.balanceOf(msg.sender) &gt;= amount0In, &quot;INSUFFICIENT_INPUT_AMOUNT&quot;);</span><br><span class="line">            _safeTransfer(token0, address(this), amount0In); // 将输入的 token0 转入合约</span><br><span class="line">        &#125; else &#123; // 用户想要输出 token1</span><br><span class="line">            uint256 numerator = _reserve1.mul(amount0Out);</span><br><span class="line">            uint256 denominator = _reserve0.sub(amount0Out);</span><br><span class="line">            amount1In = (numerator.div(denominator)).add(1); // +1 避免精度损失</span><br><span class="line">            require(amount1In &gt; 0 &amp;&amp; token1.balanceOf(msg.sender) &gt;= amount1In, &quot;INSUFFICIENT_INPUT_AMOUNT&quot;);</span><br><span class="line">            _safeTransfer(token1, address(this), amount1In); // 将输入的 token1 转入合约</span><br><span class="line">        &#125;</span><br><span class="line">        uint256 balance0 = token0.balanceOf(address(this));</span><br><span class="line">        uint256 balance1 = token1.balanceOf(address(this));</span><br><span class="line"></span><br><span class="line">        _update(balance0, balance1); // 更新储备量</span><br><span class="line">        emit Swap(msg.sender, amount0In, amount1In, amount0Out, amount1Out, to); // 触发 Swap 事件</span><br><span class="line">        if (amount0Out &gt; 0) _safeTransfer(token0, to, amount0Out); // 将输出的 token0 转给接收者</span><br><span class="line">        if (amount1Out &gt; 0) _safeTransfer(token1, to, amount1Out); // 将输出的 token1 转给接收者</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 允许外部合约强制同步余额</span><br><span class="line">    function skim(address to) external lock &#123;</span><br><span class="line">        uint256 balance0 = token0.balanceOf(address(this));</span><br><span class="line">        uint256 balance1 = token1.balanceOf(address(this));</span><br><span class="line">        _safeTransfer(token0, to, balance0.sub(reserve0, &quot;SKIM_FAILED&quot;)); // 将多余的 token0 发送到指定地址</span><br><span class="line">        _safeTransfer(token1, to, balance1.sub(reserve1, &quot;SKIM_FAILED&quot;)); // 将多余的 token1 发送到指定地址</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 允许外部合约强制更新储备量</span><br><span class="line">    function sync() external lock &#123;</span><br><span class="line">        _update(token0.balanceOf(address(this)), token1.balanceOf(address(this)));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 一个简单的修饰器，用于防止重入攻击</span><br><span class="line">    modifier lock() &#123;</span><br><span class="line">        _;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web3/" rel="tag"># web3</a>
+              <a href="/tags/uniswap/" rel="tag"># uniswap</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/02/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%BB%93%E6%9E%84%E4%BD%93%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0%E7%B1%BB%E5%9E%8B%E5%AD%97%E6%AE%B5/" rel="prev" title="go语言之结构体中的函数类型字段">
+                  <i class="fa fa-angle-left"></i> go语言之结构体中的函数类型字段
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/" rel="next" title="go语言之Embedding vs. OOP subclassing">
+                  go语言之Embedding vs. OOP subclassing <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

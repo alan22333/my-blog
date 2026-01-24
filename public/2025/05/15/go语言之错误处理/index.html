@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之错误处理 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Go 不使用异常机制（try-catch），而是通过返回错误值来显式地处理错误">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之错误处理">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Go 不使用异常机制（try-catch），而是通过返回错误值来显式地处理错误">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-15T01:47:12.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.065Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/","path":"2025/05/15/go语言之错误处理/","title":"go语言之错误处理"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go%E8%AF%AD%E8%A8%80%E4%B8%AD%E7%9A%84%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.</span> <span class="nav-text">Go语言中的错误处理详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%80%E3%80%81Go-%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">📌 一、Go 错误处理的基本方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%94%E5%9B%9E%E9%94%99%E8%AF%AF"><span class="nav-number">1.1.1.</span> <span class="nav-text">返回错误</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%BA%8C%E3%80%81%E5%88%9B%E5%BB%BA%E5%92%8C%E5%8C%85%E8%A3%85%E9%94%99%E8%AF%AF"><span class="nav-number">1.2.</span> <span class="nav-text">📌 二、创建和包装错误</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BD%BF%E7%94%A8-errors-New-%E5%88%9B%E5%BB%BA%E7%AE%80%E5%8D%95%E9%94%99%E8%AF%AF"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 使用 errors.New 创建简单错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-fmt-Errorf-%E5%8C%85%E8%A3%85%E9%94%99%E8%AF%AF"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 使用 fmt.Errorf 包装错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%94%99%E8%AF%AF%E5%8C%85%E8%A3%85%E4%B8%8E%E9%94%99%E8%AF%AF%E9%93%BE"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 错误包装与错误链</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%89%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.</span> <span class="nav-text">📌 三、自定义错误类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.1.</span> <span class="nav-text">定义自定义错误类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">使用自定义错误类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E5%9B%9B%E3%80%81%E9%94%99%E8%AF%AF%E5%88%A4%E6%96%AD%E4%B8%8E%E5%A4%84%E7%90%86"><span class="nav-number">1.4.</span> <span class="nav-text">📌 四、错误判断与处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%BA%94%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.5.</span> <span class="nav-text">📌 五、最佳实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E5%85%AD%E3%80%81%E4%BD%BF%E7%94%A8-panic-%E5%92%8C-recover%EF%BC%88%E4%BB%85%E9%99%90%E4%B8%8D%E5%8F%AF%E6%81%A2%E5%A4%8D%E5%9C%BA%E6%99%AF%EF%BC%89"><span class="nav-number">1.6.</span> <span class="nav-text">📌 六、使用 panic 和 recover（仅限不可恢复场景）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%83%E3%80%81Starter-%E5%B0%81%E8%A3%85%E5%AE%9E%E6%88%98%EF%BC%9A%E6%9E%84%E5%BB%BA%E7%BB%9F%E4%B8%80%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86%E6%A1%86%E6%9E%B6"><span class="nav-number">1.7.</span> <span class="nav-text">📌 七、Starter 封装实战：构建统一错误处理框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E9%94%99%E8%AF%AF%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.7.1.</span> <span class="nav-text">定义错误类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%B0%81%E8%A3%85%E7%9A%84%E9%94%99%E8%AF%AF%E6%A8%A1%E5%9D%97"><span class="nav-number">1.7.2.</span> <span class="nav-text">使用封装的错误模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E5%85%AB%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">1.8.</span> <span class="nav-text">📌 八、总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之错误处理 | Hello there! I'm alan">
+      <meta itemprop="description" content="Go 不使用异常机制（try-catch），而是通过返回错误值来显式地处理错误">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之错误处理
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-15 09:47:12" itemprop="dateCreated datePublished" datetime="2025-05-15T09:47:12+08:00">2025-05-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Go 不使用异常机制（try-catch），而是通过返回错误值来显式地处理错误</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go语言中的错误处理详解">Go语言中的错误处理详解</h1>
+<p>Go 语言的错误处理机制与许多其他语言有所不同。Go 不使用异常机制（<code>try-catch</code>），而是通过返回错误值来显式地处理错误。虽然这种方式比异常机制更加简洁和明确，但它也带来了更多的冗长和细节。</p>
+<h2 id="📌-一、Go-错误处理的基本方式">📌 一、Go 错误处理的基本方式</h2>
+<p>Go 语言的错误通常是通过 <code>error</code> 接口来表示的。<code>error</code> 接口本身非常简单：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> <span class="type">error</span> <span class="keyword">interface</span> &#123;</span><br><span class="line">    Error() <span class="type">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>任何实现了 <code>Error()</code> 方法的类型，都可以作为 <code>error</code> 类型使用。</p>
+<h3 id="返回错误">返回错误</h3>
+<p>Go 中大多数函数会返回一个 <code>error</code> 类型的值来表示执行过程中可能出现的错误。典型的错误处理模式如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">someFunction</span><span class="params">()</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="comment">// 返回数据和错误</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, fmt.Errorf(<span class="string">&quot;something went wrong&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>调用时，可以通过检查返回的 <code>error</code> 值来判断是否发生错误：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">result, err := someFunction()</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Error:&quot;</span>, err)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(<span class="string">&quot;Success:&quot;</span>, result)</span><br></pre></td></tr></table></figure>
+<h2 id="📌-二、创建和包装错误">📌 二、创建和包装错误</h2>
+<p>Go 提供了标准库中的 <code>errors</code> 包来创建简单的错误，也提供了 <code>fmt.Errorf</code> 来包装错误并增加上下文信息。</p>
+<h3 id="1-使用-errors-New-创建简单错误">1. 使用 <code>errors.New</code> 创建简单错误</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;errors&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> ErrNotFound = errors.New(<span class="string">&quot;resource not found&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="2-使用-fmt-Errorf-包装错误">2. 使用 <code>fmt.Errorf</code> 包装错误</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;failed to load config file: %w&quot;</span>, err)</span><br></pre></td></tr></table></figure>
+<h3 id="3-错误包装与错误链">3. 错误包装与错误链</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> errors.Is(err, ErrNotFound) &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Resource not found&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="📌-三、自定义错误类型">📌 三、自定义错误类型</h2>
+<h3 id="定义自定义错误类型">定义自定义错误类型</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> AppError <span class="keyword">struct</span> &#123;</span><br><span class="line">    Code    <span class="type">int</span></span><br><span class="line">    Message <span class="type">string</span></span><br><span class="line">    Err     <span class="type">error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *AppError)</span></span> Error() <span class="type">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;[code %d] %s: %v&quot;</span>, e.Code, e.Message, e.Err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *AppError)</span></span> Unwrap() <span class="type">error</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.Err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewAppError</span><span class="params">(code <span class="type">int</span>, msg <span class="type">string</span>, err <span class="type">error</span>)</span></span> *AppError &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;AppError&#123;</span><br><span class="line">        Code:    code,</span><br><span class="line">        Message: msg,</span><br><span class="line">        Err:     err,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="使用自定义错误类型">使用自定义错误类型</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">loadConfig</span><span class="params">(file <span class="type">string</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">    data, err := os.ReadFile(file)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> NewAppError(<span class="number">1001</span>, <span class="string">&quot;failed to load config&quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Config data:&quot;</span>, <span class="type">string</span>(data))</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    err := loadConfig(<span class="string">&quot;config.json&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> appErr *AppError</span><br><span class="line">        <span class="keyword">if</span> errors.As(err, &amp;appErr) &#123;</span><br><span class="line">            fmt.Printf(<span class="string">&quot;Custom error caught: %s\n&quot;</span>, appErr.Error())</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;Unknown error:&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="📌-四、错误判断与处理">📌 四、错误判断与处理</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> errors.Is(err, ErrNotFound) &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Resource not found&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> appErr *AppError</span><br><span class="line"><span class="keyword">if</span> errors.As(err, &amp;appErr) &#123;</span><br><span class="line">    fmt.Printf(<span class="string">&quot;AppError with code: %d\n&quot;</span>, appErr.Code)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="📌-五、最佳实践">📌 五、最佳实践</h2>
+<ol>
+<li>错误返回而非 panic。</li>
+<li>错误信息应简洁并富有上下文。</li>
+<li>使用自定义错误类型增强错误可处理性。</li>
+<li>使用统一的错误处理策略与工具函数。</li>
+</ol>
+<h2 id="📌-六、使用-panic-和-recover（仅限不可恢复场景）">📌 六、使用 panic 和 recover（仅限不可恢复场景）</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">SafeRun</span><span class="params">(fn <span class="keyword">func</span>()</span></span>) (err <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">            err = fmt.Errorf(<span class="string">&quot;panic recovered: %v&quot;</span>, r)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    fn()</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="📌-七、Starter-封装实战：构建统一错误处理框架">📌 七、Starter 封装实战：构建统一错误处理框架</h2>
+<p>在项目中，可以封装一个 starter 模板，集中管理错误定义与处理。以下是一个 starter 错误模块的例子：</p>
+<h3 id="定义错误类型">定义错误类型</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> errs</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ErrorCode <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    ErrInternal ErrorCode = <span class="number">1000</span></span><br><span class="line">    ErrDatabase ErrorCode = <span class="number">1001</span></span><br><span class="line">    ErrValidation ErrorCode = <span class="number">1002</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> AppError <span class="keyword">struct</span> &#123;</span><br><span class="line">    Code ErrorCode</span><br><span class="line">    Msg  <span class="type">string</span></span><br><span class="line">    Err  <span class="type">error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *AppError)</span></span> Error() <span class="type">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;[%d] %s: %v&quot;</span>, e.Code, e.Msg, e.Err)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *AppError)</span></span> Unwrap() <span class="type">error</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> e.Err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">New</span><span class="params">(code ErrorCode, msg <span class="type">string</span>, err <span class="type">error</span>)</span></span> *AppError &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;AppError&#123;Code: code, Msg: msg, Err: err&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="使用封装的错误模块">使用封装的错误模块</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> service</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;errors&quot;</span></span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;project/errs&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">LoadUser</span><span class="params">(id <span class="type">int</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> id == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errs.New(errs.ErrValidation, <span class="string">&quot;user id is invalid&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 模拟数据库错误</span></span><br><span class="line">    dbErr := errors.New(<span class="string">&quot;db connection failed&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;</span>, errs.New(errs.ErrDatabase, <span class="string">&quot;failed to load user&quot;</span>, dbErr)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    name, err := LoadUser(<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">var</span> appErr *errs.AppError</span><br><span class="line">        <span class="keyword">if</span> errors.As(err, &amp;appErr) &#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;Handled error:&quot;</span>, appErr)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        fmt.Println(<span class="string">&quot;Loaded user:&quot;</span>, name)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过构建统一错误处理模块，我们可以提升项目结构清晰度，使错误处理更加系统化和可维护。</p>
+<hr>
+<h2 id="📌-八、总结">📌 八、总结</h2>
+<p>Go 的错误处理机制强调<strong>显式、清晰和简单</strong>。通过定义错误类型、错误链和自定义错误，我们能够创建更加清晰和易于管理的错误处理流程。</p>
+<p>✅ 错误应返回而不是 panic。</p>
+<p>✅ 通过 <code>fmt.Errorf</code> 增加上下文信息。</p>
+<p>✅ 自定义错误类型 + 错误链判断提升可读性与可维护性。</p>
+<p>✅ 封装 starter 错误模块，提高开发效率。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/14/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B5%8C%E5%85%A5/" rel="prev" title="go语言之嵌入">
+                  <i class="fa fa-angle-left"></i> go语言之嵌入
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/15/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" rel="next" title="go语言之接口设计原则">
+                  go语言之接口设计原则 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

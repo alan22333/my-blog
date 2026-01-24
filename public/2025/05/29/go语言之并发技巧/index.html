@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之chan struct{} | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="一种特殊但非常实用的并发技巧">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之chan struct{}">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B9%B6%E5%8F%91%E6%8A%80%E5%B7%A7/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="一种特殊但非常实用的并发技巧">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-29T09:29:28.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B9%B6%E5%8F%91%E6%8A%80%E5%B7%A7/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B9%B6%E5%8F%91%E6%8A%80%E5%B7%A7/","path":"2025/05/29/go语言之并发技巧/","title":"go语言之chan struct{}"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B9%B6%E5%8F%91%E6%8A%80%E5%B7%A7/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go-%E8%AF%AD%E8%A8%80%E5%B9%B6%E5%8F%91%E5%88%A9%E5%99%A8%EF%BC%9Achan-struct-%E4%B8%8E-close-%E7%9A%84%E5%A6%99%E7%94%A8"><span class="nav-number">1.</span> <span class="nav-text">Go 语言并发利器：chan struct{} 与 close() 的妙用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#chan-struct-%EF%BC%9A%E8%BD%BB%E9%87%8F%E7%BA%A7%E7%9A%84%E4%BF%A1%E5%8F%B7%E9%80%9A%E9%81%93"><span class="nav-number">1.1.</span> <span class="nav-text">chan struct{}：轻量级的信号通道</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#close-%EF%BC%9A%E4%BC%98%E9%9B%85%E5%9C%B0%E5%B9%BF%E6%92%AD%E2%80%9C%E7%BB%93%E6%9D%9F%E2%80%9D%E4%BF%A1%E5%8F%B7"><span class="nav-number">1.2.</span> <span class="nav-text">close()：优雅地广播“结束”信号</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.</span> <span class="nav-text">实际应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BA%8B%E4%BB%B6%E9%80%9A%E7%9F%A5%EF%BC%9A%E6%9B%B4%E7%BB%86%E8%87%B4%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">2.1.</span> <span class="nav-text">1. 事件通知：更细致的场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9C%8D%E5%8A%A1%E4%BC%98%E9%9B%85%E5%85%B3%E9%97%AD%EF%BC%9A%E6%9B%B4%E5%85%A8%E9%9D%A2%E7%9A%84%E8%80%83%E9%87%8F"><span class="nav-number">2.2.</span> <span class="nav-text">2. 服务优雅关闭：更全面的考量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E9%99%90%E6%B5%81%EF%BC%9A%E4%BB%A4%E7%89%8C%E6%A1%B6%E7%9A%84%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0"><span class="nav-number">2.3.</span> <span class="nav-text">3. 限流：令牌桶的简单实现</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B9%B6%E5%8F%91%E6%8A%80%E5%B7%A7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之chan struct{} | Hello there! I'm alan">
+      <meta itemprop="description" content="一种特殊但非常实用的并发技巧">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之chan struct{}
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-29 17:29:28" itemprop="dateCreated datePublished" datetime="2025-05-29T17:29:28+08:00">2025-05-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">一种特殊但非常实用的并发技巧</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Go-语言并发利器：chan-struct-与-close-的妙用">Go 语言并发利器：<code>chan struct&#123;&#125;</code> 与 <code>close()</code> 的妙用</h2>
+<p>在 Go 语言的并发世界里，goroutine 和 channel 是构建强大并发程序的基石。今天，我们来深入探讨一种特殊但非常实用的 channel 类型：<code>chan struct&#123;&#125;</code>，以及与之配合使用的 <code>close()</code> 函数。理解它们的机制和应用场景，能帮助我们写出更优雅、更高效的并发代码。</p>
+<h3 id="chan-struct-：轻量级的信号通道"><code>chan struct&#123;&#125;</code>：轻量级的信号通道</h3>
+<p>通常，channel 用于在 goroutine 之间传递数据。但有时，我们仅仅需要一个<strong>信号</strong>，通知某个或某些 goroutine 某个事件已经发生，而不需要传递任何具体的数据。这时，<code>chan struct&#123;&#125;</code> 就派上了用场。</p>
+<p><code>struct&#123;&#125;</code> 是一个零大小的类型，这意味着通过 <code>chan struct&#123;&#125;</code> 传递数据不会产生额外的内存开销。我们仅仅关心 channel 是否被发送或接收，以此作为事件发生的标志。</p>
+<p><strong>声明和使用 <code>chan struct&#123;&#125;</code>:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(done <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;Worker is starting...&quot;</span>)</span><br><span class="line">	<span class="comment">// 模拟工作</span></span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;Worker is done!&quot;</span>)</span><br><span class="line">	done &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125; <span class="comment">// 发送信号表示完成</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line">	<span class="keyword">go</span> worker(done)</span><br><span class="line">	&lt;-done <span class="comment">// 阻塞直到收到 worker 完成的信号</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;All done!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的例子中，<code>done</code> channel 的类型是 <code>chan struct&#123;&#125;</code>。<code>worker</code> goroutine 完成工作后，向 <code>done</code> channel 发送一个空结构体 <code>struct&#123;&#125;</code>。<code>main</code> goroutine 通过接收这个信号得知 <code>worker</code> 已经完成。</p>
+<h3 id="close-：优雅地广播“结束”信号"><code>close()</code>：优雅地广播“结束”信号</h3>
+<p><code>close()</code> 函数用于关闭一个 channel。<strong>关闭一个 channel 会向所有正在等待从该 channel 接收数据的 goroutine 发送一个零值（对于 <code>chan struct&#123;&#125;</code> 来说就是零值，即可以接收到信号），并且后续不能再向已关闭的 channel 发送数据，否则会引发 panic。</strong></p>
+<p>接收方可以通过接收操作的第二个返回值来判断 channel 是否已经关闭：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">value, ok := &lt;-ch</span><br></pre></td></tr></table></figure>
+<p>如果 <code>ok</code> 是 <code>true</code>，表示接收到了 channel 中发送的值；如果 <code>ok</code> 是 <code>false</code>，表示 channel 已经关闭，并且 channel 中没有更多的数据可以接收。</p>
+<p><strong>使用 <code>close()</code> 通知多个 goroutine 停止工作:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(id <span class="type">int</span>, quit <span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	fmt.Printf(<span class="string">&quot;Worker %d starting...\n&quot;</span>, id)</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-quit:</span><br><span class="line">			fmt.Printf(<span class="string">&quot;Worker %d received quit signal. Exiting.\n&quot;</span>, id)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-time.After(time.Second): <span class="comment">// 模拟工作</span></span><br><span class="line">			fmt.Printf(<span class="string">&quot;Worker %d is working...\n&quot;</span>, id)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	numWorkers := <span class="number">3</span></span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numWorkers; i++ &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> worker(i+<span class="number">1</span>, quit, &amp;wg)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟一段时间后发出停止信号</span></span><br><span class="line">	time.Sleep(<span class="number">3</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;Sending quit signal to all workers...&quot;</span>)</span><br><span class="line">	<span class="built_in">close</span>(quit) <span class="comment">// 关闭 quit channel，广播停止信号</span></span><br><span class="line"></span><br><span class="line">	wg.Wait()</span><br><span class="line">	fmt.Println(<span class="string">&quot;All workers have exited.&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，我们创建了多个 <code>worker</code> goroutine，它们都监听同一个 <code>quit</code> channel。当 <code>main</code> goroutine 调用 <code>close(quit)</code> 时，所有正在阻塞等待从 <code>quit</code> 接收数据的 <code>worker</code> 都会收到一个零值，并通过 <code>select</code> 语句中的 <code>case &lt;-quit:</code> 分支退出。<code>sync.WaitGroup</code> 用于等待所有 worker goroutine 优雅地退出。</p>
+<h2 id="实际应用场景">实际应用场景</h2>
+<h3 id="1-事件通知：更细致的场景">1. 事件通知：更细致的场景</h3>
+<p>在微服务架构中，一个服务完成某个关键操作后，可能需要通知其他依赖它的服务。使用 <code>chan struct&#123;&#125;</code> 可以实现这种轻量级的通知机制。</p>
+<p><strong>场景：订单服务完成支付，通知库存服务扣减库存。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 库存服务</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">inventoryService</span><span class="params">(orderPaid &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> orderPaid &#123; <span class="comment">// 接收到信号</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;库存服务：收到订单支付通知，正在扣减库存...&quot;</span>)</span><br><span class="line">		time.Sleep(<span class="number">1</span> * time.Second) <span class="comment">// 模拟扣减库存</span></span><br><span class="line">		fmt.Println(<span class="string">&quot;库存服务：库存扣减完成。&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;库存服务已停止。&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订单服务</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">orderService</span><span class="params">(orderID <span class="type">string</span>, paid <span class="keyword">chan</span>&lt;- <span class="keyword">struct</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;订单服务：订单 %s 开始处理支付...\n&quot;</span>, orderID)</span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second) <span class="comment">// 模拟支付处理</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;订单服务：订单 %s 支付完成。\n&quot;</span>, orderID)</span><br><span class="line">	paid &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125; <span class="comment">// 发送支付完成的信号</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	orderPaid := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line"></span><br><span class="line">	wg.Add(<span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> inventoryService(orderPaid, &amp;wg)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> orderService(<span class="string">&quot;order-123&quot;</span>, orderPaid)</span><br><span class="line"></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second) <span class="comment">// 模拟主流程运行一段时间</span></span><br><span class="line">	<span class="built_in">close</span>(orderPaid)           <span class="comment">// 关闭通知通道，库存服务会优雅退出</span></span><br><span class="line">	wg.Wait()</span><br><span class="line">	fmt.Println(<span class="string">&quot;主服务已停止。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>orderPaid</code> 是一个 <code>chan struct&#123;&#125;</code>。当订单服务完成支付后，会向 <code>orderPaid</code> 发送一个信号。库存服务监听这个信号，一旦收到，就开始扣减库存。使用 <code>chan struct&#123;&#125;</code> 的好处是，我们只关心“支付完成”这个事件的发生，不需要传递订单的具体信息给库存服务（订单信息应该通过其他更适合的方式传递）。最后通过 <code>close(orderPaid)</code> 通知库存服务可以停止监听了。</p>
+<h3 id="2-服务优雅关闭：更全面的考量">2. 服务优雅关闭：更全面的考量</h3>
+<p>在构建长时间运行的服务（如 Web 服务器、后台任务处理程序）时，优雅关闭至关重要。这涉及到通知所有正在运行的 goroutine 停止工作，并等待它们清理资源后退出。</p>
+<p><strong>场景：一个简单的 Web 服务器，需要能够优雅地停止所有请求处理 goroutine。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line">	<span class="string">&quot;os/signal&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;syscall&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">requestHandler</span><span class="params">(w http.ResponseWriter, r *http.Request, quit &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> &lt;-quit:</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求处理 goroutine 收到停止信号，正在退出...&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	<span class="keyword">case</span> &lt;-time.After(<span class="number">5</span> * time.Second): <span class="comment">// 模拟请求处理</span></span><br><span class="line">		fmt.Fprintf(w, <span class="string">&quot;请求处理完成 at %s\n&quot;</span>, time.Now().Format(time.RFC3339))</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求处理完成。&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line"></span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/process&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> requestHandler(w, r, quit, &amp;wg)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	server := &amp;http.Server&#123;Addr: <span class="string">&quot;:8080&quot;</span>, Handler: <span class="literal">nil</span>&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;Web 服务器正在监听 :8080&quot;</span>)</span><br><span class="line">		<span class="keyword">if</span> err := server.ListenAndServe(); err != http.ErrServerClosed &#123;</span><br><span class="line">			fmt.Fatalf(<span class="string">&quot;HTTP server ListenAndServe: %v&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(<span class="string">&quot;Web 服务器已停止监听。&quot;</span>)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 监听操作系统的中断信号 (Ctrl+C) 或终止信号</span></span><br><span class="line">	sig := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line">	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)</span><br><span class="line"></span><br><span class="line">	&lt;-sig <span class="comment">// 阻塞直到收到信号</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;\n收到停止信号，开始关闭服务器...&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 通知所有请求处理 goroutine 停止</span></span><br><span class="line">	<span class="built_in">close</span>(quit)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 给正在处理的请求一些时间完成</span></span><br><span class="line">	shutdownCtx, cancel := context.WithTimeout(context.Background(), <span class="number">5</span>*time.Second)</span><br><span class="line">	<span class="keyword">defer</span> cancel()</span><br><span class="line">	<span class="keyword">if</span> err := server.Shutdown(shutdownCtx); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;HTTP server shutdown error: %v\n&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	wg.Wait() <span class="comment">// 等待所有请求处理 goroutine 退出</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;所有 goroutine 已退出，服务器已优雅关闭。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个更复杂的例子中：</p>
+<ul>
+<li>我们创建了一个 <code>quit</code> channel (<code>chan struct&#123;&#125;</code>) 用于通知请求处理的 goroutine 停止。</li>
+<li>当收到操作系统的停止信号时，我们首先 <code>close(quit)</code>，向所有正在处理请求的 <code>requestHandler</code> goroutine 发送停止信号。</li>
+<li>然后，我们使用 <code>http.Server.Shutdown</code> 来优雅地关闭 HTTP 服务器，这会阻止新的连接，并等待正在处理的连接完成（在超时时间内）。</li>
+<li>最后，我们使用 <code>wg.Wait()</code> 等待所有正在处理的 <code>requestHandler</code> goroutine 退出。</li>
+</ul>
+<p><code>close(quit)</code> 在这里起到了广播停止信号的关键作用，使得多个并发的请求处理 goroutine 能够收到通知并开始清理退出。</p>
+<h3 id="3-限流：令牌桶的简单实现">3. 限流：令牌桶的简单实现</h3>
+<p>虽然 Go 语言有更专业的限流库，但使用带缓冲的 <code>chan struct&#123;&#125;</code> 可以实现一个简单的令牌桶限流器。</p>
+<p><strong>场景：限制某个操作的并发执行数量。</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(id <span class="type">int</span>, rateLimiter &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, wg *sync.WaitGroup)</span></span> &#123;</span><br><span class="line">	<span class="keyword">defer</span> wg.Done()</span><br><span class="line">	&lt;-rateLimiter <span class="comment">// 从限流器获取一个“令牌”</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;Worker %d started at %s\n&quot;</span>, id, time.Now().Format(time.RFC3339))</span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second) <span class="comment">// 模拟工作</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;Worker %d finished at %s\n&quot;</span>, id, time.Now().Format(time.RFC3339))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	numWorkers := <span class="number">5</span></span><br><span class="line">	concurrencyLimit := <span class="number">2</span></span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	rateLimiter := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;, concurrencyLimit)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化令牌桶</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; concurrencyLimit; i++ &#123;</span><br><span class="line">		rateLimiter &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numWorkers; i++ &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line">		<span class="keyword">go</span> worker(i+<span class="number">1</span>, rateLimiter, &amp;wg)</span><br><span class="line">		time.Sleep(<span class="number">500</span> * time.Millisecond) <span class="comment">// 稍微延迟启动 worker</span></span><br><span class="line">		<span class="comment">// 模拟令牌的补充 (实际场景可能更复杂)</span></span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> rateLimiter &lt;- <span class="keyword">struct</span>&#123;&#125;&#123;&#125;:</span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			<span class="comment">// 如果令牌桶已满，则不补充</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	wg.Wait()</span><br><span class="line">	fmt.Println(<span class="string">&quot;All workers finished.&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中，<code>rateLimiter</code> 是一个容量为 <code>concurrencyLimit</code> 的 <code>chan struct&#123;&#125;</code>。每个 <code>worker</code> 在开始工作前需要从 <code>rateLimiter</code> 接收一个值（相当于获取一个“令牌”）。只有当 <code>rateLimiter</code> 中有可用的“令牌”时，<code>worker</code> 才能继续执行。虽然这个例子中的令牌补充比较简单，但它展示了如何使用带缓冲的 <code>chan struct&#123;&#125;</code> 来控制并发数量。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/29/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%96%87%E4%BB%B6%E5%86%99%E5%85%A5/" rel="prev" title="go语言之文件写入">
+                  <i class="fa fa-angle-left"></i> go语言之文件写入
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B5%8C%E5%85%A5%E6%8C%87%E4%BB%A4/" rel="next" title="go语言之嵌入指令">
+                  go语言之嵌入指令 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

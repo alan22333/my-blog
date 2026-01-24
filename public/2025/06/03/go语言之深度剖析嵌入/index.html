@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之Embedding vs. OOP subclassing | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="嵌入和子类继承虽然在语法或语义上有相似之处，但设计哲学完全不同">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之Embedding vs. OOP subclassing">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="嵌入和子类继承虽然在语法或语义上有相似之处，但设计哲学完全不同">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-03T01:31:04.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/","path":"2025/06/03/go语言之深度剖析嵌入/","title":"go语言之Embedding vs. OOP subclassing"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%A0%B8%E5%BF%83%E7%90%86%E5%BF%B5%E5%AF%B9%E6%AF%94"><span class="nav-number">1.</span> <span class="nav-text">一、核心理念对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Go-%E7%9A%84-Embedding-%E7%A4%BA%E4%BE%8B%E4%B8%8E%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">二、Go 的 Embedding 示例与分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E7%89%B9%E7%82%B9%E5%88%86%E6%9E%90%EF%BC%9A"><span class="nav-number">2.1.</span> <span class="nav-text">✅ 特点分析：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81OOP-%E4%B8%AD%E7%9A%84-Subclassing-%E7%A4%BA%E4%BE%8B%EF%BC%88Java%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">三、OOP 中的 Subclassing 示例（Java）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E7%89%B9%E7%82%B9%E5%88%86%E6%9E%90%EF%BC%9A-2"><span class="nav-number">3.1.</span> <span class="nav-text">✅ 特点分析：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%AE%BE%E8%AE%A1%E5%93%B2%E5%AD%A6%E5%AF%B9%E6%AF%94%EF%BC%9A%E7%BB%84%E5%90%88-vs-%E7%BB%A7%E6%89%BF"><span class="nav-number">4.</span> <span class="nav-text">四、设计哲学对比：组合 vs 继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%8E%A5%E5%8F%A3-Embedding-%E5%AE%9E%E7%8E%B0%E5%A4%9A%E6%80%81"><span class="nav-number">5.</span> <span class="nav-text">五、接口 + Embedding 实现多态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%BB%E7%BB%93%E5%AF%B9%E6%AF%94"><span class="nav-number">6.</span> <span class="nav-text">六、总结对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E4%BD%BF%E7%94%A8%E5%BB%BA%E8%AE%AE"><span class="nav-number">7.</span> <span class="nav-text">七、使用建议</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之Embedding vs. OOP subclassing | Hello there! I'm alan">
+      <meta itemprop="description" content="  嵌入和子类继承虽然在语法或语义上有相似之处，但设计哲学完全不同">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之Embedding vs. OOP subclassing
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-03 09:31:04" itemprop="dateCreated datePublished" datetime="2025-06-03T09:31:04+08:00">2025-06-03</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">  嵌入和子类继承虽然在语法或语义上有相似之处，但设计哲学完全不同</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Go 语言中的 <strong>Embedding（嵌入）</strong> 和传统面向对象编程（OOP）中的 <strong>Subclassing（子类继承）</strong> 是两种不同的代码复用与扩展机制。虽然它们在语法或语义上有相似之处，但设计哲学完全不同。</p>
+<hr>
+<h2 id="一、核心理念对比">一、核心理念对比</h2>
+<table>
+<thead>
+<tr>
+<th>特性/维度</th>
+<th>Go Embedding</th>
+<th>OOP Subclassing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计理念</td>
+<td>组合优于继承（Composition over Inheritance）</td>
+<td>继承层次结构（Inheritance Hierarchy）</td>
+</tr>
+<tr>
+<td>关系含义</td>
+<td>“has-a” 或 “can-do”</td>
+<td>“is-a”</td>
+</tr>
+<tr>
+<td>方法提升</td>
+<td>被嵌入类型的方法自动提升到外层</td>
+<td>子类重用并可重写父类方法</td>
+</tr>
+<tr>
+<td>多重复用</td>
+<td>支持多类型嵌入</td>
+<td>单继承（如 Java），多继承有钻石问题（如 C++）</td>
+</tr>
+<tr>
+<td>动态绑定</td>
+<td>通过接口实现多态</td>
+<td>支持运行时多态</td>
+</tr>
+<tr>
+<td>可替换性（LSP）</td>
+<td>倾向于接口的鸭子类型</td>
+<td>子类应能替换父类对象</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="二、Go-的-Embedding-示例与分析">二、Go 的 Embedding 示例与分析</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Logger <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l Logger)</span></span> Log(msg <span class="type">string</span>) &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Log:&quot;</span>, msg)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name <span class="type">string</span></span><br><span class="line">    Logger <span class="comment">// 嵌入 Logger</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    u := User&#123;Name: <span class="string">&quot;Alice&quot;</span>&#125;</span><br><span class="line">    u.Log(<span class="string">&quot;created user&quot;</span>) <span class="comment">// 自动提升，像是继承来的方法</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="✅-特点分析：">✅ 特点分析：</h3>
+<ul>
+<li><code>Logger</code> 是被嵌入的类型，<code>User</code> 拥有其方法。</li>
+<li>编译器将 <code>u.Log(...)</code> 转化为 <code>u.Logger.Log(...)</code>。</li>
+<li>没有继承树，但实现了“方法复用”。</li>
+<li><code>User</code> 可以嵌入多个类型，没有冲突时全部方法都可以用。</li>
+</ul>
+<hr>
+<h2 id="三、OOP-中的-Subclassing-示例（Java）">三、OOP 中的 Subclassing 示例（Java）</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">log</span><span class="params">(String msg)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;Log: &quot;</span> + msg);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> <span class="keyword">extends</span> <span class="title class_">Logger</span> &#123;</span><br><span class="line">    String name;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">u</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        u.name = <span class="string">&quot;Alice&quot;</span>;</span><br><span class="line">        u.log(<span class="string">&quot;created user&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="✅-特点分析：-2">✅ 特点分析：</h3>
+<ul>
+<li><code>User</code> 是 <code>Logger</code> 的子类。</li>
+<li>强烈的 is-a 关系：<code>User</code> is-a <code>Logger</code>。</li>
+<li>支持方法重写（override），支持多态。</li>
+</ul>
+<hr>
+<h2 id="四、设计哲学对比：组合-vs-继承">四、设计哲学对比：组合 vs 继承</h2>
+<table>
+<thead>
+<tr>
+<th>对比维度</th>
+<th>Go Embedding（组合）</th>
+<th>OOP Subclassing（继承）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>解耦性</td>
+<td>强：改动嵌入类型不影响宿主</td>
+<td>弱：父类改动可能破坏子类行为</td>
+</tr>
+<tr>
+<td>灵活性</td>
+<td>高：可随意组合多个类型</td>
+<td>低：被绑定在继承结构中</td>
+</tr>
+<tr>
+<td>多态实现方式</td>
+<td>倾向接口实现鸭子类型</td>
+<td>通过继承和虚函数表</td>
+</tr>
+<tr>
+<td>方法冲突处理</td>
+<td>手动指定调用哪个嵌入字段的方法</td>
+<td>支持方法重写，父类方法被屏蔽</td>
+</tr>
+<tr>
+<td>复用机制</td>
+<td>显式组合，支持多个被嵌入类型</td>
+<td>只能继承一个父类（多数语言）</td>
+</tr>
+<tr>
+<td>易读性/层级复杂度</td>
+<td>简洁，结构扁平</td>
+<td>继承链长可能难以追踪行为</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="五、接口-Embedding-实现多态">五、接口 + Embedding 实现多态</h2>
+<p>Go 中不鼓励“继承树”，但你可以结合接口与嵌入模拟多态行为：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Notifier <span class="keyword">interface</span> &#123;</span><br><span class="line">    Notify()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> EmailNotifier <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(EmailNotifier)</span></span> Notify() &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Sending email...&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    Notifier</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    u := User&#123;Notifier: EmailNotifier&#123;&#125;&#125;</span><br><span class="line">    u.Notify() <span class="comment">// 调用嵌入的接口实现</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="六、总结对比">六、总结对比</h2>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th>Go Embedding</th>
+<th>OOP Subclassing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>是否是继承机制</td>
+<td>❌ 否</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td>是否支持方法复用</td>
+<td>✅ 是</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td>是否强调接口</td>
+<td>✅ 是（鸭子类型）</td>
+<td>❶ 接口可选（如 Java 中）</td>
+</tr>
+<tr>
+<td>是否支持重写</td>
+<td>❌ 否，除非手动遮蔽方法</td>
+<td>✅ 是</td>
+</tr>
+<tr>
+<td>是否有继承树</td>
+<td>❌ 无</td>
+<td>✅ 有</td>
+</tr>
+<tr>
+<td>多继承支持</td>
+<td>✅ 支持多个嵌入</td>
+<td>❌ 一般不支持或有复杂性（如 C++）</td>
+</tr>
+<tr>
+<td>推荐使用场景</td>
+<td>简洁、组合、依赖注入、组件化</td>
+<td>行为扩展、框架设计、多态重写</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="七、使用建议">七、使用建议</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐机制</th>
+<th>原因说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码复用、减少重复逻辑</td>
+<td>Go Embedding</td>
+<td>组合简单明了，逻辑分离好</td>
+</tr>
+<tr>
+<td>表达 is-a 关系</td>
+<td>Subclassing</td>
+<td>自然符合类的语义</td>
+</tr>
+<tr>
+<td>需要运行时多态</td>
+<td>接口 + 组合</td>
+<td>更灵活、适应性强</td>
+</tr>
+<tr>
+<td>多种行为组合（Mixin）</td>
+<td>Go Embedding</td>
+<td>多嵌入类型即实现 Mixin 效果</td>
+</tr>
+<tr>
+<td>构建基础框架/库</td>
+<td>OOP 继承</td>
+<td>适合设计层级分明的抽象层</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/02/%E7%AE%80%E5%8D%95DEX%E5%90%88%E7%BA%A6%E6%A1%88%E4%BE%8B/" rel="prev" title="简单DEX合约案例">
+                  <i class="fa fa-angle-left"></i> 简单DEX合约案例
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/" rel="next" title="gowebexamples学习笔记01">
+                  gowebexamples学习笔记01 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

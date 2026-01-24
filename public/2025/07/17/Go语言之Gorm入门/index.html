@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之Gorm入门 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="快速学习gorm操作mysql">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之Gorm入门">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="快速学习gorm操作mysql">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-17T10:02:00.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.051Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/","path":"2025/07/17/Go语言之Gorm入门/","title":"Go语言之Gorm入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-GORM-%E6%93%8D%E4%BD%9C-MySQL-%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%9A%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.</span> <span class="nav-text">使用 GORM 操作 MySQL 数据库：从入门到实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%89%E6%8B%A9-GORM%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">为什么选择 GORM？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GORM-%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8%EF%BC%9A%E8%BF%9E%E6%8E%A5%E3%80%81%E6%A8%A1%E5%9E%8B%E4%B8%8ECRUD"><span class="nav-number">1.2.</span> <span class="nav-text">GORM 基础入门：连接、模型与CRUD</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85-GORM"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 安装 GORM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%BF%9E%E6%8E%A5%E6%95%B0%E6%8D%AE%E5%BA%93"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 连接数据库</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E5%AE%9A%E4%B9%89%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 定义数据结构 (模型)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-CRUD-%E6%93%8D%E4%BD%9C-%E5%A2%9E%E5%88%A0%E6%94%B9%E6%9F%A5"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. CRUD 操作 (增删改查)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9F%A5%E8%AF%A2-Retrieve"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">查询 (Retrieve)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%96%B0%E5%A2%9E-Create"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">新增 (Create)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9B%B4%E6%96%B0-Update"><span class="nav-number">1.2.4.3.</span> <span class="nav-text">更新 (Update)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%88%A0%E9%99%A4-Delete"><span class="nav-number">1.2.4.4.</span> <span class="nav-text">删除 (Delete)</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E4%BA%8B%E5%8A%A1-Transactions"><span class="nav-number">1.2.5.</span> <span class="nav-text">5. 事务 (Transactions)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%9D%97%E4%BA%8B%E5%8A%A1-%E6%8E%A8%E8%8D%90"><span class="nav-number">1.2.5.1.</span> <span class="nav-text">块事务 (推荐)</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%89%8B%E5%8A%A8%E4%BA%8B%E5%8A%A1-%E4%B8%8D%E6%8E%A8%E8%8D%90%EF%BC%8C%E9%99%A4%E9%9D%9E%E6%9C%89%E7%89%B9%E6%AE%8A%E9%9C%80%E6%B1%82"><span class="nav-number">1.2.5.2.</span> <span class="nav-text">手动事务 (不推荐，除非有特殊需求)</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81-GORM-%E7%89%88%E6%9C%AC"><span class="nav-number">1.3.</span> <span class="nav-text">示例代码 (GORM 版本)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GORM-%E5%BC%80%E5%8F%91%E6%8A%80%E5%B7%A7%E4%B8%8E%E9%AB%98%E7%BA%A7%E7%94%A8%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">GORM 开发技巧与高级用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E7%BB%93%E6%9E%84%E4%BD%93%E6%A0%87%E7%AD%BE-Tags-%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.4.1.</span> <span class="nav-text">1. 结构体标签 (Tags) 详解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E6%97%A5%E5%BF%97%E4%B8%8E%E8%B0%83%E8%AF%95"><span class="nav-number">1.4.2.</span> <span class="nav-text">2. 日志与调试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E9%93%BE%E5%BC%8F%E6%96%B9%E6%B3%95%E4%B8%8E%E4%BD%9C%E7%94%A8%E5%9F%9F"><span class="nav-number">1.4.3.</span> <span class="nav-text">3. 链式方法与作用域</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E9%A2%84%E5%8A%A0%E8%BD%BD-Preload-%E4%B8%8E%E5%85%B3%E8%81%94%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.4.4.</span> <span class="nav-text">4. 预加载 (Preload) 与关联查询</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5-%E5%8E%9F%E7%94%9F-SQL"><span class="nav-number">1.4.5.</span> <span class="nav-text">5. 原生 SQL</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6-Hooks-%E9%92%A9%E5%AD%90"><span class="nav-number">1.4.6.</span> <span class="nav-text">6. Hooks (钩子)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7-%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="nav-number">1.4.7.</span> <span class="nav-text">7. 错误处理</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之Gorm入门 | Hello there! I'm alan">
+      <meta itemprop="description" content="快速学习gorm操作mysql">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之Gorm入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-17 18:02:00" itemprop="dateCreated datePublished" datetime="2025-07-17T18:02:00+08:00">2025-07-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">快速学习gorm操作mysql</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="使用-GORM-操作-MySQL-数据库：从入门到实践">使用 GORM 操作 MySQL 数据库：从入门到实践</h2>
+<p>在 Go 语言中进行数据库操作，除了 <code>database/sql</code> 标准库和像 <code>sqlx</code> 这样的扩展库外，还有许多优秀的 ORM (Object-Relational Mapping) 框架。其中，<strong>GORM</strong> 以其简洁的 API、强大的功能和活跃的社区支持，成为了 Go 开发者进行数据库操作的首选之一。</p>
+<p>本文将从一个 <code>sqlx</code> 的示例出发，逐步讲解如何使用 GORM 实现数据库的增删改查以及事务操作，并分享一些 GORM 的高级用法和开发技巧。</p>
+<h3 id="为什么选择-GORM？">为什么选择 GORM？</h3>
+<p>在深入 GORM 之前，我们先来探讨一下为什么选择 ORM，以及 GORM 相较于 <code>sqlx</code> 有何优势：</p>
+<ul>
+<li><strong>减少 SQL 编写</strong>: ORM 的核心优势在于将数据库操作抽象为 Go 结构体和方法调用，大大减少了手动编写 SQL 语句的工作量，降低了出错的概率。</li>
+<li><strong>提高开发效率</strong>: 结构化的 API 和内置的各种便利函数，能够让开发者更专注于业务逻辑，而非底层的数据库细节。</li>
+<li><strong>类型安全</strong>: GORM 通过 Go 结构体来映射数据库表，利用 Go 的类型系统，在编译期就能发现一些潜在的类型错误。</li>
+<li><strong>跨数据库兼容性</strong>: GORM 支持多种数据库（MySQL, PostgreSQL, SQLite, SQL Server 等），在切换数据库时，大部分代码无需修改。</li>
+</ul>
+<p>相较于 <code>sqlx</code>，GORM 的优势主要体现在：</p>
+<ul>
+<li><strong>更彻底的抽象</strong>: <code>sqlx</code> 依然需要手动编写 SQL 语句，而 GORM 更多地通过方法链来构建查询。</li>
+<li><strong>更丰富的功能</strong>: GORM 内置了预加载、关联查询、自动迁移等高级功能，这些在 <code>sqlx</code> 中需要手动实现或依赖其他库。</li>
+<li><strong>更友好的链式 API</strong>: GORM 的方法链式调用让代码更具可读性和流畅性。</li>
+</ul>
+<h3 id="GORM-基础入门：连接、模型与CRUD">GORM 基础入门：连接、模型与CRUD</h3>
+<h4 id="1-安装-GORM">1. 安装 GORM</h4>
+<p>首先，你需要安装 GORM 及其 MySQL 驱动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go get -u gorm.io/gorm</span><br><span class="line">go get -u gorm.io/driver/mysql</span><br></pre></td></tr></table></figure>
+<h4 id="2-连接数据库">2. 连接数据库</h4>
+<p>在 GORM 中，连接数据库非常简单。我们通常在 <code>init</code> 函数中完成数据库的初始化，并将其存储在一个全局变量中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;gorm.io/driver/mysql&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/gorm&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> DB *gorm.DB</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	dsn := <span class="string">&quot;username:password@(localhost:3306)/study?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span></span><br><span class="line">	<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">	DB, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to connect database: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 自动迁移</span></span><br><span class="line">	<span class="comment">// GORM 会根据结构体定义自动创建或更新表结构</span></span><br><span class="line">	err = DB.AutoMigrate(&amp;Person&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to auto migrate: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Println(<span class="string">&quot;Database connection and migration successful!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... 结构体定义和CRUD操作</span></span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>dsn</code>: DSN (Data Source Name) 是连接数据库的字符串，格式与 <code>sqlx</code> 类似。</li>
+<li><code>mysql.Open(dsn)</code>: 使用 GORM 提供的 MySQL 驱动打开数据库连接。</li>
+<li><code>gorm.Open(...)</code>: 初始化 GORM 数据库连接，并可以传入 <code>&amp;gorm.Config&#123;&#125;</code> 进行一些配置，例如日志模式、命名策略等。</li>
+<li><code>DB.AutoMigrate(&amp;Person&#123;&#125;)</code>: 这是 GORM 的一个非常方便的功能。它会根据 <code>Person</code> 结构体定义，自动创建 <code>user</code> 表（如果不存在），或者根据结构体的字段变化更新表结构。这在开发阶段非常有用。</li>
+</ul>
+<h4 id="3-定义数据结构-模型">3. 定义数据结构 (模型)</h4>
+<p>GORM 使用 Go 结构体来定义数据库表。默认情况下，GORM 会将结构体名称的复数形式作为表名（例如，<code>Person</code> 结构体对应 <code>people</code> 表），但我们可以通过 <code>TableName()</code> 方法或者在 <code>gorm:&quot;table:user&quot;</code> 标签中指定表名。字段名默认转换为蛇形命名（例如 <code>UserId</code> 对应 <code>user_id</code>）。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Person 结构体定义</span></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// GORM 约定 `ID` 或 `Id` 字段为主键，会自动识别为自增主键。</span></span><br><span class="line">	<span class="comment">// 这里我们使用 `UserId` 来映射 `id` 列，并且指定其为主键。</span></span><br><span class="line">	<span class="comment">// GORM 约定: 如果是 `ID` 字段，默认就是主键且自增。</span></span><br><span class="line">	<span class="comment">// 如果不是 `ID` 字段，需要显式加上 `gorm:&quot;primaryKey&quot;`</span></span><br><span class="line">	UserId   <span class="type">string</span> <span class="string">`gorm:&quot;column:id;primaryKey&quot;`</span> <span class="comment">// 对应数据库的 id 列，并且是主键</span></span><br><span class="line">	Username <span class="type">string</span> <span class="string">`gorm:&quot;column:name&quot;`</span>          <span class="comment">// 对应数据库的 name 列</span></span><br><span class="line">	Age      <span class="type">int</span>    <span class="string">`gorm:&quot;column:age&quot;`</span>           <span class="comment">// 对应数据库的 age 列</span></span><br><span class="line">	Address  <span class="type">string</span> <span class="string">`gorm:&quot;column:address&quot;`</span>       <span class="comment">// 对应数据库的 address 列</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TableName 方法用于指定 GORM 对应的数据库表名</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Person)</span></span> TableName() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;user&quot;</span> <span class="comment">// 将 Person 结构体映射到 user 表</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>gorm:&quot;column:id;primaryKey&quot;</code>: 通过 <code>gorm</code> 标签来指定字段与数据库列的映射关系以及其他属性。
+<ul>
+<li><code>column:id</code>: 指定结构体字段 <code>UserId</code> 映射到数据库表的 <code>id</code> 列。</li>
+<li><code>primaryKey</code>: 将 <code>UserId</code> 标记为主键。</li>
+</ul>
+</li>
+<li><code>TableName()</code> 方法: 这是一个 GORM 的约定，通过实现这个方法，我们可以自定义结构体对应的表名，这里我们将其设置为 <code>user</code>，与你的 <code>sqlx</code> 示例保持一致。</li>
+</ul>
+<h4 id="4-CRUD-操作-增删改查">4. CRUD 操作 (增删改查)</h4>
+<h5 id="查询-Retrieve">查询 (Retrieve)</h5>
+<p><strong>查询单条记录</strong>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// query 查询单条记录</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">query</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p Person</span><br><span class="line">	<span class="comment">// First 根据主键查找第一条记录</span></span><br><span class="line">	<span class="comment">// DB.First(&amp;p, &quot;12132&quot;)</span></span><br><span class="line">	<span class="comment">// Where 子句用于构建查询条件</span></span><br><span class="line">	result := DB.Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).First(&amp;p)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> result.Error == gorm.ErrRecordNotFound &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;query fail: record not found for id %s\n&quot;</span>, <span class="string">&quot;12132&quot;</span>)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			log.Fatalf(<span class="string">&quot;query fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	log.Printf(<span class="string">&quot;query succ: %v\n&quot;</span>, p)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Where(&quot;id = ?&quot;, &quot;12132&quot;)</code>: 使用 <code>Where</code> 方法构建查询条件。GORM 会自动将 <code>Person</code> 结构体中的 <code>UserId</code> 字段映射到 <code>id</code> 列。</li>
+<li><code>First(&amp;p)</code>: 查找满足条件的第一条记录，并将其扫描到 <code>p</code> 结构体中。如果没有找到记录，会返回 <code>gorm.ErrRecordNotFound</code> 错误。</li>
+</ul>
+<p><strong>查询多条记录 (列表)</strong>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// list 查询多条记录</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">list</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> ps []Person</span><br><span class="line">	<span class="comment">// Find 查询所有记录</span></span><br><span class="line">	result := DB.Find(&amp;ps)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;list fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> ps &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;list succ: %v\n&quot;</span>, p)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Find(&amp;ps)</code>: 查找所有 <code>Person</code> 记录，并将其扫描到 <code>ps</code> 切片中。</li>
+</ul>
+<h5 id="新增-Create">新增 (Create)</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// insert 插入单条记录</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">()</span></span> &#123;</span><br><span class="line">	newPerson := Person&#123;UserId: <span class="string">&quot;1145&quot;</span>, Username: <span class="string">&quot;alan&quot;</span>, Age: <span class="number">24</span>, Address: <span class="string">&quot;China&quot;</span>&#125;</span><br><span class="line">	result := DB.Create(&amp;newPerson)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;insert fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 如果主键是自增的，GORM 会自动填充到结构体中</span></span><br><span class="line">	log.Printf(<span class="string">&quot;insert succ, ID: %s, RowsAffected: %d\n&quot;</span>, newPerson.UserId, result.RowsAffected)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Create(&amp;newPerson)</code>: 将 <code>newPerson</code> 结构体插入到数据库中。GORM 会自动根据结构体字段生成 <code>INSERT</code> 语句。</li>
+<li><code>result.RowsAffected</code>: 返回受影响的行数。</li>
+</ul>
+<h5 id="更新-Update">更新 (Update)</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// update 更新记录</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">update</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 更新单个字段</span></span><br><span class="line">	<span class="comment">// result := DB.Model(&amp;Person&#123;&#125;).Where(&quot;id = ?&quot;, &quot;1145&quot;).Update(&quot;name&quot;, &quot;alan223&quot;)</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 更新多个字段</span></span><br><span class="line">	result := DB.Model(&amp;Person&#123;&#125;).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;1145&quot;</span>).Updates(<span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;alan223&quot;</span>, <span class="string">&quot;age&quot;</span>: <span class="number">25</span>&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 或者直接传入结构体，GORM 会更新非零值字段</span></span><br><span class="line">	<span class="comment">// p := Person&#123;UserId: &quot;1145&quot;, Username: &quot;alan223&quot;, Age: 25&#125;</span></span><br><span class="line">	<span class="comment">// result := DB.Model(&amp;p).Where(&quot;id = ?&quot;, &quot;1145&quot;).Updates(p) // 注意这里Updates(p)会更新所有非零值字段</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;update fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> result.RowsAffected == <span class="number">0</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;update warning: no records updated for id %s\n&quot;</span>, <span class="string">&quot;1145&quot;</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;update succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Model(&amp;Person&#123;&#125;)</code>: 指定要操作的模型。</li>
+<li><code>Where(&quot;id = ?&quot;, &quot;1145&quot;)</code>: 指定更新条件。</li>
+<li><code>Update(&quot;name&quot;, &quot;alan223&quot;)</code>: 更新单个字段。</li>
+<li><code>Updates(map[string]interface&#123;&#125;&#123;&quot;name&quot;: &quot;alan223&quot;, &quot;age&quot;: 25&#125;)</code>: 更新多个字段。传入 <code>map</code> 可以精确控制更新的字段。</li>
+<li><code>Updates(p)</code>: 传入结构体进行更新，GORM 默认会更新所有<strong>非零值</strong>字段。如果你想更新所有字段，包括零值，可以使用 <code>Select(&quot;*&quot;).Updates(p)</code>。</li>
+</ul>
+<h5 id="删除-Delete">删除 (Delete)</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// delete 删除记录</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">delete</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 硬删除 (物理删除)</span></span><br><span class="line">	result := DB.Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;1145&quot;</span>).Delete(&amp;Person&#123;&#125;)</span><br><span class="line">	<span class="comment">// 或者</span></span><br><span class="line">	<span class="comment">// result := DB.Delete(&amp;Person&#123;&#125;, &quot;1145&quot;) // 根据主键删除</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;delete fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> result.RowsAffected == <span class="number">0</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;delete warning: no records deleted for id %s\n&quot;</span>, <span class="string">&quot;1145&quot;</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;delete succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Where(&quot;id = ?&quot;, &quot;1145&quot;).Delete(&amp;Person&#123;&#125;)</code>: 根据条件删除记录。</li>
+<li><code>DB.Delete(&amp;Person&#123;&#125;, &quot;1145&quot;)</code>: 根据主键删除记录。</li>
+<li><strong>软删除</strong>: GORM 支持软删除。如果你在模型中包含 <code>gorm.DeletedAt</code> 字段，GORM 在执行 <code>Delete</code> 操作时，不会真正删除记录，而是将 <code>DeletedAt</code> 字段设置为当前时间。查询时会自动过滤掉被软删除的记录。这在很多业务场景下非常有用。</li>
+</ul>
+<h4 id="5-事务-Transactions">5. 事务 (Transactions)</h4>
+<p>GORM 提供了两种方式进行事务操作：<strong>块事务</strong>和<strong>手动事务</strong>。块事务更推荐，因为它会自动处理提交和回滚，并且在函数退出时自动回滚未提交的事务。</p>
+<h5 id="块事务-推荐">块事务 (推荐)</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tx GORM 的事务操作 (块事务)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">tx</span><span class="params">()</span></span> &#123;</span><br><span class="line">	err := DB.Transaction(<span class="function"><span class="keyword">func</span><span class="params">(tx *gorm.DB)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">		<span class="comment">// 事务中的所有操作都使用 tx 对象</span></span><br><span class="line">		<span class="comment">// 例如：</span></span><br><span class="line">		<span class="comment">// 插入一条记录</span></span><br><span class="line">		newPerson := Person&#123;UserId: <span class="string">&quot;9999&quot;</span>, Username: <span class="string">&quot;tx_test&quot;</span>, Age: <span class="number">30</span>, Address: <span class="string">&quot;Transaction Land&quot;</span>&#125;</span><br><span class="line">		<span class="keyword">if</span> err := tx.Create(&amp;newPerson).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;transaction insert failed: %v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span> err <span class="comment">// 返回错误，事务将回滚</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 更新一条记录</span></span><br><span class="line">		<span class="keyword">if</span> err := tx.Model(&amp;Person&#123;&#125;).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).Update(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;UpdatedByTx&quot;</span>).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;transaction update failed: %v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span> err <span class="comment">// 返回错误，事务将回滚</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 如果所有操作都成功，GORM 会自动提交事务</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;transaction failed: %v\n&quot;</span>, err)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;transaction succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Transaction(func(tx *gorm.DB) error &#123;...&#125;)</code>: GORM 的块事务方法。你传入一个函数，所有在这个函数内部使用 <code>tx</code> 对象进行的操作都会在同一个事务中。</li>
+<li>如果函数返回 <code>nil</code>，事务会被提交。如果函数返回任何错误，事务会自动回滚。</li>
+</ul>
+<h5 id="手动事务-不推荐，除非有特殊需求">手动事务 (不推荐，除非有特殊需求)</h5>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// manualTx 手动事务操作</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">manualTx</span><span class="params">()</span></span> &#123;</span><br><span class="line">	tx := DB.Begin() <span class="comment">// 开始事务</span></span><br><span class="line">	<span class="keyword">if</span> tx.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to begin transaction: %v&quot;</span>, tx.Error)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">			tx.Rollback() <span class="comment">// 发生 panic 时回滚</span></span><br><span class="line">			<span class="built_in">panic</span>(r)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 事务中的操作</span></span><br><span class="line">	newPerson := Person&#123;UserId: <span class="string">&quot;8888&quot;</span>, Username: <span class="string">&quot;manual_tx_test&quot;</span>, Age: <span class="number">28</span>, Address: <span class="string">&quot;Manual Land&quot;</span>&#125;</span><br><span class="line">	<span class="keyword">if</span> err := tx.Create(&amp;newPerson).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 出现错误时回滚</span></span><br><span class="line">		log.Fatalf(<span class="string">&quot;manual transaction insert failed: %v&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := tx.Model(&amp;Person&#123;&#125;).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).Update(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;ManualUpdated&quot;</span>).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">		tx.Rollback() <span class="comment">// 出现错误时回滚</span></span><br><span class="line">		log.Fatalf(<span class="string">&quot;manual transaction update failed: %v&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := tx.Commit().Error; err != <span class="literal">nil</span> &#123; <span class="comment">// 提交事务</span></span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to commit transaction: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Println(<span class="string">&quot;manual transaction succ&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解析</strong>:</p>
+<ul>
+<li><code>DB.Begin()</code>: 开始一个事务。</li>
+<li><code>tx.Commit()</code>: 提交事务。</li>
+<li><code>tx.Rollback()</code>: 回滚事务。</li>
+<li><code>defer</code> 结合 <code>recover()</code>: 确保即使在事务中发生 <code>panic</code>，事务也能被正确回滚。手动事务需要开发者自己处理提交和回滚逻辑，容易出错，所以通常推荐使用块事务。</li>
+</ul>
+<h3 id="示例代码-GORM-版本">示例代码 (GORM 版本)</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;gorm.io/driver/mysql&quot;</span></span><br><span class="line">	<span class="string">&quot;gorm.io/gorm&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> DB *gorm.DB</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 连接数据库</span></span><br><span class="line">	<span class="comment">// DSN (Data Source Name) 格式：username:password@(host:port)/database?charset=utf8mb4&amp;parseTime=True&amp;loc=Local</span></span><br><span class="line">	<span class="comment">// parseTime=True 是为了让 GORM 能正确解析 MySQL 中的 DATETIME 和 TIMESTAMP 类型</span></span><br><span class="line">	<span class="comment">// loc=Local 是为了让时间以本地时区解析</span></span><br><span class="line">	dsn := <span class="string">&quot;root:vader20011014@(localhost:3306)/study?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span></span><br><span class="line">	<span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">	DB, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to connect database: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 自动迁移</span></span><br><span class="line">	<span class="comment">// GORM 会根据结构体定义自动创建或更新表结构</span></span><br><span class="line">	err = DB.AutoMigrate(&amp;Person&#123;&#125;)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;failed to auto migrate: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Println(<span class="string">&quot;Database connection and migration successful!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义数据结构</span></span><br><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// GORM 约定 `ID` 或 `Id` 字段为主键，会自动识别为自增主键。</span></span><br><span class="line">	<span class="comment">// 这里我们使用 `UserId` 来映射 `id` 列，并且指定其为主键。</span></span><br><span class="line">	UserId   <span class="type">string</span> <span class="string">`gorm:&quot;column:id;primaryKey&quot;`</span> <span class="comment">// 对应数据库的 id 列，并且是主键</span></span><br><span class="line">	Username <span class="type">string</span> <span class="string">`gorm:&quot;column:name&quot;`</span>          <span class="comment">// 对应数据库的 name 列</span></span><br><span class="line">	Age      <span class="type">int</span>    <span class="string">`gorm:&quot;column:age&quot;`</span>           <span class="comment">// 对应数据库的 age 列</span></span><br><span class="line">	Address  <span class="type">string</span> <span class="string">`gorm:&quot;column:address&quot;`</span>       <span class="comment">// 对应数据库的 address 列</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// TableName 方法用于指定 GORM 对应的数据库表名</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(Person)</span></span> TableName() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="string">&quot;user&quot;</span> <span class="comment">// 将 Person 结构体映射到 user 表</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----查询-----</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">query</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> p Person</span><br><span class="line">	<span class="comment">// First 根据主键查找第一条记录</span></span><br><span class="line">	<span class="comment">// DB.First(&amp;p, &quot;12132&quot;)</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Where 子句用于构建查询条件</span></span><br><span class="line">	result := DB.Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).First(&amp;p)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> result.Error == gorm.ErrRecordNotFound &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;query fail: record not found for id %s\n&quot;</span>, <span class="string">&quot;12132&quot;</span>)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			log.Fatalf(<span class="string">&quot;query fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	log.Printf(<span class="string">&quot;query succ: %v\n&quot;</span>, p)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">list</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> ps []Person</span><br><span class="line">	<span class="comment">// Find 查询所有记录</span></span><br><span class="line">	result := DB.Find(&amp;ps)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;list fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, p := <span class="keyword">range</span> ps &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;list succ: %v\n&quot;</span>, p)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----新增-----</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">insert</span><span class="params">()</span></span> &#123;</span><br><span class="line">	newPerson := Person&#123;UserId: <span class="string">&quot;1145&quot;</span>, Username: <span class="string">&quot;alan&quot;</span>, Age: <span class="number">24</span>, Address: <span class="string">&quot;China&quot;</span>&#125;</span><br><span class="line">	result := DB.Create(&amp;newPerson)</span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;insert fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 如果主键是自增的，GORM 会自动填充到结构体中</span></span><br><span class="line">	log.Printf(<span class="string">&quot;insert succ, ID: %s, RowsAffected: %d\n&quot;</span>, newPerson.UserId, result.RowsAffected)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----更新-----</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">update</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 更新多个字段</span></span><br><span class="line">	result := DB.Model(&amp;Person&#123;&#125;).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;1145&quot;</span>).Updates(<span class="keyword">map</span>[<span class="type">string</span>]<span class="keyword">interface</span>&#123;&#125;&#123;<span class="string">&quot;name&quot;</span>: <span class="string">&quot;alan223&quot;</span>, <span class="string">&quot;age&quot;</span>: <span class="number">25</span>&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;update fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> result.RowsAffected == <span class="number">0</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;update warning: no records updated for id %s\n&quot;</span>, <span class="string">&quot;1145&quot;</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;update succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----删除-----</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">delete</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 硬删除 (物理删除)</span></span><br><span class="line">	result := DB.Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;1145&quot;</span>).Delete(&amp;Person&#123;&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> result.Error != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;delete fail: %v\n&quot;</span>, result.Error)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> result.RowsAffected == <span class="number">0</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;delete warning: no records deleted for id %s\n&quot;</span>, <span class="string">&quot;1145&quot;</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;delete succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// -----事务-----</span></span><br><span class="line"><span class="comment">// GORM 推荐使用块事务</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">tx</span><span class="params">()</span></span> &#123;</span><br><span class="line">	err := DB.Transaction(<span class="function"><span class="keyword">func</span><span class="params">(tx *gorm.DB)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">		<span class="comment">// 事务中的所有操作都使用 tx 对象</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 插入一条记录</span></span><br><span class="line">		newPerson := Person&#123;UserId: <span class="string">&quot;9999&quot;</span>, Username: <span class="string">&quot;tx_test&quot;</span>, Age: <span class="number">30</span>, Address: <span class="string">&quot;Transaction Land&quot;</span>&#125;</span><br><span class="line">		<span class="keyword">if</span> err := tx.Create(&amp;newPerson).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;transaction insert failed: %v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span> err <span class="comment">// 返回错误，事务将回滚</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 更新一条记录</span></span><br><span class="line">		<span class="comment">// 注意：更新不存在的ID并不会报错，只会影响0行。如果业务需要严格控制，需要单独检查RowsAffected</span></span><br><span class="line">		<span class="keyword">if</span> err := tx.Model(&amp;Person&#123;&#125;).Where(<span class="string">&quot;id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).Update(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;UpdatedByTx&quot;</span>).Error; err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;transaction update failed: %v\n&quot;</span>, err)</span><br><span class="line">			<span class="keyword">return</span> err <span class="comment">// 返回错误，事务将回滚</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 如果所有操作都成功，GORM 会自动提交事务</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;transaction failed: %v\n&quot;</span>, err)</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;transaction succ&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	query()</span><br><span class="line">	insert() <span class="comment">// 先插入一条记录，方便后续操作</span></span><br><span class="line">	update()</span><br><span class="line">	<span class="built_in">delete</span>()</span><br><span class="line">	list()</span><br><span class="line">	tx() <span class="comment">// 执行事务</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="GORM-开发技巧与高级用法">GORM 开发技巧与高级用法</h3>
+<p>GORM 不仅仅提供了基本的 CRUD 和事务操作，还有许多强大的功能和技巧可以帮助你更高效地进行 Go 数据库开发。</p>
+<h4 id="1-结构体标签-Tags-详解">1. 结构体标签 (Tags) 详解</h4>
+<p>GORM 的结构体标签是其强大功能的核心。除了上面用到的 <code>column</code> 和 <code>primaryKey</code>，还有许多其他有用的标签：</p>
+<ul>
+<li><code>gorm:&quot;-&quot;</code>: 忽略此字段，不映射到数据库。</li>
+<li><code>gorm:&quot;autoIncrement&quot;</code>: 标记字段为自增主键（通常不需要，GORM 默认 <code>ID</code> 为自增）。</li>
+<li><code>gorm:&quot;unique&quot;</code>: 字段值唯一。</li>
+<li><code>gorm:&quot;default:value&quot;</code>: 设置字段的默认值。</li>
+<li><code>gorm:&quot;not null&quot;</code>: 字段不允许为空。</li>
+<li><code>gorm:&quot;size:255&quot;</code>: 设置字符串类型字段的长度。</li>
+<li><code>gorm:&quot;type:longtext&quot;</code>: 指定字段的数据库类型。</li>
+<li><code>gorm:&quot;index&quot;</code>: 为字段创建普通索引。</li>
+<li><code>gorm:&quot;uniqueIndex&quot;</code>: 为字段创建唯一索引。</li>
+</ul>
+<p><strong>示例</strong>:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Product <span class="keyword">struct</span> &#123;</span><br><span class="line">    ID          <span class="type">uint</span>   <span class="string">`gorm:&quot;primaryKey&quot;`</span></span><br><span class="line">    Code        <span class="type">string</span> <span class="string">`gorm:&quot;unique;size:100&quot;`</span></span><br><span class="line">    Price       <span class="type">uint</span>   <span class="string">`gorm:&quot;default:0&quot;`</span></span><br><span class="line">    Description <span class="type">string</span> <span class="string">`gorm:&quot;type:longtext&quot;`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="2-日志与调试">2. 日志与调试</h4>
+<p>GORM 提供了非常灵活的日志功能，方便你在开发和调试过程中查看生成的 SQL 语句和执行结果。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;gorm.io/gorm/logger&quot;</span></span><br><span class="line">    <span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">    dsn := <span class="string">&quot;root:vader20011014@(localhost:3306)/study?charset=utf8mb4&amp;parseTime=True&amp;loc=Local&quot;</span></span><br><span class="line">    <span class="keyword">var</span> err <span class="type">error</span></span><br><span class="line">    DB, err = gorm.Open(mysql.Open(dsn), &amp;gorm.Config&#123;</span><br><span class="line">        Logger: logger.Default.LogMode(logger.Info), <span class="comment">// 设置日志模式为 Info</span></span><br><span class="line">        <span class="comment">// Other options</span></span><br><span class="line">        <span class="comment">// NamingStrategy: schema.NamingStrategy&#123;</span></span><br><span class="line">        <span class="comment">//     SingularTable: true, // 使用单数表名，即 Person 对应 person 表</span></span><br><span class="line">        <span class="comment">// &#125;,</span></span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatalf(<span class="string">&quot;failed to connect database: %v&quot;</span>, err)</span><br><span class="line">    &#125;</span><br><span class="line">    DB.AutoMigrate(&amp;Person&#123;&#125;)</span><br><span class="line">    log.Println(<span class="string">&quot;Database connection and migration successful!&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>日志模式</strong>:</p>
+<ul>
+<li><code>logger.Silent</code>: 不打印任何日志。</li>
+<li><code>logger.Error</code>: 只打印错误日志。</li>
+<li><code>logger.Warn</code>: 打印错误和警告日志。</li>
+<li><code>logger.Info</code>: 打印所有日志，包括 SQL 语句。</li>
+</ul>
+<p>你也可以自定义 Logger 来满足更复杂的日志需求。</p>
+<h4 id="3-链式方法与作用域">3. 链式方法与作用域</h4>
+<p>GORM 最大的特点之一就是其优雅的链式方法调用。你可以将多个方法链接起来构建复杂的查询。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 查找年龄大于20，且地址在中国，并按年龄降序排列，取前10条记录</span></span><br><span class="line"><span class="keyword">var</span> adults []Person</span><br><span class="line">DB.Where(<span class="string">&quot;age &gt; ?&quot;</span>, <span class="number">20</span>).Where(<span class="string">&quot;address = ?&quot;</span>, <span class="string">&quot;China&quot;</span>).Order(<span class="string">&quot;age desc&quot;</span>).Limit(<span class="number">10</span>).Find(&amp;adults)</span><br></pre></td></tr></table></figure>
+<p>GORM 还支持<strong>作用域 (Scopes)</strong>，它允许你将常用的查询条件封装成可复用的函数：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">OlderThan</span><span class="params">(age <span class="type">int</span>)</span></span> <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span></span> *gorm.DB &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span></span> *gorm.DB &#123;</span><br><span class="line">        <span class="keyword">return</span> db.Where(<span class="string">&quot;age &gt; ?&quot;</span>, age)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InAddress</span><span class="params">(address <span class="type">string</span>)</span></span> <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span></span> *gorm.DB &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(db *gorm.DB)</span></span> *gorm.DB &#123;</span><br><span class="line">        <span class="keyword">return</span> db.Where(<span class="string">&quot;address = ?&quot;</span>, address)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用作用域</span></span><br><span class="line"><span class="keyword">var</span> result []Person</span><br><span class="line">DB.Scopes(OlderThan(<span class="number">25</span>), InAddress(<span class="string">&quot;China&quot;</span>)).Find(&amp;result)</span><br></pre></td></tr></table></figure>
+<p>作用域可以大大提高代码的复用性和可读性。</p>
+<h4 id="4-预加载-Preload-与关联查询">4. 预加载 (Preload) 与关联查询</h4>
+<p>在处理关联数据时，GORM 的预加载功能非常强大，可以避免 N+1 查询问题。假设你有 <code>User</code> 和 <code>CreditCard</code> 两个模型，一个用户可以有多张信用卡：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> CreditCard <span class="keyword">struct</span> &#123;</span><br><span class="line">    gorm.Model</span><br><span class="line">    Number <span class="type">string</span></span><br><span class="line">    UserID <span class="type">uint</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    gorm.Model</span><br><span class="line">    Name       <span class="type">string</span></span><br><span class="line">    CreditCards []CreditCard</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询用户及其所有信用卡</span></span><br><span class="line"><span class="keyword">var</span> user User</span><br><span class="line">DB.Preload(<span class="string">&quot;CreditCards&quot;</span>).First(&amp;user, <span class="number">1</span>)</span><br><span class="line"><span class="comment">// 此时 user.CreditCards 字段会被自动填充</span></span><br></pre></td></tr></table></figure>
+<p><code>Preload</code> 会执行额外的查询来加载关联数据，但比手动多次查询要高效得多。</p>
+<h4 id="5-原生-SQL">5. 原生 SQL</h4>
+<p>尽管 GORM 旨在减少原生 SQL 的使用，但在某些复杂场景下，你可能仍然需要执行原生 SQL。GORM 提供了 <code>Raw</code> 和 <code>Exec</code> 方法来满足这些需求。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Raw 用于查询</span></span><br><span class="line"><span class="keyword">var</span> p Person</span><br><span class="line">DB.Raw(<span class="string">&quot;SELECT id, name, age FROM user WHERE id = ?&quot;</span>, <span class="string">&quot;12132&quot;</span>).Scan(&amp;p)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Exec 用于非查询操作 (INSERT, UPDATE, DELETE)</span></span><br><span class="line">DB.Exec(<span class="string">&quot;UPDATE user SET name = ? WHERE id = ?&quot;</span>, <span class="string">&quot;RawUpdate&quot;</span>, <span class="string">&quot;1145&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="6-Hooks-钩子">6. Hooks (钩子)</h4>
+<p>GORM 提供了各种钩子方法，允许你在模型生命周期的不同阶段执行自定义逻辑，例如在创建前、更新后等。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// BeforeCreate hook</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span></span> BeforeCreate(tx *gorm.DB) (err <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> p.Address == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">        p.Address = <span class="string">&quot;Unknown&quot;</span> <span class="comment">// 为新记录设置默认地址</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// AfterUpdate hook</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(p *Person)</span></span> AfterUpdate(tx *gorm.DB) (err <span class="type">error</span>) &#123;</span><br><span class="line">    log.Printf(<span class="string">&quot;Person with ID %s was updated.\n&quot;</span>, p.UserId)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这些钩子方法非常适合用于数据验证、日志记录、缓存更新等场景。</p>
+<h4 id="7-错误处理">7. 错误处理</h4>
+<p>GORM 的操作结果会返回一个 <code>*gorm.DB</code> 对象，你可以通过检查其 <code>Error</code> 字段来判断操作是否成功。</p>
+<ul>
+<li><code>result.Error</code>: 如果操作失败，这里会包含具体的错误信息。</li>
+<li><code>gorm.ErrRecordNotFound</code>: 特定于未找到记录的错误。</li>
+<li><code>result.RowsAffected</code>: 对于 DML 操作 (Create, Update, Delete)，表示受影响的行数。</li>
+</ul>
+<p>始终检查 <code>result.Error</code> 是一个好习惯。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/09/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%B5%8C%E5%85%A5%E7%9A%84%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF/" rel="prev" title="Go语言之嵌入的使用场景">
+                  <i class="fa fa-angle-left"></i> Go语言之嵌入的使用场景
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/" rel="next" title="Go语言之Redis入门">
+                  Go语言之Redis入门 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

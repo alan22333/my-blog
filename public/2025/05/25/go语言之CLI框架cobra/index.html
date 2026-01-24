@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之CLI框架：cobra | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Cobra 是一个用于创建强大现代 CLI 应用程序的 Go 库，许多知名项目如 Kubernetes、Docker 和 Hugo 都使用它。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之CLI框架：cobra">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Cobra 是一个用于创建强大现代 CLI 应用程序的 Go 库，许多知名项目如 Kubernetes、Docker 和 Hugo 都使用它。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-25T00:36:31.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/","path":"2025/05/25/go语言之CLI框架cobra/","title":"go语言之CLI框架：cobra"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%A6-%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%AE%89%E8%A3%85-Cobra-CLI-%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">📦 第一步：安装 Cobra CLI 工具</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%B1-%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE"><span class="nav-number">2.</span> <span class="nav-text">🧱 第二步：初始化项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9A%80-%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E8%BF%90%E8%A1%8C%E9%A1%B9%E7%9B%AE"><span class="nav-number">3.</span> <span class="nav-text">🚀 第三步：运行项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9E%95-%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E6%B7%BB%E5%8A%A0%E5%AD%90%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">➕ 第四步：添加子命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E6%B7%BB%E5%8A%A0-add-%E5%91%BD%E4%BB%A4"><span class="nav-number">4.1.</span> <span class="nav-text">示例：添加 add 命令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8B-%E7%AC%AC%E4%BA%94%E6%AD%A5%EF%BC%9A%E6%B7%BB%E5%8A%A0-list-%E5%91%BD%E4%BB%A4"><span class="nav-number">5.</span> <span class="nav-text">📋 第五步：添加 list 命令</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%93%9D-%E6%B3%A8%E6%84%8F%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%9C%A8%E5%86%85%E5%AD%98%E4%B8%AD%EF%BC%8C%E4%B8%8D%E6%8C%81%E4%B9%85%E5%8C%96%E3%80%82%E5%8F%AF%E7%94%A8-map-string-string-%E6%88%96%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6%E6%A8%A1%E6%8B%9F%E6%9B%B4%E5%A4%8D%E6%9D%82%E9%80%BB%E8%BE%91%E3%80%82"><span class="nav-number">5.1.</span> <span class="nav-text">📝 注意：数据结构在内存中，不持久化。可用 map[string]string 或写入文件模拟更复杂逻辑。</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8E%9B-%E7%AC%AC%E5%85%AD%E6%AD%A5%EF%BC%9A%E6%B7%BB%E5%8A%A0%E6%A0%87%E5%BF%97%EF%BC%88flags%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">🎛 第六步：添加标志（flags）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%BC-%E7%AC%AC%E4%B8%83%E6%AD%A5%EF%BC%9A%E7%BE%8E%E5%8C%96%E5%92%8C%E6%9E%84%E5%BB%BA%E9%A1%B9%E7%9B%AE"><span class="nav-number">7.</span> <span class="nav-text">🧼 第七步：美化和构建项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%A6-%E6%9C%80%E7%BB%88%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84"><span class="nav-number">8.</span> <span class="nav-text">📦 最终项目结构</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之CLI框架：cobra | Hello there! I'm alan">
+      <meta itemprop="description" content="Cobra 是一个用于创建强大现代 CLI 应用程序的 Go 库，许多知名项目如 Kubernetes、Docker 和 Hugo 都使用它。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之CLI框架：cobra
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-25 08:36:31" itemprop="dateCreated datePublished" datetime="2025-05-25T08:36:31+08:00">2025-05-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Cobra 是一个用于创建强大现代 CLI 应用程序的 Go 库，许多知名项目如 Kubernetes、Docker 和 Hugo 都使用它。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="📦-第一步：安装-Cobra-CLI-工具">📦 第一步：安装 Cobra CLI 工具</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go install github.com/spf13/cobra-cli@latest</span><br></pre></td></tr></table></figure>
+<p>确保 <code>$GOPATH/bin</code> 在你的 <code>PATH</code> 中，然后你可以运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cobra-cli --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🧱-第二步：初始化项目">🧱 第二步：初始化项目</h2>
+<p>创建你的 Go 项目目录：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">mkdir</span> tasker &amp;&amp; <span class="built_in">cd</span> tasker</span><br><span class="line">go mod init github.com/yourname/tasker</span><br></pre></td></tr></table></figure>
+<p>使用 <code>cobra-cli</code> 初始化：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cobra-cli init --pkg-name github.com/yourname/tasker</span><br></pre></td></tr></table></figure>
+<p>这会生成如下结构：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tasker/</span><br><span class="line">├── cmd/</span><br><span class="line">│   └── root.go</span><br><span class="line">├── main.go</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🚀-第三步：运行项目">🚀 第三步：运行项目</h2>
+<p>在当前目录运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run main.go</span><br></pre></td></tr></table></figure>
+<p>输出将会是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tasker is a CLI application</span><br></pre></td></tr></table></figure>
+<p>你可以查看帮助：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run main.go --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="➕-第四步：添加子命令">➕ 第四步：添加子命令</h2>
+<h3 id="示例：添加-add-命令">示例：添加 <code>add</code> 命令</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cobra-cli add add</span><br></pre></td></tr></table></figure>
+<p>编辑 <code>cmd/add.go</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cmd</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/spf13/cobra&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> addCmd = &amp;cobra.Command&#123;</span><br><span class="line">	Use:   <span class="string">&quot;add [task]&quot;</span>,</span><br><span class="line">	Short: <span class="string">&quot;添加一个新任务&quot;</span>,</span><br><span class="line">	Args:  cobra.ExactArgs(<span class="number">1</span>),</span><br><span class="line">	Run: <span class="function"><span class="keyword">func</span><span class="params">(cmd *cobra.Command, args []<span class="type">string</span>)</span></span> &#123;</span><br><span class="line">		task := args[<span class="number">0</span>]</span><br><span class="line">		fmt.Printf(<span class="string">&quot;添加任务: %s\n&quot;</span>, task)</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rootCmd.AddCommand(addCmd)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在你可以运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run main.go add <span class="string">&quot;写 Cobra 教程&quot;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="📋-第五步：添加-list-命令">📋 第五步：添加 <code>list</code> 命令</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cobra-cli add list</span><br></pre></td></tr></table></figure>
+<p>编辑 <code>cmd/list.go</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> cmd</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/spf13/cobra&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tasks = []<span class="type">string</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> listCmd = &amp;cobra.Command&#123;</span><br><span class="line">	Use:   <span class="string">&quot;list&quot;</span>,</span><br><span class="line">	Short: <span class="string">&quot;列出所有任务&quot;</span>,</span><br><span class="line">	Run: <span class="function"><span class="keyword">func</span><span class="params">(cmd *cobra.Command, args []<span class="type">string</span>)</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(tasks) == <span class="number">0</span> &#123;</span><br><span class="line">			fmt.Println(<span class="string">&quot;没有任务&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">for</span> i, task := <span class="keyword">range</span> tasks &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;%d. %s\n&quot;</span>, i+<span class="number">1</span>, task)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rootCmd.AddCommand(listCmd)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="📝-注意：数据结构在内存中，不持久化。可用-map-string-string-或写入文件模拟更复杂逻辑。">📝 注意：数据结构在内存中，不持久化。可用 <code>map[string]string</code> 或写入文件模拟更复杂逻辑。</h3>
+<hr>
+<h2 id="🎛-第六步：添加标志（flags）">🎛 第六步：添加标志（flags）</h2>
+<p>比如我们想让 <code>add</code> 命令带一个 <code>--priority</code> 选项：</p>
+<p>在 <code>add.go</code> 的 <code>init()</code> 函数中添加：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">addCmd.Flags().StringP(<span class="string">&quot;priority&quot;</span>, <span class="string">&quot;p&quot;</span>, <span class="string">&quot;normal&quot;</span>, <span class="string">&quot;任务优先级&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>并在 <code>Run</code> 中读取：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">priority, _ := cmd.Flags().GetString(<span class="string">&quot;priority&quot;</span>)</span><br><span class="line">fmt.Printf(<span class="string">&quot;添加任务: %s（优先级: %s）\n&quot;</span>, task, priority)</span><br></pre></td></tr></table></figure>
+<p>示例运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go run main.go add <span class="string">&quot;学习 Go&quot;</span> --priority high</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🧼-第七步：美化和构建项目">🧼 第七步：美化和构建项目</h2>
+<p>构建可执行文件：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">go build -o tasker</span><br><span class="line">./tasker --<span class="built_in">help</span></span><br></pre></td></tr></table></figure>
+<p>可以将 <code>tasker</code> 添加到系统 PATH 中，变成全局命令行工具。</p>
+<hr>
+<h2 id="📦-最终项目结构">📦 最终项目结构</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tasker/</span><br><span class="line">├── cmd/</span><br><span class="line">│   ├── add.go</span><br><span class="line">│   ├── list.go</span><br><span class="line">│   └── root.go</span><br><span class="line">├── go.mod</span><br><span class="line">└── main.go</span><br></pre></td></tr></table></figure>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/24/%E8%BF%9C%E7%A8%8B%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%EF%BC%9ARPCvsHTTP/" rel="prev" title="远程通信协议：RPCvsHTTP">
+                  <i class="fa fa-angle-left"></i> 远程通信协议：RPCvsHTTP
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/" rel="next" title="go语言之select指南">
+                  go语言之select指南 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

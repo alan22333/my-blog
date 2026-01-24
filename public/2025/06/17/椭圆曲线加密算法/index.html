@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>椭圆曲线加密算法(ECC) | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="参考：简书-椭圆曲线加密算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="椭圆曲线加密算法(ECC)">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/17/%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="参考：简书-椭圆曲线加密算法">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-17T05:39:21.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.067Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="科研">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/17/%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/17/%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/","path":"2025/06/17/椭圆曲线加密算法/","title":"椭圆曲线加密算法(ECC)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/17/%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%EF%BC%88ECC%EF%BC%89%EF%BC%9A%E4%BB%8E%E6%95%B0%E5%AD%A6%E5%8E%9F%E7%90%86%E5%88%B0%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.</span> <span class="nav-text">椭圆曲线加密算法（ECC）：从数学原理到工程实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81ECC-%E7%9A%84%E8%AF%9E%E7%94%9F%E4%B8%8E%E4%BC%98%E5%8A%BF%EF%BC%9A%E5%AF%86%E7%A0%81%E5%AD%A6%E7%9A%84%E6%95%88%E7%8E%87%E9%9D%A9%E5%91%BD"><span class="nav-number">1.1.</span> <span class="nav-text">一、ECC 的诞生与优势：密码学的效率革命</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E7%9A%84%E6%95%B0%E5%AD%A6%E5%AE%9A%E4%B9%89%E4%B8%8E%E5%87%A0%E4%BD%95%E7%9B%B4%E8%A7%82"><span class="nav-number">1.2.</span> <span class="nav-text">二、椭圆曲线的数学定义与几何直观</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E7%9A%84%E4%BB%A3%E6%95%B0%E8%A1%A8%E8%BE%BE%E5%BC%8F"><span class="nav-number">1.2.1.</span> <span class="nav-text">2.1 椭圆曲线的代数表达式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E4%B8%8A%E7%9A%84%E5%87%A0%E4%BD%95%E8%BF%90%E7%AE%97%E8%A7%84%E5%88%99"><span class="nav-number">1.2.2.</span> <span class="nav-text">2.2 椭圆曲线上的几何运算规则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%8A%A0%E6%B3%95%E8%BF%90%E7%AE%97%EF%BC%88A-B-C%EF%BC%89"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">（1）加法运算（A + B &#x3D; C）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E4%BA%8C%E5%80%8D%E8%BF%90%E7%AE%97%EF%BC%882A%EF%BC%89"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">（2）二倍运算（2A）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%AD%A3%E8%B4%9F%E5%8F%96%E5%8F%8D%EF%BC%88-A%EF%BC%89"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">（3）正负取反（-A）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E6%97%A0%E7%A9%B7%E8%BF%9C%E7%82%B9%EF%BC%88O%EF%BC%89"><span class="nav-number">1.2.2.4.</span> <span class="nav-text">（4）无穷远点（O）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%9C%89%E9%99%90%E5%9F%9F%E4%B8%8A%E7%9A%84%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%EF%BC%9A%E4%BB%8E%E8%BF%9E%E7%BB%AD%E5%88%B0%E7%A6%BB%E6%95%A3%E7%9A%84%E5%AF%86%E7%A0%81%E5%AD%A6%E9%80%82%E9%85%8D"><span class="nav-number">1.3.</span> <span class="nav-text">三、有限域上的椭圆曲线：从连续到离散的密码学适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E6%9C%89%E9%99%90%E5%9F%9F-GF-p-%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.3.1.</span> <span class="nav-text">3.1 有限域 GF(p)的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E6%9C%89%E9%99%90%E5%9F%9F%E4%B8%8A%E7%9A%84%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E6%96%B9%E7%A8%8B"><span class="nav-number">1.3.2.</span> <span class="nav-text">3.2 有限域上的椭圆曲线方程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E6%9C%89%E9%99%90%E5%9F%9F%E4%B8%8A%E7%9A%84%E7%82%B9%E8%BF%90%E7%AE%97%E5%85%AC%E5%BC%8F"><span class="nav-number">1.3.3.</span> <span class="nav-text">3.3 有限域上的点运算公式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81ECC-%E5%8A%A0%E8%A7%A3%E5%AF%86%E5%8E%9F%E7%90%86%EF%BC%9A%E5%9F%BA%E4%BA%8E%E7%A6%BB%E6%95%A3%E5%AF%B9%E6%95%B0%E9%97%AE%E9%A2%98%E7%9A%84%E5%AE%89%E5%85%A8%E6%9C%BA%E5%88%B6"><span class="nav-number">1.4.</span> <span class="nav-text">四、ECC 加解密原理：基于离散对数问题的安全机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90%E6%9C%BA%E5%88%B6"><span class="nav-number">1.4.1.</span> <span class="nav-text">4.1 密钥生成机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E5%8A%A0%E5%AF%86%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.2.</span> <span class="nav-text">4.2 加密过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E8%A7%A3%E5%AF%86%E8%BF%87%E7%A8%8B"><span class="nav-number">1.4.3.</span> <span class="nav-text">4.3 解密过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81ECDSA-%E7%AD%BE%E5%90%8D%E7%AE%97%E6%B3%95%EF%BC%9A%E4%BB%8E%E5%8A%A0%E5%AF%86%E5%88%B0%E5%AE%8C%E6%95%B4%E6%80%A7%E9%AA%8C%E8%AF%81"><span class="nav-number">1.5.</span> <span class="nav-text">五、ECDSA 签名算法：从加密到完整性验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E7%AD%BE%E5%90%8D%E7%94%9F%E6%88%90"><span class="nav-number">1.5.1.</span> <span class="nav-text">5.1 签名生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E7%AD%BE%E5%90%8D%E9%AA%8C%E8%AF%81"><span class="nav-number">1.5.2.</span> <span class="nav-text">5.2 签名验证</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81Go-%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%EF%BC%9AECC-%E7%AD%BE%E5%90%8D%E4%B8%8E%E9%AA%8C%E8%AF%81%E7%9A%84%E5%B7%A5%E7%A8%8B%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.6.</span> <span class="nav-text">六、Go 语言实现：ECC 签名与验证的工程实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81ECC-%E7%9A%84%E7%8E%B0%E5%AE%9E%E5%BA%94%E7%94%A8%E4%B8%8E%E6%9C%AA%E6%9D%A5%E8%B6%8B%E5%8A%BF"><span class="nav-number">1.7.</span> <span class="nav-text">七、ECC 的现实应用与未来趋势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.7.1.</span> <span class="nav-text">7.1 典型应用场景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-%E6%8A%80%E6%9C%AF%E6%8C%91%E6%88%98%E4%B8%8E%E5%8F%91%E5%B1%95"><span class="nav-number">1.7.2.</span> <span class="nav-text">7.2 技术挑战与发展</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%93%E8%AF%AD%EF%BC%9A%E6%95%B0%E5%AD%A6%E4%B9%8B%E7%BE%8E%E4%B8%8E%E5%AF%86%E7%A0%81%E5%AD%A6%E7%9A%84%E8%9E%8D%E5%90%88"><span class="nav-number">1.8.</span> <span class="nav-text">结语：数学之美与密码学的融合</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/17/%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="椭圆曲线加密算法(ECC) | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          椭圆曲线加密算法(ECC)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-17 13:39:21" itemprop="dateCreated datePublished" datetime="2025-06-17T13:39:21+08:00">2025-06-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/" itemprop="url" rel="index"><span itemprop="name">科研</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/%E5%AF%86%E7%A0%81%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">密码学</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>参考：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/e41bc1eb1d81">简书-椭圆曲线加密算法</a></p>
+<span id="more"></span>
+<h1 id="椭圆曲线加密算法（ECC）：从数学原理到工程实践">椭圆曲线加密算法（ECC）：从数学原理到工程实践</h1>
+<p>椭圆曲线加密算法（Elliptic Curve Cryptography, ECC）是现代密码学中最具效率的非对称加密技术之一。与 RSA 等传统算法相比，它能以更短的密钥长度实现同等安全强度，这使其在移动设备、区块链等对算力和存储敏感的场景中得到广泛应用。本文将从数学原理出发，逐步解析 ECC 的核心概念与实现逻辑。</p>
+<h2 id="一、ECC-的诞生与优势：密码学的效率革命">一、ECC 的诞生与优势：密码学的效率革命</h2>
+<p>1985 年，Neal Koblitz 和 Victor Miller 分别独立提出了椭圆曲线在密码学中的应用，开创了非对称加密的新方向。ECC 的核心优势在于<strong>密钥长度与安全强度的高效比</strong>：</p>
+<ul>
+<li>160 位 ECC 加密的安全性相当于 1024 位 RSA 加密</li>
+<li>210 位 ECC 加密的安全性相当于 2048 位 RSA 加密</li>
+</ul>
+<p>这种优势源于椭圆曲线上的离散对数问题（ECDLP）的数学难度——已知点 G 和 xG 求 x 的计算复杂度极高，而正向计算 xG 则相对容易，这种&quot;单向性&quot;构成了 ECC 的安全基础。</p>
+<h2 id="二、椭圆曲线的数学定义与几何直观">二、椭圆曲线的数学定义与几何直观</h2>
+<h3 id="2-1-椭圆曲线的代数表达式">2.1 椭圆曲线的代数表达式</h3>
+<p>一般情况下，椭圆曲线可用三次方程表示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">E: y² = ax³ + bx² + cx + d</span><br></pre></td></tr></table></figure>
+<p>其中系数 a,b,c,d 需满足特定条件（如判别式非零，确保曲线光滑无奇点）。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">E: y² = x³ - 2x + 4</span><br></pre></td></tr></table></figure>
+<p>该曲线的几何图像并非传统椭圆形，而是呈现出独特的双弧形态，这也是椭圆曲线名称的历史渊源（与椭圆积分相关）。<br>
+注：图形可以参考原文</p>
+<h3 id="2-2-椭圆曲线上的几何运算规则">2.2 椭圆曲线上的几何运算规则</h3>
+<p>椭圆曲线密码学的核心在于定义了一套点集上的代数运算，这些运算基于几何直观设计：</p>
+<h4 id="（1）加法运算（A-B-C）">（1）加法运算（A + B = C）</h4>
+<ul>
+<li>过曲线上两点 A、B 作直线，与曲线交于第三点</li>
+<li>该点关于 x 轴的对称点即为 A+B 的结果</li>
+</ul>
+<h4 id="（2）二倍运算（2A）">（2）二倍运算（2A）</h4>
+<ul>
+<li>当两点重合（A=B）时，作 A 点的切线</li>
+<li>切线与曲线的交点关于 x 轴对称点即为 2A</li>
+</ul>
+<h4 id="（3）正负取反（-A）">（3）正负取反（-A）</h4>
+<ul>
+<li>点 A 关于 x 轴的对称点定义为-A，满足 A + (-A) = O（O 为无穷远点）</li>
+</ul>
+<h4 id="（4）无穷远点（O）">（4）无穷远点（O）</h4>
+<ul>
+<li>定义为椭圆曲线的加法单位元，满足 A + O = A</li>
+<li>当直线垂直于 x 轴时，视为与无穷远点相交</li>
+</ul>
+<h2 id="三、有限域上的椭圆曲线：从连续到离散的密码学适配">三、有限域上的椭圆曲线：从连续到离散的密码学适配</h2>
+<p>实数域上的椭圆曲线是连续光滑的曲线，但密码学需要离散化的数学结构。有限域 GF(p)（p 为质数）的引入解决了这一问题：</p>
+<h3 id="3-1-有限域-GF-p-的定义">3.1 有限域 GF(p)的定义</h3>
+<ul>
+<li>由 0,1,2,…,p-1 共 p 个元素组成</li>
+<li>运算规则为模 p 加法、乘法和逆运算</li>
+</ul>
+<h3 id="3-2-有限域上的椭圆曲线方程">3.2 有限域上的椭圆曲线方程</h3>
+<p>以 GF(23)为例，曲线方程表示为：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">y² ≡ x³ + x + 1 (mod 23)</span><br></pre></td></tr></table></figure>
+<p>此时曲线不再是连续曲线，而是有限个离散点的集合。例如：</p>
+<ul>
+<li>点(1,7)满足 7²=49≡49-2×23=3 mod23，而 1³+1+1=3，等式成立</li>
+<li>点(0,1)的负点为(0,22)，因-1 mod23=22（这体现了有限域中元素的对称性，即若(x, y)在曲线上，则(x, -y mod p)也在曲线上）</li>
+</ul>
+<h3 id="3-3-有限域上的点运算公式">3.3 有限域上的点运算公式</h3>
+<p>设椭圆曲线为 y² = x³ + ax + b，在 GF(p)上两点 P(Xp,Yp)、Q(Xq,Yq)的加法规则为：</p>
+<p>当 P≠-Q 时：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">λ = (Yq - Yp)/(Xq - Xp) mod p</span><br><span class="line">Xr = (λ² - Xp - Xq) mod p</span><br><span class="line">Yr = (λ(Xp - Xr) - Yp) mod p</span><br></pre></td></tr></table></figure>
+<p>当 P=Q 时（二倍运算）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">λ = (3Xp² + a)/(2Yp) mod p</span><br><span class="line">Xr = (λ² - 2Xp) mod p</span><br><span class="line">Yr = (λ(Xp - Xr) - Yp) mod p</span><br></pre></td></tr></table></figure>
+<p><strong>计算示例</strong>：在 GF(23)上以 G=(0,1)计算 2G：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">λ = (3×0² + 1)/(2×1) mod23 = 1×12 mod23 = 12（因2×12=24≡1 mod23，故2的逆元为12）</span><br><span class="line">Xr = (12² - 0 - 0) mod23 = 144 mod23 = 144-6×23=6</span><br><span class="line">Yr = (12×(0-6) - 1) mod23 = (-73) mod23 = (-73+4×23)=19</span><br><span class="line">∴2G=(6,19)</span><br></pre></td></tr></table></figure>
+<h2 id="四、ECC-加解密原理：基于离散对数问题的安全机制">四、ECC 加解密原理：基于离散对数问题的安全机制</h2>
+<h3 id="4-1-密钥生成机制">4.1 密钥生成机制</h3>
+<ul>
+<li>私钥 k：随机选取的大整数</li>
+<li>公钥 K：K = kG，其中 G 为椭圆曲线上的基点</li>
+</ul>
+<h3 id="4-2-加密过程">4.2 加密过程</h3>
+<ul>
+<li>发送方选择随机数 r，明文 M 映射为曲线上的点</li>
+<li>密文 C 由点对组成：C = {rG, M + rK}</li>
+</ul>
+<h3 id="4-3-解密过程">4.3 解密过程</h3>
+<ul>
+<li>接收方用私钥 k 计算：M + rK - k(rG) = M + r(kG) - k(rG) = M</li>
+<li>利用代数性质消除随机数 r 的影响，还原明文</li>
+</ul>
+<p><strong>安全性核心</strong>：从 K=kG 推导 k 的过程等价于椭圆曲线离散对数问题（ECDLP），目前没有多项式时间算法可破解。</p>
+<h2 id="五、ECDSA-签名算法：从加密到完整性验证">五、ECDSA 签名算法：从加密到完整性验证</h2>
+<p>椭圆曲线数字签名算法（ECDSA）是 ECC 在签名场景的应用，其流程如下：</p>
+<h3 id="5-1-签名生成">5.1 签名生成</h3>
+<ol>
+<li>对消息 M 计算哈希 h = SHA256(M)</li>
+<li>选择随机数 r，计算点 rG=(x,y)</li>
+<li>计算签名值 s = (h + kx)/r mod p</li>
+<li>签名结果为{rG 的 x 坐标, s}</li>
+</ol>
+<h3 id="5-2-签名验证">5.2 签名验证</h3>
+<ol>
+<li>接收方计算消息哈希 h’</li>
+<li>计算验证值：h’G/s + xK/s</li>
+<li>若结果等于 rG，则签名有效</li>
+</ol>
+<p><strong>数学原理</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">h&#x27;G/s + xK/s = (h&#x27; + xk)G/s = r(h&#x27; + xk)G/(h&#x27; + xk) = rG</span><br></pre></td></tr></table></figure>
+<p>利用公钥 K=kG 实现了无需私钥的签名验证。</p>
+<h2 id="六、Go-语言实现：ECC-签名与验证的工程实践">六、Go 语言实现：ECC 签名与验证的工程实践</h2>
+<p>以下是使用 Go 语言实现 ECDSA 签名与验证的完整代码：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;crypto/ecdsa&quot;</span></span><br><span class="line">	<span class="string">&quot;crypto/elliptic&quot;</span></span><br><span class="line">	<span class="string">&quot;crypto/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;crypto/sha256&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/big&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 待签名明文</span></span><br><span class="line">	message := []<span class="type">byte</span>(<span class="string">&quot;Hello world&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 生成签名密钥对</span></span><br><span class="line">	key, err := NewSigningKey()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;密钥生成失败:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 执行签名</span></span><br><span class="line">	signature, err := Sign(message, key)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;签名失败:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;签名结果: %x\n&quot;</span>, signature)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 验证签名</span></span><br><span class="line">	<span class="keyword">if</span> !Verify(message, signature, &amp;key.PublicKey) &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;验证失败！&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;验证成功！&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 生成ECDSA签名密钥对</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewSigningKey</span><span class="params">()</span></span> (*ecdsa.PrivateKey, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">// 使用P256曲线（NIST推荐的256位椭圆曲线）</span></span><br><span class="line">	<span class="keyword">return</span> ecdsa.GenerateKey(elliptic.P256(), rand.Reader)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 对数据进行ECDSA签名</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sign</span><span class="params">(data []<span class="type">byte</span>, privkey *ecdsa.PrivateKey)</span></span> ([]<span class="type">byte</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">// 计算消息哈希</span></span><br><span class="line">	digest := sha256.Sum256(data)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 执行签名，得到r和s</span></span><br><span class="line">	r, s, err := ecdsa.Sign(rand.Reader, privkey, digest[:])</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 格式化签名数据（补全字节长度以保证兼容性）</span></span><br><span class="line">	params := privkey.Curve.Params()</span><br><span class="line">	curveOrderByteSize := params.P.BitLen() / <span class="number">8</span></span><br><span class="line">	rBytes, sBytes := r.Bytes(), s.Bytes()</span><br><span class="line">	signature := <span class="built_in">make</span>([]<span class="type">byte</span>, curveOrderByteSize*<span class="number">2</span>)</span><br><span class="line">	<span class="built_in">copy</span>(signature[curveOrderByteSize-<span class="built_in">len</span>(rBytes):], rBytes)</span><br><span class="line">	<span class="built_in">copy</span>(signature[curveOrderByteSize*<span class="number">2</span>-<span class="built_in">len</span>(sBytes):], sBytes)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> signature, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 验证ECDSA签名</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Verify</span><span class="params">(data, signature []<span class="type">byte</span>, pubkey *ecdsa.PublicKey)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="comment">// 计算消息哈希</span></span><br><span class="line">	digest := sha256.Sum256(data)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 解析签名数据</span></span><br><span class="line">	curveOrderByteSize := pubkey.Curve.Params().P.BitLen() / <span class="number">8</span></span><br><span class="line">	r, s := <span class="built_in">new</span>(big.Int), <span class="built_in">new</span>(big.Int)</span><br><span class="line">	r.SetBytes(signature[:curveOrderByteSize])</span><br><span class="line">	s.SetBytes(signature[curveOrderByteSize:])</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 执行签名验证</span></span><br><span class="line">	<span class="keyword">return</span> ecdsa.Verify(pubkey, digest[:], r, s)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这段代码实现了完整的 ECDSA 流程，包括密钥生成、消息哈希、签名生成与验证，使用了 Go 标准库中的<code>crypto/ecdsa</code>包，底层基于 P256 椭圆曲线（NIST 推荐的 secp256r1 曲线）。</p>
+<h2 id="七、ECC-的现实应用与未来趋势">七、ECC 的现实应用与未来趋势</h2>
+<h3 id="7-1-典型应用场景">7.1 典型应用场景</h3>
+<ul>
+<li><strong>区块链</strong>：比特币、以太坊等加密货币使用 ECDSA 作为账户签名算法</li>
+<li><strong>TLS/SSL</strong>：ECC 已成为 HTTPS 连接的主流密钥交换方式之一</li>
+<li><strong>物联网</strong>：低功耗设备因 ECC 的算力优势优先选择该算法</li>
+<li><strong>数字签名</strong>：各国电子政务、金融系统中的合规签名方案</li>
+</ul>
+<h3 id="7-2-技术挑战与发展">7.2 技术挑战与发展</h3>
+<ul>
+<li><strong>量子计算威胁</strong>：Shor 算法理论上可破解 ECC，但当前量子计算机尚未达到实用化规模</li>
+<li><strong>标准化进程</strong>：不同组织（NIST、SECG、中国 SM2 等）推出了不同的曲线标准</li>
+<li><strong>性能优化</strong>：侧信道攻击防护、标量乘法优化仍是研究热点</li>
+</ul>
+<h2 id="结语：数学之美与密码学的融合">结语：数学之美与密码学的融合</h2>
+<p>椭圆曲线加密算法完美诠释了&quot;数学即密码&quot;的理念——看似抽象的三次曲线几何性质，通过有限域的离散化处理，成为保护数字世界的基石。随着计算技术的发展，ECC 在保持安全优势的同时，将在更多场景中替代传统加密算法，持续守护信息时代的安全边界。</p>
+<p><strong>参考资源</strong>：</p>
+<ul>
+<li>Neal Koblitz《Elliptic Curve Cryptography》</li>
+<li>SECG 标准《SEC 1: Elliptic Curve Cryptography》</li>
+<li>NIST 联邦信息处理标准 FIPS 186-4</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A7%91%E7%A0%94/" rel="tag"># 科研</a>
+              <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag"># 密码学</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/15/%E7%A1%95%E5%AF%BC%E5%8F%8C%E9%80%89%E5%A5%87%E9%81%87%E8%AE%B0/" rel="prev" title="硕导双选奇遇记">
+                  <i class="fa fa-angle-left"></i> 硕导双选奇遇记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/18/mac%E6%96%B0%E6%8E%A8%E5%87%BA%E7%9A%84%E5%8E%9F%E7%94%9F%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF/" rel="next" title="mac新推出的原生容器技术-container">
+                  mac新推出的原生容器技术-container <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

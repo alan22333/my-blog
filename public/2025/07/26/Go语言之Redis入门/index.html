@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之Redis入门 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Redis 是一个高性能的K-V内存数据库，本文将详细讲解如何在Go语言中使用Redis和一些常见的最佳实践">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之Redis入门">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Redis 是一个高性能的K-V内存数据库，本文将详细讲解如何在Go语言中使用Redis和一些常见的最佳实践">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-26T10:13:45.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.055Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="redis">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/","path":"2025/07/26/Go语言之Redis入门/","title":"Go语言之Redis入门"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Redis-%E7%AE%80%E4%BB%8B%E4%B8%8E-Go-%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">一、Redis 简介与 Go 适用场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Go-%E4%B8%AD%E6%93%8D%E4%BD%9C-Redis-%E5%9F%BA%E7%A1%80%EF%BC%9A%E4%BD%BF%E7%94%A8-go-redis-v9"><span class="nav-number">2.</span> <span class="nav-text">二、Go 中操作 Redis 基础：使用 go-redis&#x2F;v9</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E8%BF%9E%E6%8E%A5%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%88%E5%85%A8%E5%B1%80%E5%A4%8D%E7%94%A8%EF%BC%89"><span class="nav-number">2.1.</span> <span class="nav-text">初始化连接客户端（全局复用）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%81-Redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-Go-%E6%93%8D%E4%BD%9C%E5%AE%9E%E6%88%98"><span class="nav-number">3.</span> <span class="nav-text">三、常见 Redis 数据结构 + Go 操作实战</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-String%EF%BC%88%E7%BC%93%E5%AD%98%E3%80%81%E8%AE%A1%E6%95%B0%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">1. String（缓存、计数）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Hash%EF%BC%88%E7%BB%93%E6%9E%84%E5%8C%96%E6%95%B0%E6%8D%AE%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">2. Hash（结构化数据）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-List%EF%BC%88%E9%98%9F%E5%88%97%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">3. List（队列）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Set%EF%BC%88%E5%8E%BB%E9%87%8D%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">4. Set（去重）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Sorted-Set%EF%BC%88%E6%8E%92%E8%A1%8C%E6%A6%9C%EF%BC%89"><span class="nav-number">3.5.</span> <span class="nav-text">5. Sorted Set（排行榜）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%85%B8%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E5%AE%9E%E6%88%98%EF%BC%88%E4%BB%A3%E7%A0%81%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">四、典型应用场景实战（代码完整示例）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BC%93%E5%AD%98%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%9C"><span class="nav-number">4.1.</span> <span class="nav-text">1. 缓存数据库查询结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-ZSet-%E5%AE%9E%E7%8E%B0%E6%B8%B8%E6%88%8F%E6%8E%92%E8%A1%8C%E6%A6%9C"><span class="nav-number">4.2.</span> <span class="nav-text">2. 使用 ZSet 实现游戏排行榜</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81%E5%AE%9E%E7%8E%B0%EF%BC%88%E6%8E%A8%E8%8D%90-Lua-%E6%96%B9%E5%BC%8F%EF%BC%89"><span class="nav-number">4.3.</span> <span class="nav-text">3. 分布式锁实现（推荐 Lua 方式）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%B6%88%E6%81%AF%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85"><span class="nav-number">4.4.</span> <span class="nav-text">4. 消息发布&#x2F;订阅</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%B0%81%E8%A3%85-Redis-%E4%B8%BA%E6%A8%A1%E5%9D%97%E5%8C%96%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%88%E5%BC%BA%E7%83%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">五、封装 Redis 为模块化中间件（强烈推荐）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%81%E8%A3%85-Redis-%E6%8E%A5%E5%8F%A3%E5%B1%82%EF%BC%88%E6%B3%9B%E5%9E%8B%E6%94%AF%E6%8C%81%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">封装 Redis 接口层（泛型支持）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F%EF%BC%9A"><span class="nav-number">5.2.</span> <span class="nav-text">使用方式：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E4%B8%8E%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98"><span class="nav-number">6.</span> <span class="nav-text">六、性能优化与常见问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E7%94%A8%E5%BB%BA%E8%AE%AE%EF%BC%9A"><span class="nav-number">6.1.</span> <span class="nav-text">实用建议：</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之Redis入门 | Hello there! I'm alan">
+      <meta itemprop="description" content="Redis 是一个高性能的K-V内存数据库，本文将详细讲解如何在Go语言中使用Redis和一些常见的最佳实践">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之Redis入门
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-26 18:13:45" itemprop="dateCreated datePublished" datetime="2025-07-26T18:13:45+08:00">2025-07-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/database/" itemprop="url" rel="index"><span itemprop="name">database</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Redis 是一个高性能的K-V内存数据库，本文将详细讲解如何在Go语言中使用Redis和一些常见的最佳实践</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Redis-简介与-Go-适用场景">一、Redis 简介与 Go 适用场景</h2>
+<p>Redis 是一个高性能的<strong>Key-Value</strong>内存数据库，常用于：</p>
+<ul>
+<li>数据缓存（热点数据、数据库查询结果）</li>
+<li>计数器（网站访问量、点赞数）</li>
+<li>排行榜系统（使用 <code>ZSet</code>）</li>
+<li>消息队列（Pub/Sub 或 Redis Stream）</li>
+<li>分布式锁</li>
+<li>限流器（如滑动窗口、令牌桶）</li>
+</ul>
+<p>在 Go 微服务架构中，Redis 通常扮演<strong>缓存层 + 通讯中间件</strong>的角色，性能至关重要。</p>
+<hr>
+<h2 id="二、Go-中操作-Redis-基础：使用-go-redis-v9">二、Go 中操作 Redis 基础：使用 go-redis/v9</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/redis/go-redis/v9</span><br></pre></td></tr></table></figure>
+<h3 id="初始化连接客户端（全局复用）">初始化连接客户端（全局复用）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> redisx</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;context&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/redis/go-redis/v9&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	ctx = context.Background()</span><br><span class="line">	Rdb *redis.Client</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InitRedis</span><span class="params">()</span></span> &#123;</span><br><span class="line">	Rdb = redis.NewClient(&amp;redis.Options&#123;</span><br><span class="line">		Addr:     <span class="string">&quot;localhost:6379&quot;</span>,</span><br><span class="line">		Password: <span class="string">&quot;&quot;</span>,  <span class="comment">// no password</span></span><br><span class="line">		DB:       <span class="number">0</span>,   <span class="comment">// default DB</span></span><br><span class="line">		PoolSize: <span class="number">10</span>,  <span class="comment">// 连接池大小</span></span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> err := Rdb.Ping(ctx).Err(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(<span class="string">&quot;redis 连接失败: &quot;</span> + err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="三、常见-Redis-数据结构-Go-操作实战">三、常见 Redis 数据结构 + Go 操作实战</h2>
+<h3 id="1-String（缓存、计数）">1. String（缓存、计数）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">rdb.Set(ctx, <span class="string">&quot;views&quot;</span>, <span class="number">100</span>, time.Hour)</span><br><span class="line">val, _ := rdb.Get(ctx, <span class="string">&quot;views&quot;</span>).Int()</span><br><span class="line">rdb.Incr(ctx, <span class="string">&quot;views&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="2-Hash（结构化数据）">2. Hash（结构化数据）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rdb.HSet(ctx, <span class="string">&quot;user:1&quot;</span>, <span class="string">&quot;name&quot;</span>, <span class="string">&quot;Tom&quot;</span>, <span class="string">&quot;age&quot;</span>, <span class="number">30</span>)</span><br><span class="line">rdb.HGetAll(ctx, <span class="string">&quot;user:1&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-List（队列）">3. List（队列）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rdb.LPush(ctx, <span class="string">&quot;task:queue&quot;</span>, <span class="string">&quot;job1&quot;</span>, <span class="string">&quot;job2&quot;</span>)</span><br><span class="line">rdb.RPop(ctx, <span class="string">&quot;task:queue&quot;</span>) <span class="comment">// 消费任务</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-Set（去重）">4. Set（去重）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rdb.SAdd(ctx, <span class="string">&quot;ip:banlist&quot;</span>, <span class="string">&quot;192.168.1.1&quot;</span>)</span><br><span class="line">rdb.SIsMember(ctx, <span class="string">&quot;ip:banlist&quot;</span>, <span class="string">&quot;192.168.1.1&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="5-Sorted-Set（排行榜）">5. Sorted Set（排行榜）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">rdb.ZAdd(ctx, <span class="string">&quot;rank&quot;</span>, redis.Z&#123;Score: <span class="number">100</span>, Member: <span class="string">&quot;u1&quot;</span>&#125;)</span><br><span class="line">rdb.ZRevRangeWithScores(ctx, <span class="string">&quot;rank&quot;</span>, <span class="number">0</span>, <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="四、典型应用场景实战（代码完整示例）">四、典型应用场景实战（代码完整示例）</h2>
+<h3 id="1-缓存数据库查询结果">1. 缓存数据库查询结果</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUser</span><span class="params">(uid <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	key := <span class="string">&quot;user:&quot;</span> + uid</span><br><span class="line">	<span class="comment">// 查 Redis</span></span><br><span class="line">	val, err := rdb.Get(ctx, key).Result()</span><br><span class="line">	<span class="keyword">if</span> err == redis.Nil &#123;</span><br><span class="line">		<span class="comment">// 未命中，查询数据库</span></span><br><span class="line">		val = <span class="string">&quot;UserFromDB&quot;</span> <span class="comment">// 模拟</span></span><br><span class="line">		rdb.Set(ctx, key, val, time.Minute*<span class="number">10</span>)</span><br><span class="line">	&#125; <span class="keyword">else</span> <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> val, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-使用-ZSet-实现游戏排行榜">2. 使用 ZSet 实现游戏排行榜</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AddScore</span><span class="params">(user <span class="type">string</span>, score <span class="type">float64</span>)</span></span> &#123;</span><br><span class="line">	rdb.ZIncrBy(ctx, <span class="string">&quot;game:rank&quot;</span>, score, user)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TopRank</span><span class="params">(n <span class="type">int64</span>)</span></span> &#123;</span><br><span class="line">	top, _ := rdb.ZRevRangeWithScores(ctx, <span class="string">&quot;game:rank&quot;</span>, <span class="number">0</span>, n<span class="number">-1</span>).Result()</span><br><span class="line">	<span class="keyword">for</span> i, z := <span class="keyword">range</span> top &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%d: %s -&gt; %.0f\n&quot;</span>, i+<span class="number">1</span>, z.Member, z.Score)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-分布式锁实现（推荐-Lua-方式）">3. 分布式锁实现（推荐 Lua 方式）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">AcquireLock</span><span class="params">(key, value <span class="type">string</span>, ttl time.Duration)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	ok, _ := rdb.SetNX(ctx, key, value, ttl).Result()</span><br><span class="line">	<span class="keyword">return</span> ok</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ReleaseLock</span><span class="params">(key, value <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">	lua := <span class="string">`if redis.call(&quot;get&quot;, KEYS[1]) == ARGV[1] then</span></span><br><span class="line"><span class="string">	         return redis.call(&quot;del&quot;, KEYS[1]) else return 0 end`</span></span><br><span class="line">	rdb.Eval(ctx, lua, []<span class="type">string</span>&#123;key&#125;, value)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-消息发布-订阅">4. 消息发布/订阅</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发布</span></span><br><span class="line">rdb.Publish(ctx, <span class="string">&quot;channel:news&quot;</span>, <span class="string">&quot;Hello Subscriber!&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订阅</span></span><br><span class="line">sub := rdb.Subscribe(ctx, <span class="string">&quot;channel:news&quot;</span>)</span><br><span class="line">ch := sub.Channel()</span><br><span class="line"><span class="keyword">for</span> msg := <span class="keyword">range</span> ch &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;收到消息：&quot;</span>, msg.Payload)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="五、封装-Redis-为模块化中间件（强烈推荐）">五、封装 Redis 为模块化中间件（强烈推荐）</h2>
+<h3 id="封装-Redis-接口层（泛型支持）">封装 Redis 接口层（泛型支持）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// redisx/client.go</span></span><br><span class="line"><span class="keyword">package</span> redisx</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Client <span class="keyword">struct</span> &#123;</span><br><span class="line">	rdb *redis.Client</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewClient</span><span class="params">(opt *redis.Options)</span></span> *Client &#123;</span><br><span class="line">	rdb := redis.NewClient(opt)</span><br><span class="line">	<span class="keyword">return</span> &amp;Client&#123;rdb: rdb&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> SetString(key <span class="type">string</span>, val <span class="type">string</span>, ttl time.Duration) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> c.rdb.Set(ctx, key, val, ttl).Err()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> GetString(key <span class="type">string</span>) (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">return</span> c.rdb.Get(ctx, key).Result()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Client)</span></span> Incr(key <span class="type">string</span>) (<span class="type">int64</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="keyword">return</span> c.rdb.Incr(ctx, key).Result()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="使用方式：">使用方式：</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">redisClient := redisx.NewClient(&amp;redis.Options&#123;Addr: <span class="string">&quot;localhost:6379&quot;</span>&#125;)</span><br><span class="line">redisClient.SetString(<span class="string">&quot;user:1:name&quot;</span>, <span class="string">&quot;Tom&quot;</span>, time.Hour)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="六、性能优化与常见问题">六、性能优化与常见问题</h2>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Redis 雪崩</td>
+<td>设置不同 TTL、加入本地缓存降级</td>
+</tr>
+<tr>
+<td>缓存击穿</td>
+<td>使用互斥锁或缓存空值</td>
+</tr>
+<tr>
+<td>缓存穿透</td>
+<td>对非法请求返回默认值并缓存</td>
+</tr>
+<tr>
+<td>热 Key 过载</td>
+<td>考虑引入本地缓存、Sharding</td>
+</tr>
+</tbody>
+</table>
+<h3 id="实用建议：">实用建议：</h3>
+<ul>
+<li>使用连接池（默认开启）</li>
+<li>多操作使用 Pipeline 批处理</li>
+<li>配置监控：<code>INFO memory</code>、<code>slowlog get</code></li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+              <a href="/tags/redis/" rel="tag"># redis</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/17/Go%E8%AF%AD%E8%A8%80%E4%B9%8BGorm%E5%85%A5%E9%97%A8/" rel="prev" title="Go语言之Gorm入门">
+                  <i class="fa fa-angle-left"></i> Go语言之Gorm入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/" rel="next" title="Go语言之调试利器Air">
+                  Go语言之调试利器Air <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

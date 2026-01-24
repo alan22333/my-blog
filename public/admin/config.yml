@@ -1,0 +1,82 @@
+backend:
+  # 使用 git-gateway 后端，需要 Netlify Identity
+  name: git-gateway
+  # 你的 Git 仓库名称，格式为 用户名/仓库名
+  repo: alan22333/my-blog
+  # CMS 将要提交到的分支，通常是你的博客部署分支 (如 main 或 master)
+  branch: main # 或 master, 根据你的仓库实际情况填写
+  # auth_type: netlify 是默认的，可以省略，但明确写上更清晰
+  auth_type: netlify
+
+# 存储媒体文件的目录（图片、文件等）
+# 这将是相对于你的 Git 仓库根目录的路径
+# 比如上传的图片会保存在你的 Hexo 项目的 source/uploads 目录下
+media_folder: source/uploads
+
+# 在生成 Markdown 时，媒体文件路径的前缀
+# 这是相对于网站根目录的 URL 路径
+# 如果 media_folder 是 source/uploads，那么 public_folder 通常是 /uploads
+public_folder: /uploads
+
+# 内容集合配置
+collections:
+  # 博客文章集合
+  - name: "posts" # 集合的内部名称 (ID)
+    label: "Posts" # 在 CMS 后台显示的名称
+    folder: "source/_posts" # 文章存储的文件夹，相对于你的 Git 仓库根目录
+    create: true # 允许在 CMS 中创建新文章
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}" # 如何从标题生成文件名 (URL slug)
+    # draft: true # 如果你的主题支持草稿，可以启用草稿功能
+
+    # 定义文章的字段 (对应 Hexo 文章的 Front-matter 和正文)
+    fields:
+      - label: "Title" # 字段在 CMS 中显示的名称
+        name: "title" # 字段名称 (对应 Front-matter 中的 key)
+        widget: "string" # 字段类型，string 为单行文本
+        required: true # 字段是否必需
+
+      - label: "Publish Date"
+        name: "date"
+        widget: "datetime" # 日期时间选择器
+        required: true
+
+      - label: "Description" # 可选的描述字段
+        name: "description"
+        widget: "string"
+        required: false # 描述可以为空
+
+      - label: "Tags" # 标签列表
+        name: "tags"
+        widget: "list" # 列表类型
+        field: {label: "Tag", name: "tag", widget: "string"} # 列表中的每个元素的配置
+        required: false
+
+      - label: "Categories" # 分类列表
+        name: "categories"
+        widget: "list"
+        field: {label: "Category", name: "category", widget: "string"}
+        required: false
+
+      - label: "Published" # 控制文章是否发布 (如果主题支持)
+        name: "published"
+        widget: "boolean" # 布尔类型 (true/false)
+        default: true # 默认值为 true
+        required: false
+
+      - label: "Body" # 文章正文
+        name: "body" # 这个名称是 Decap CMS 特定的，用于存放 Front-matter 下面的 Markdown 内容
+        widget: "markdown" # 使用 Markdown 编辑器
+        required: true
+
+  # 如果你有 "关于我" 等单页，可以添加 Page 集合
+  # - name: "pages"
+  #   label: "Pages"
+  #   folder: "source/about" # 示例：关于我页面的文件夹
+  #   create: false # 通常单页不创建新文件
+  #   fields:
+  #     - label: "Title"
+  #       name: "title"
+  #       widget: "string"
+  #     - label: "Body"
+  #       name: "body"
+  #       widget: "markdown"

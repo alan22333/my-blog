@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Http安全header | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="HTTP 响应头（HTTP Response Headers）为我们提供了一些简单却强大的手段，能帮助防御常见的攻击">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Http安全header">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/07/Http%E5%AE%89%E5%85%A8header/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="HTTP 响应头（HTTP Response Headers）为我们提供了一些简单却强大的手段，能帮助防御常见的攻击">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-07T09:48:37.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.060Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="考研, 技术, 生活">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/07/Http%E5%AE%89%E5%85%A8header/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/07/Http%E5%AE%89%E5%85%A8header/","path":"2025/07/07/Http安全header/","title":"Http安全header"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/07/Http%E5%AE%89%E5%85%A8header/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E5%B8%B8%E8%A7%81%E7%9A%84-HTTP-%E5%AE%89%E5%85%A8%E5%93%8D%E5%BA%94%E5%A4%B4"><span class="nav-number">1.</span> <span class="nav-text">理解常见的 HTTP 安全响应头</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Content-Security-Policy-CSP"><span class="nav-number">1.1.</span> <span class="nav-text">1. Content-Security-Policy (CSP)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="nav-number">1.1.1.</span> <span class="nav-text">示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%EF%BC%9A"><span class="nav-number">1.1.2.</span> <span class="nav-text">作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="nav-number">1.1.3.</span> <span class="nav-text">解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A"><span class="nav-number">1.1.4.</span> <span class="nav-text">举个例子：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%9A"><span class="nav-number">1.1.5.</span> <span class="nav-text">最佳实践：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Referrer-Policy"><span class="nav-number">1.2.</span> <span class="nav-text">2. Referrer-Policy</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-2"><span class="nav-number">1.2.1.</span> <span class="nav-text">示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%EF%BC%9A-2"><span class="nav-number">1.2.2.</span> <span class="nav-text">作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%EF%BC%9A-2"><span class="nav-number">1.2.3.</span> <span class="nav-text">解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A-2"><span class="nav-number">1.2.4.</span> <span class="nav-text">举个例子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-X-Content-Type-Options"><span class="nav-number">1.3.</span> <span class="nav-text">3. X-Content-Type-Options</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-3"><span class="nav-number">1.3.1.</span> <span class="nav-text">示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%EF%BC%9A-3"><span class="nav-number">1.3.2.</span> <span class="nav-text">作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%EF%BC%9A-3"><span class="nav-number">1.3.3.</span> <span class="nav-text">解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A-3"><span class="nav-number">1.3.4.</span> <span class="nav-text">举个例子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-X-Frame-Options"><span class="nav-number">1.4.</span> <span class="nav-text">4. X-Frame-Options</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-4"><span class="nav-number">1.4.1.</span> <span class="nav-text">示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%EF%BC%9A-4"><span class="nav-number">1.4.2.</span> <span class="nav-text">作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%EF%BC%9A-4"><span class="nav-number">1.4.3.</span> <span class="nav-text">解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A-4"><span class="nav-number">1.4.4.</span> <span class="nav-text">举个例子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-X-XSS-Protection"><span class="nav-number">1.5.</span> <span class="nav-text">5. X-XSS-Protection</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A-5"><span class="nav-number">1.5.1.</span> <span class="nav-text">示例：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%9C%E7%94%A8%EF%BC%9A-5"><span class="nav-number">1.5.2.</span> <span class="nav-text">作用：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E9%87%8A%EF%BC%9A-5"><span class="nav-number">1.5.3.</span> <span class="nav-text">解释：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%AE%BE%E4%B8%BA-0%EF%BC%9F"><span class="nav-number">1.5.4.</span> <span class="nav-text">为什么设为 0？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.6.</span> <span class="nav-text">总结与最佳实践</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/07/Http%E5%AE%89%E5%85%A8header/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Http安全header | Hello there! I'm alan">
+      <meta itemprop="description" content="HTTP 响应头（HTTP Response Headers）为我们提供了一些简单却强大的手段，能帮助防御常见的攻击">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Http安全header
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-07 17:48:37" itemprop="dateCreated datePublished" datetime="2025-07-07T17:48:37+08:00">2025-07-07</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">HTTP 响应头（HTTP Response Headers）为我们提供了一些简单却强大的手段，能帮助防御常见的攻击</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="理解常见的-HTTP-安全响应头">理解常见的 HTTP 安全响应头</h1>
+<p>在现代 Web 应用开发中，安全性是一个绕不过去的重要话题。HTTP 响应头（HTTP Response Headers）为我们提供了一些简单却强大的手段，能帮助防御常见的攻击，比如 XSS、点击劫持、MIME 类型混淆等。</p>
+<p>在 Alex Edwards 所著的《Let’s Go》一书中，就提到了如下这组安全相关的 HTTP Header：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: default-src &#x27;self&#x27;; style-src &#x27;self&#x27; fonts.googleapis.com; font-src fonts.gstatic.com</span><br><span class="line">Referrer-Policy: origin-when-cross-origin</span><br><span class="line">X-Content-Type-Options: nosniff</span><br><span class="line">X-Frame-Options: deny</span><br><span class="line">X-XSS-Protection: 0</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="1-Content-Security-Policy-CSP">1. Content-Security-Policy (CSP)</h2>
+<h3 id="示例：">示例：</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Security-Policy: default-src &#x27;self&#x27;; style-src &#x27;self&#x27; fonts.googleapis.com; font-src fonts.gstatic.com</span><br></pre></td></tr></table></figure>
+<h3 id="作用：">作用：</h3>
+<p><code>Content-Security-Policy</code> 是一个强大的防御 XSS 和数据注入攻击的工具，它通过定义哪些资源是“可信的”来限制页面加载的内容。</p>
+<h3 id="解释：">解释：</h3>
+<ul>
+<li>
+<p><code>default-src 'self'</code><br>
+默认资源来源限制为同源（即当前域名下的资源）。</p>
+</li>
+<li>
+<p><code>style-src 'self' fonts.googleapis.com</code><br>
+样式文件（CSS）只能从当前站点或 <code>fonts.googleapis.com</code> 加载，后者是 Google Fonts 提供 CSS 的域名。</p>
+</li>
+<li>
+<p><code>font-src fonts.gstatic.com</code><br>
+字体文件只能从 <code>fonts.gstatic.com</code> 加载，这也是 Google Fonts 字体 CDN 的地址。</p>
+</li>
+</ul>
+<h3 id="举个例子：">举个例子：</h3>
+<p>如果某人试图通过注入 <code>&lt;script&gt;</code> 或 <code>&lt;link&gt;</code> 标签从第三方地址加载恶意脚本或样式，浏览器会因为 CSP 策略的限制而阻止加载。</p>
+<h3 id="最佳实践：">最佳实践：</h3>
+<ul>
+<li>CSP 是强烈推荐启用的安全机制，但也可能造成资源加载失败，尤其是使用第三方库、字体或 CDN 时，请务必明确白名单。</li>
+<li>在开发初期使用 <code>Content-Security-Policy-Report-Only</code> 来测试策略是否合理。</li>
+</ul>
+<hr>
+<h2 id="2-Referrer-Policy">2. Referrer-Policy</h2>
+<h3 id="示例：-2">示例：</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Referrer-Policy: origin-when-cross-origin</span><br></pre></td></tr></table></figure>
+<h3 id="作用：-2">作用：</h3>
+<p>控制浏览器在进行跳转或资源请求时，<code>Referer</code> 头部包含的信息量，以保护用户隐私。</p>
+<h3 id="解释：-2">解释：</h3>
+<ul>
+<li>
+<p><code>origin-when-cross-origin</code> 表示：</p>
+<ul>
+<li>同源请求发送完整 URL。</li>
+<li>跨域请求只发送 origin（例如：<code>https://example.com</code> 而不是 <code>https://example.com/page.html</code>）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="举个例子：-2">举个例子：</h3>
+<p>用户从你的网页跳转到外部站点，如果使用该策略，对方服务器只能知道请求来自 <code>https://yourdomain.com</code>，而不知道具体页面路径。这有助于保护用户浏览行为隐私。</p>
+<hr>
+<h2 id="3-X-Content-Type-Options">3. X-Content-Type-Options</h2>
+<h3 id="示例：-3">示例：</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-Content-Type-Options: nosniff</span><br></pre></td></tr></table></figure>
+<h3 id="作用：-3">作用：</h3>
+<p>防止浏览器“猜测”资源类型，强制它按照 Content-Type 来处理资源。</p>
+<h3 id="解释：-3">解释：</h3>
+<p>有些浏览器会根据文件内容猜测 MIME 类型（而不是依赖服务器声明的 Content-Type），攻击者可能利用这一点诱使浏览器将非脚本内容作为脚本执行。</p>
+<ul>
+<li>设置为 <code>nosniff</code> 后，浏览器将拒绝加载 MIME 类型与实际内容不匹配的资源。</li>
+</ul>
+<h3 id="举个例子：-3">举个例子：</h3>
+<p>攻击者上传了一个 <code>.jpg</code> 文件，实际内容却是 JavaScript。如果没有 <code>nosniff</code>，浏览器可能执行这个脚本。</p>
+<hr>
+<h2 id="4-X-Frame-Options">4. X-Frame-Options</h2>
+<h3 id="示例：-4">示例：</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-Frame-Options: deny</span><br></pre></td></tr></table></figure>
+<h3 id="作用：-4">作用：</h3>
+<p>防止网页被嵌套在 <code>&lt;iframe&gt;</code> 中，用于防御点击劫持（Clickjacking）攻击。</p>
+<h3 id="解释：-4">解释：</h3>
+<ul>
+<li>
+<p><code>deny</code>：不允许任何来源嵌套当前页面。</p>
+</li>
+<li>
+<p>其他选项：</p>
+<ul>
+<li><code>sameorigin</code>：只允许同源页面嵌套。</li>
+<li><code>allow-from &lt;url&gt;</code>：允许指定页面嵌套（已被大多数浏览器弃用）。</li>
+</ul>
+</li>
+</ul>
+<h3 id="举个例子：-4">举个例子：</h3>
+<p>攻击者构造一个恶意网页，将你的站点以透明 iframe 嵌入，然后诱导用户点击某个按钮，实际上却是在点击你的页面上的敏感操作，这种攻击被称为点击劫持。设置该 Header 可有效防御此类攻击。</p>
+<hr>
+<h2 id="5-X-XSS-Protection">5. X-XSS-Protection</h2>
+<h3 id="示例：-5">示例：</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">X-XSS-Protection: 0</span><br></pre></td></tr></table></figure>
+<h3 id="作用：-5">作用：</h3>
+<p>关闭浏览器自带的 XSS 过滤器。</p>
+<h3 id="解释：-5">解释：</h3>
+<ul>
+<li><code>0</code> 表示禁用浏览器 XSS 保护机制。</li>
+<li>这是一个较具争议的选项。部分旧版浏览器（如 IE、旧版 Chrome）提供了一个 XSS Auditor，在检测到疑似反射型 XSS 时会拦截请求。但这个机制有时会误报，甚至可以被绕过。</li>
+</ul>
+<h3 id="为什么设为-0？">为什么设为 0？</h3>
+<p>现代 Web 开发更推荐使用 CSP 作为 XSS 防护手段。CSP 更可靠，而浏览器内建的 XSS 过滤器有时反而会带来安全隐患（如信息泄漏、绕过攻击），因此很多现代应用选择禁用它。</p>
+<hr>
+<h2 id="总结与最佳实践">总结与最佳实践</h2>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>作用</th>
+<th>建议值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Content-Security-Policy</td>
+<td>限制资源加载来源</td>
+<td>根据实际资源设置白名单</td>
+</tr>
+<tr>
+<td>Referrer-Policy</td>
+<td>控制 referer 信息暴露</td>
+<td><code>origin-when-cross-origin</code></td>
+</tr>
+<tr>
+<td>X-Content-Type-Options</td>
+<td>阻止 MIME 类型猜测</td>
+<td><code>nosniff</code></td>
+</tr>
+<tr>
+<td>X-Frame-Options</td>
+<td>防止点击劫持</td>
+<td><code>deny</code> 或 <code>sameorigin</code></td>
+</tr>
+<tr>
+<td>X-XSS-Protection</td>
+<td>控制浏览器 XSS 保护</td>
+<td><code>0</code>（建议依赖 CSP）</td>
+</tr>
+</tbody>
+</table>
+<p>这些安全头部虽然看似简单，但配置得当可以大幅提高 Web 应用的安全性。无论是开发个人博客，还是构建企业级服务，理解并合理使用它们都是非常重要的安全基础。</p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/06/Go%E8%AF%AD%E8%A8%80%E4%B9%8Bnew%E5%85%B3%E9%94%AE%E5%AD%97/" rel="prev" title="Go语言之new关键字">
+                  <i class="fa fa-angle-left"></i> Go语言之new关键字
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/07/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%86%8D%E8%B0%88%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86/" rel="next" title="Go语言之再谈异常处理">
+                  Go语言之再谈异常处理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

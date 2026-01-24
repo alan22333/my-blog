@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之项目布局 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="转自GitHub：(https:&#x2F;&#x2F;github.com&#x2F;golang-standards&#x2F;project-layout&#x2F;tree&#x2F;master)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之项目布局">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="转自GitHub：(https:&#x2F;&#x2F;github.com&#x2F;golang-standards&#x2F;project-layout&#x2F;tree&#x2F;master)">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square">
+<meta property="og:image" content="https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square">
+<meta property="og:image" content="https://img.shields.io/github/release/golang-standards/project-layout.svg?style=flat-square">
+<meta property="article:published_time" content="2025-06-05T00:46:39.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.065Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/","path":"2025/06/05/go语言之项目布局/","title":"go语言之项目布局"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Standard-Go-Project-Layout"><span class="nav-number">1.</span> <span class="nav-text">Standard Go Project Layout</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go-%E7%9B%AE%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">Go 目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cmd"><span class="nav-number">1.1.1.</span> <span class="nav-text">&#x2F;cmd</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#internal"><span class="nav-number">1.1.2.</span> <span class="nav-text">&#x2F;internal</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pkg"><span class="nav-number">1.1.3.</span> <span class="nav-text">&#x2F;pkg</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#vendor"><span class="nav-number">1.1.4.</span> <span class="nav-text">&#x2F;vendor</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9B%AE%E5%BD%95"><span class="nav-number">1.2.</span> <span class="nav-text">服务应用程序目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#api"><span class="nav-number">1.2.1.</span> <span class="nav-text">&#x2F;api</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Web-%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E7%9B%AE%E5%BD%95"><span class="nav-number">1.3.</span> <span class="nav-text">Web 应用程序目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#web"><span class="nav-number">1.3.1.</span> <span class="nav-text">&#x2F;web</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E5%BA%94%E7%94%A8%E7%9B%AE%E5%BD%95"><span class="nav-number">1.4.</span> <span class="nav-text">通用应用目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#configs"><span class="nav-number">1.4.1.</span> <span class="nav-text">&#x2F;configs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#init"><span class="nav-number">1.4.2.</span> <span class="nav-text">&#x2F;init</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#scripts"><span class="nav-number">1.4.3.</span> <span class="nav-text">&#x2F;scripts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build"><span class="nav-number">1.4.4.</span> <span class="nav-text">&#x2F;build</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#deployments"><span class="nav-number">1.4.5.</span> <span class="nav-text">&#x2F;deployments</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#test"><span class="nav-number">1.4.6.</span> <span class="nav-text">&#x2F;test</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%9B%AE%E5%BD%95"><span class="nav-number">1.5.</span> <span class="nav-text">其他目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#docs"><span class="nav-number">1.5.1.</span> <span class="nav-text">&#x2F;docs</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tools"><span class="nav-number">1.5.2.</span> <span class="nav-text">&#x2F;tools</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#examples"><span class="nav-number">1.5.3.</span> <span class="nav-text">&#x2F;examples</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#third-party"><span class="nav-number">1.5.4.</span> <span class="nav-text">&#x2F;third_party</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#githooks"><span class="nav-number">1.5.5.</span> <span class="nav-text">&#x2F;githooks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#assets"><span class="nav-number">1.5.6.</span> <span class="nav-text">&#x2F;assets</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#website"><span class="nav-number">1.5.7.</span> <span class="nav-text">&#x2F;website</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%A0%E4%B8%8D%E5%BA%94%E8%AF%A5%E6%8B%A5%E6%9C%89%E7%9A%84%E7%9B%AE%E5%BD%95"><span class="nav-number">1.6.</span> <span class="nav-text">你不应该拥有的目录</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#src"><span class="nav-number">1.6.1.</span> <span class="nav-text">&#x2F;src</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Badges"><span class="nav-number">1.7.</span> <span class="nav-text">Badges</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Notes"><span class="nav-number">1.8.</span> <span class="nav-text">Notes</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之项目布局 | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之项目布局
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-05 08:46:39" itemprop="dateCreated datePublished" datetime="2025-06-05T08:46:39+08:00">2025-06-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>转自GitHub：(<a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout/tree/master">https://github.com/golang-standards/project-layout/tree/master</a>)</p>
+<span id="more"></span>
+<h1 id="Standard-Go-Project-Layout">Standard Go Project Layout</h1>
+<p>这是 Go 应用程序项目的基本布局。它不是核心 Go 开发团队定义的官方标准；然而，它是 Go 生态系统中一组常见的老项目和新项目的布局模式。其中一些模式比其他模式更受欢迎。它还具有许多小的增强，以及对任何足够大的实际应用程序通用的几个支持目录。</p>
+<p>如果你尝试学习 Go，或者你正在为自己建立一个 PoC 或一个玩具项目，这个项目布局是没啥必要的。从一些非常简单的事情开始(一个 <code>main.go</code> 文件绰绰有余)。随着项目的增长，请记住保持代码结构良好非常重要，否则你最终会得到一个凌乱的代码，这其中就包含大量隐藏的依赖项和全局状态。当有更多的人参与这个项目时，你将需要更多的结构。这时候，介绍一种管理包/库的通用方法是很重要的。当你有一个开源项目时，或者当你知道其他项目从你的项目存储库中导入代码时，这时候拥有私有(又名 <code>internal</code>)包和代码就很重要。克隆存储库，保留你需要的内容，删除其他所有的内容！仅仅因为它在那里并不意味着你必须全部使用它。这些模式都没有在每个项目中使用。甚至 <code>vendor</code> 模式也不是通用的。</p>
+<p>Go 1.14 <a target="_blank" rel="noopener" href="https://go.dev/wiki/Modules"><code>Go Modules</code></a> 终于可以投入生产了。除非你有特定的理由不使用它们，否则使用 <a target="_blank" rel="noopener" href="https://blog.golang.org/using-go-modules"><code>Go Modules</code></a> 。如果你使用，就无需担心 $GOPATH 以及项目放置的位置。存储库中的 <code>go.mod</code> 文件基本假定你的项目托管在 Github 上，但这不是要求。模块路径可以是任何地方，尽管第一个模块路径组件的名称中应该有一个点（当前版本的 Go 不再强制使用该模块，但如果使用稍旧的版本，如果没有 <code>mod</code> 文件构建失败的话 ，不要惊讶）。如果你想知道更多信息，请参阅 Issues <a target="_blank" rel="noopener" href="https://github.com/golang/go/issues/37554"><code>37554</code></a> 和 <a target="_blank" rel="noopener" href="https://github.com/golang/go/issues/32819"><code>32819</code></a> 。</p>
+<p>此项目布局是通用的，并且不会尝试强加一个特定的 Go 包结构。</p>
+<p>这是社区的努力。 如果看到新的模式，或者认为一个现有的模式需要更新，请提一个 issue。</p>
+<p>如果需要命名、格式和样式方面的帮助，请运行 <a target="_blank" rel="noopener" href="https://golang.org/cmd/gofmt/"><code>gofmt</code></a> 和 <a target="_blank" rel="noopener" href="https://github.com/golang/lint"><code>golint</code></a> 。还要确保阅读这些 Go 代码风格的指导方针和建议:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://talks.golang.org/2014/names.slide">https://talks.golang.org/2014/names.slide</a></li>
+<li><a target="_blank" rel="noopener" href="https://golang.org/doc/effective_go.html#names">https://golang.org/doc/effective_go.html#names</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.golang.org/package-names">https://blog.golang.org/package-names</a></li>
+<li><a target="_blank" rel="noopener" href="https://go.dev/wiki/CodeReviewComments">https://go.dev/wiki/CodeReviewComments</a></li>
+<li><a target="_blank" rel="noopener" href="https://rakyll.org/style-packages">Style guideline for Go packages</a> (rakyll/JBD)</li>
+</ul>
+<p>参见 <a target="_blank" rel="noopener" href="https://medium.com/golang-learn/go-project-layout-e5213cdcfaa2"><code>Go Project Layout</code></a> 了解更多的背景信息。</p>
+<p>更多关于包的命名和组织以及其他代码结构的建议:</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=PTE4VJIdHPg">GopherCon EU 2018: Peter Bourgon - Best Practices for Industrial Programming</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=MzTcsI6tn-0">GopherCon Russia 2018: Ashley McNamara + Brian Ketelsen - Go best practices.</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=ltqV6pDKZD8">GopherCon 2017: Edward Muller - Go Anti-Patterns</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=oL6JBUk6tj0">GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps</a></li>
+</ul>
+<h2 id="Go-目录">Go 目录</h2>
+<h3 id="cmd"><code>/cmd</code></h3>
+<p>本项目的主干。</p>
+<p>每个应用程序的目录名应该与你想要的可执行文件的名称相匹配(例如，<code>/cmd/myapp</code>)。</p>
+<p>不要在这个目录中放置太多代码。如果你认为代码可以导入并在其他项目中使用，那么它应该位于 <code>/pkg</code> 目录中。如果代码不是可重用的，或者你不希望其他人重用它，请将该代码放到 <code>/internal</code> 目录中。你会惊讶于别人会怎么做，所以要明确你的意图!</p>
+<p>通常有一个小的 <code>main</code> 函数，从 <code>/internal</code> 和 <code>/pkg</code> 目录导入和调用代码，除此之外没有别的东西。</p>
+<p>有关示例，请参阅 <a href="cmd/README.md"><code>/cmd</code></a> 目录。</p>
+<h3 id="internal"><code>/internal</code></h3>
+<p>私有应用程序和库代码。这是你不希望其他人在其应用程序或库中导入代码。请注意，这个布局模式是由 Go 编译器本身执行的。有关更多细节，请参阅Go 1.4 <a target="_blank" rel="noopener" href="https://golang.org/doc/go1.4#internalpackages"><code>release notes</code></a> 。注意，你并不局限于顶级 <code>internal</code> 目录。在项目树的任何级别上都可以有多个内部目录。</p>
+<p>你可以选择向 internal 包中添加一些额外的结构，以分隔共享和非共享的内部代码。这不是必需的(特别是对于较小的项目)，但是最好有可视化的线索来显示预期的包的用途。你的实际应用程序代码可以放在 <code>/internal/app</code> 目录下(例如 <code>/internal/app/myapp</code>)，这些应用程序共享的代码可以放在 <code>/internal/pkg</code> 目录下(例如 <code>/internal/pkg/myprivlib</code>)。</p>
+<h3 id="pkg"><code>/pkg</code></h3>
+<p>外部应用程序可以使用的库代码(例如 <code>/pkg/mypubliclib</code>)。其他项目会导入这些库，希望它们能正常工作，所以在这里放东西之前要三思:-)注意，<code>internal</code> 目录是确保私有包不可导入的更好方法，因为它是由 Go 强制执行的。<code>/pkg</code> 目录仍然是一种很好的方式，可以显式地表示该目录中的代码对于其他人来说是安全使用的好方法。由 Travis Jeffery  撰写的 <a target="_blank" rel="noopener" href="https://travisjeffery.com/b/2019/11/i-ll-take-pkg-over-internal/"><code>I'll take pkg over internal</code></a> 博客文章提供了 <code>pkg</code> 和 <code>internal</code> 目录的一个很好的概述，以及什么时候使用它们是有意义的。</p>
+<p>当根目录包含大量非 Go 组件和目录时，这也是一种将 Go 代码分组到一个位置的方法，这使得运行各种 Go 工具变得更加容易（正如在这些演讲中提到的那样: 来自 GopherCon EU 2018 的 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=PTE4VJIdHPg"><code>Best Practices for Industrial Programming</code></a> , <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=oL6JBUk6tj0">GopherCon 2018: Kat Zien - How Do You Structure Your Go Apps</a> 和 <a target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=3gQa1LWwuzk">GoLab 2018 - Massimiliano Pippi - Project layout patterns in Go</a> ）。</p>
+<p>如果你想查看哪个流行的 Go 存储库使用此项目布局模式，请查看 <a href="pkg/README.md"><code>/pkg</code></a> 目录。这是一种常见的布局模式，但并不是所有人都接受它，一些 Go 社区的人也不推荐它。</p>
+<p>如果你的应用程序项目真的很小，并且额外的嵌套并不能增加多少价值(除非你真的想要:-)，那就不要使用它。当它变得足够大时，你的根目录会变得非常繁琐时(尤其是当你有很多非 Go 应用组件时)，请考虑一下。</p>
+<h3 id="vendor"><code>/vendor</code></h3>
+<p>应用程序依赖项(手动管理或使用你喜欢的依赖项管理工具，如新的内置 <a target="_blank" rel="noopener" href="https://go.dev/wiki/Modules"><code>Go Modules</code></a> 功能)。<code>go mod vendor</code> 命令将为你创建 <code>/vendor</code> 目录。请注意，如果未使用默认情况下处于启用状态的 Go 1.14，则可能需要在 <code>go build</code> 命令中添加 <code>-mod=vendor</code> 标志。</p>
+<p>如果你正在构建一个库，那么不要提交你的应用程序依赖项。</p>
+<p>注意，自从 <a target="_blank" rel="noopener" href="https://golang.org/doc/go1.13#modules"><code>1.13</code></a> 以后，Go 还启用了模块代理功能(默认使用 <a target="_blank" rel="noopener" href="https://proxy.golang.org"><code>https://proxy.golang.org</code></a> 作为他们的模块代理服务器)。在<a target="_blank" rel="noopener" href="https://blog.golang.org/module-mirror-launch"><code>here</code></a> 阅读更多关于它的信息，看看它是否符合你的所有需求和约束。如果需要，那么你根本不需要 <code>vendor</code> 目录。</p>
+<p>国内模块代理功能默认是被墙的，七牛云有维护专门的的<a target="_blank" rel="noopener" href="https://github.com/goproxy/goproxy.cn/blob/master/README.zh-CN.md"><code>模块代理</code></a> 。</p>
+<h2 id="服务应用程序目录">服务应用程序目录</h2>
+<h3 id="api"><code>/api</code></h3>
+<p>OpenAPI/Swagger 规范，JSON 模式文件，协议定义文件。</p>
+<p>有关示例，请参见 <a href="api/README.md"><code>/api</code></a> 目录。</p>
+<h2 id="Web-应用程序目录">Web 应用程序目录</h2>
+<h3 id="web"><code>/web</code></h3>
+<p>特定于 Web 应用程序的组件:静态 Web 资源、服务器端模板和 SPAs。</p>
+<h2 id="通用应用目录">通用应用目录</h2>
+<h3 id="configs"><code>/configs</code></h3>
+<p>配置文件模板或默认配置。</p>
+<p>将你的 <code>confd</code> 或 <code>consul-template</code> 模板文件放在这里。</p>
+<h3 id="init"><code>/init</code></h3>
+<p>System init（systemd，upstart，sysv）和 process manager/supervisor（runit，supervisor）配置。</p>
+<h3 id="scripts"><code>/scripts</code></h3>
+<p>执行各种构建、安装、分析等操作的脚本。</p>
+<p>这些脚本保持了根级别的 Makefile 变得小而简单(例如， <a target="_blank" rel="noopener" href="https://github.com/hashicorp/terraform/blob/main/Makefile"><code>https://github.com/hashicorp/terraform/blob/main/Makefile</code></a> )。</p>
+<p>有关示例，请参见  <a href="scripts/README.md"><code>/scripts</code></a> 目录。</p>
+<h3 id="build"><code>/build</code></h3>
+<p>打包和持续集成。</p>
+<p>将你的云( AMI )、容器( Docker )、操作系统( deb、rpm、pkg )包配置和脚本放在 <code>/build/package</code> 目录下。</p>
+<p>将你的 CI (travis、circle、drone)配置和脚本放在 <code>/build/ci</code> 目录中。请注意，有些 CI 工具(例如 Travis CI)对配置文件的位置非常挑剔。尝试将配置文件放在 <code>/build/ci</code> 目录中，将它们链接到 CI 工具期望它们的位置(如果可能的话)。</p>
+<h3 id="deployments"><code>/deployments</code></h3>
+<p>IaaS、PaaS、系统和容器编排部署配置和模板(docker-compose、kubernetes/helm、mesos、terraform、bosh)。注意，在一些存储库中(特别是使用 kubernetes 部署的应用程序)，这个目录被称为 <code>/deploy</code>。</p>
+<h3 id="test"><code>/test</code></h3>
+<p>额外的外部测试应用程序和测试数据。你可以随时根据需求构造 <code>/test</code> 目录。对于较大的项目，有一个数据子目录是有意义的。例如，你可以使用 <code>/test/data</code> 或 <code>/test/testdata</code> (如果你需要忽略目录中的内容)。请注意，Go 还会忽略以“.”或“_”开头的目录或文件，因此在如何命名测试数据目录方面有更大的灵活性。</p>
+<p>有关示例，请参见  <a href="test/README.md"><code>/test</code></a> 目录。</p>
+<h2 id="其他目录">其他目录</h2>
+<h3 id="docs"><code>/docs</code></h3>
+<p>设计和用户文档(除了 godoc 生成的文档之外)。</p>
+<p>有关示例，请参阅 <a href="docs/README.md"><code>/docs</code></a> 目录。</p>
+<h3 id="tools"><code>/tools</code></h3>
+<p>这个项目的支持工具。注意，这些工具可以从 <code>/pkg</code> 和 <code>/internal</code> 目录导入代码。</p>
+<p>有关示例，请参见 <a href="tools/README.md"><code>/tools</code></a> 目录。</p>
+<h3 id="examples"><code>/examples</code></h3>
+<p>你的应用程序和/或公共库的示例。</p>
+<p>有关示例，请参见 <a href="examples/README.md"><code>/examples</code></a> 目录。</p>
+<h3 id="third-party"><code>/third_party</code></h3>
+<p>外部辅助工具，分叉代码和其他第三方工具(例如 Swagger UI)。</p>
+<h3 id="githooks"><code>/githooks</code></h3>
+<p>Git hooks。</p>
+<h3 id="assets"><code>/assets</code></h3>
+<p>与存储库一起使用的其他资源(图像、徽标等)。</p>
+<h3 id="website"><code>/website</code></h3>
+<p>如果你不使用 Github 页面，则在这里放置项目的网站数据。</p>
+<p>有关示例，请参见 <a href="website/README.md"><code>/website</code></a> 目录。</p>
+<h2 id="你不应该拥有的目录">你不应该拥有的目录</h2>
+<h3 id="src"><code>/src</code></h3>
+<p>有些 Go 项目确实有一个 <code>src</code> 文件夹，但这通常发生在开发人员有 Java 背景，在那里它是一种常见的模式。如果可以的话，尽量不要采用这种 Java 模式。你真的不希望你的 Go 代码或 Go 项目看起来像 Java:-)</p>
+<p>不要将项目级别 <code>src</code> 目录与 Go 用于其工作空间的 <code>src</code> 目录(如 <a target="_blank" rel="noopener" href="https://golang.org/doc/code.html"><code>How to Write Go Code</code></a> 中所述)混淆。<code>$GOPATH</code> 环境变量指向你的(当前)工作空间(默认情况下，它指向非 windows 系统上的 <code>$HOME/go</code>)。这个工作空间包括顶层 <code>/pkg</code>, <code>/bin</code> 和 <code>/src</code> 目录。你的实际项目最终是 <code>/src</code> 下的一个子目录，因此，如果你的项目中有 <code>/src</code> 目录，那么项目路径将是这样的: <code>/some/path/to/workspace/src/your_project/src/your_code.go</code>。注意，在 Go 1.11 中，可以将项目放在 <code>GOPATH</code> 之外，但这并不意味着使用这种布局模式是一个好主意。</p>
+<h2 id="Badges">Badges</h2>
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://goreportcard.com/">Go Report Card</a> - It will scan your code with <code>gofmt</code>, <code>go vet</code>, <code>gocyclo</code>, <code>golint</code>, <code>ineffassign</code>, <code>license</code> and <code>misspell</code>. Replace <code>github.com/golang-standards/project-layout</code> with your project reference.</p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="http://godoc.org">GoDoc</a> - It will provide online version of your GoDoc generated documentation. Change the link to point to your project.</p>
+</li>
+<li>
+<p>Release - It will show the latest release number for your project. Change the github link to point to your project.</p>
+</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://goreportcard.com/report/github.com/golang-standards/project-layout"><img data-src="https://goreportcard.com/badge/github.com/golang-standards/project-layout?style=flat-square" alt="Go Report Card"></a><br>
+<a target="_blank" rel="noopener" href="http://godoc.org/github.com/golang-standards/project-layout"><img data-src="https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square" alt="Go Doc"></a><br>
+<a target="_blank" rel="noopener" href="https://github.com/golang-standards/project-layout/releases/latest"><img data-src="https://img.shields.io/github/release/golang-standards/project-layout.svg?style=flat-square" alt="Release"></a></p>
+<h2 id="Notes">Notes</h2>
+<p>A more opinionated project template with sample/reusable configs, scripts and code is a WIP.</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/" rel="prev" title="go语言之跨平台">
+                  <i class="fa fa-angle-left"></i> go语言之跨平台
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/05/100gomistakes%E6%80%BB%E7%BB%9301/" rel="next" title="100 go mistakes 总结01">
+                  100 go mistakes 总结01 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

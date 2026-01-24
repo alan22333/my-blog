@@ -13,7 +13,7 @@ timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://alan-blog.netlify.app
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -143,3 +143,13 @@ markdown:
     prepend_root: false
     post_asset: false
   inline: false  # https://markdown-it.github.io/markdown-it/#MarkdownIt.renderInline
+
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+  hub:
+  content:
+  content_limit: 140
+  content_limit_delim: ' '
+  order_by: -date

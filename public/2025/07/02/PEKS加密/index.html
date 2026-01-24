@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PEKS加密 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="通俗地讲解一下 PEKS（Public Key Encryption with Keyword Search） 的 加密流程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PEKS加密">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/02/PEKS%E5%8A%A0%E5%AF%86/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="通俗地讲解一下 PEKS（Public Key Encryption with Keyword Search） 的 加密流程。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-02T01:33:33.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.060Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="科研">
+<meta property="article:tag" content="密码学">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/02/PEKS%E5%8A%A0%E5%AF%86/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/02/PEKS%E5%8A%A0%E5%AF%86/","path":"2025/07/02/PEKS加密/","title":"PEKS加密"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/02/PEKS%E5%8A%A0%E5%AF%86/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-%E5%85%88%E5%BB%BA%E7%AB%8B%E6%80%9D%E7%BB%B4%E5%9B%BE%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">🧠 先建立思维图景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%A6-%E4%B8%80%E3%80%81PEKS-%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84%E5%9B%9B%E4%B8%AA%E6%A0%B8%E5%BF%83%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">📦 一、PEKS 体系结构四个核心算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%AA-%E4%BA%8C%E3%80%81%E6%B5%81%E7%A8%8B%E6%BC%94%E7%A4%BA%EF%BC%9A%E4%B8%80%E6%AD%A5%E6%AD%A5%E6%9D%A5%EF%BC%88%E9%80%9A%E4%BF%97%E5%8C%96-%E5%9B%BE%E7%A4%BA%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">🧪 二、流程演示：一步步来（通俗化 + 图示）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E5%AF%86%E9%92%A5%E7%94%9F%E6%88%90"><span class="nav-number">3.1.</span> <span class="nav-text">第一步：密钥生成</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%85%B3%E9%94%AE%E8%AF%8D%E5%8A%A0%E5%AF%86%EF%BC%88PEKS%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">第二步：关键词加密（PEKS）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E6%90%9C%E7%B4%A2%E9%99%B7%E9%97%A8%E7%94%9F%E6%88%90%EF%BC%88Trapdoor%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">第三步：搜索陷门生成（Trapdoor）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5%EF%BC%9A%E4%BA%91%E7%AB%AF%E5%8C%B9%E9%85%8D%EF%BC%88Test%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">第四步：云端匹配（Test）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%90-%E4%B8%89%E3%80%81%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86%E7%AE%80%E8%BF%B0%EF%BC%88%E7%95%A5%E6%8A%80%E6%9C%AF%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">🔐 三、底层原理简述（略技术）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%BE-%E5%9B%9B%E3%80%81%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E7%A4%BA%E6%84%8F%E5%9B%BE"><span class="nav-number">5.</span> <span class="nav-text">🧾 四、实际应用示意图</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/02/PEKS%E5%8A%A0%E5%AF%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="PEKS加密 | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          PEKS加密
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-02 09:33:33" itemprop="dateCreated datePublished" datetime="2025-07-02T09:33:33+08:00">2025-07-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/" itemprop="url" rel="index"><span itemprop="name">科研</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/%E5%AF%86%E7%A0%81%E5%AD%A6/" itemprop="url" rel="index"><span itemprop="name">密码学</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>通俗地讲解一下 <strong>PEKS（Public Key Encryption with Keyword Search）</strong> 的 <strong>加密流程</strong>。</p>
+<span id="more"></span>
+<h2 id="🧠-先建立思维图景">🧠 先建立思维图景</h2>
+<blockquote>
+<p>我们的目标是：用公开密钥对关键词加密（不是整个文件！），使得服务端可以根据你提交的“搜索陷门”（Trapdoor）来判断哪些加密关键词是匹配的，但却<strong>无法得知关键词是什么</strong>。</p>
+</blockquote>
+<hr>
+<h2 id="📦-一、PEKS-体系结构四个核心算法">📦 一、PEKS 体系结构四个核心算法</h2>
+<table>
+<thead>
+<tr>
+<th>算法</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Gen()</code></td>
+<td>生成密钥对（公钥/私钥）</td>
+</tr>
+<tr>
+<td><code>PEKS(PK, w)</code></td>
+<td>用公钥对关键词 <code>w</code> 进行加密（得出 PEKS 密文）</td>
+</tr>
+<tr>
+<td><code>Trapdoor(SK, w)</code></td>
+<td>用私钥为关键词 <code>w</code> 生成一个陷门</td>
+</tr>
+<tr>
+<td><code>Test(C, Tw)</code></td>
+<td>判断 PEKS 密文 <code>C</code> 是否和陷门 <code>Tw</code> 匹配（服务器用）</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="🧪-二、流程演示：一步步来（通俗化-图示）">🧪 二、流程演示：一步步来（通俗化 + 图示）</h2>
+<p>假设数据拥有者 Alice，想上传包含关键词 “salary” 的加密文档，并让未来某人（或她自己）能搜索这个关键词。</p>
+<h3 id="第一步：密钥生成">第一步：密钥生成</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(PK, SK) ← Gen()</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Alice 生成一对公钥 PK 和私钥 SK。</li>
+<li>公钥会用于加密关键词。</li>
+<li>私钥仅自己保留，用于生成搜索陷门。</li>
+</ul>
+<hr>
+<h3 id="第二步：关键词加密（PEKS）">第二步：关键词加密（PEKS）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">C ← PEKS(PK, <span class="string">&quot;salary&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Alice 把关键词 <code>&quot;salary&quot;</code> 用公钥加密，生成一个密文 <code>C</code>（不是加密文本，而是加密关键词！）</li>
+<li>这个 <code>C</code> 会与文档一起存入云端。</li>
+</ul>
+<p>云平台只知道：文件 X 关联了某个加密标签 <code>C</code>，但不知道 <code>C</code> 是哪个词。</p>
+<hr>
+<h3 id="第三步：搜索陷门生成（Trapdoor）">第三步：搜索陷门生成（Trapdoor）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Tw ← Trapdoor(SK, <span class="string">&quot;salary&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>用户 Bob 想找包含“salary”的文件。</li>
+<li>他从 Alice 得到 SK 或她帮忙生成陷门。</li>
+<li>用私钥对 “salary” 生成陷门 <code>Tw</code>，并交给服务器。</li>
+</ul>
+<hr>
+<h3 id="第四步：云端匹配（Test）">第四步：云端匹配（Test）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Test(C, Tw) → <span class="literal">true</span> or <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>云端服务器使用 <code>Test</code> 算法，把陷门 <code>Tw</code> 和存储的密文 <code>C</code> 一一比较。</li>
+<li>如果 <code>Test(C, Tw) == true</code>，说明该文件匹配关键词“salary”。</li>
+</ul>
+<p>服务器从头到尾：</p>
+<ul>
+<li>看不到关键词原文；</li>
+<li>无法解密文件内容；</li>
+<li>只能做“是否匹配”的判断。</li>
+</ul>
+<hr>
+<h2 id="🔐-三、底层原理简述（略技术）">🔐 三、底层原理简述（略技术）</h2>
+<p>PEKS 原始论文（Boneh et al., 2004）提出的方案用到了：</p>
+<ul>
+<li>RSA 或双线性对（Bilinear Pairings）</li>
+<li>加密哈希函数：对关键词做哈希再加密</li>
+<li>Trapdoor 是构造能与密文比较的“钥匙”</li>
+</ul>
+<p>大致思路是：</p>
+<ul>
+<li>对关键词 <code>w</code> 做哈希 <code>H(w)</code></li>
+<li>然后用某种加密算法处理这个值（如群指数、椭圆曲线）</li>
+<li>使得陷门 <code>Tw</code> 能被用于与密文 <code>PEKS(w')</code> 作数学上的“测试”</li>
+</ul>
+<hr>
+<h2 id="🧾-四、实际应用示意图">🧾 四、实际应用示意图</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">+--------------------------+</span><br><span class="line">|   数据拥有者 Alice       |</span><br><span class="line">|--------------------------|</span><br><span class="line">| 文档内容 + &quot;salary&quot;     |</span><br><span class="line">| 生成 PK, SK              |</span><br><span class="line">| PEKS(PK, &quot;salary&quot;) → C   |</span><br><span class="line">| 上传文档 + C 到云端      |</span><br><span class="line">+--------------------------+</span><br><span class="line">              ↓</span><br><span class="line">+--------------------------+</span><br><span class="line">|    云平台服务器          |</span><br><span class="line">|--------------------------|</span><br><span class="line">| 存了文档 + C             |</span><br><span class="line">| 收到 Trapdoor(SK, &quot;salary&quot;) → Tw |</span><br><span class="line">| Test(C, Tw) → true      |</span><br><span class="line">| 返回匹配的文档ID         |</span><br><span class="line">+--------------------------+</span><br></pre></td></tr></table></figure>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A7%91%E7%A0%94/" rel="tag"># 科研</a>
+              <a href="/tags/%E5%AF%86%E7%A0%81%E5%AD%A6/" rel="tag"># 密码学</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/01/%E8%80%83%E7%A0%94%E7%BB%8F%E9%AA%8C%E5%88%86%E4%BA%AB/" rel="prev" title="考研经验分享">
+                  <i class="fa fa-angle-left"></i> 考研经验分享
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/02/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%98%A0%E5%B0%84/" rel="next" title="Go语言之双线性映射">
+                  Go语言之双线性映射 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

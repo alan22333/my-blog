@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Sparse Merkle Tree (BSMT) | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Binary Sparse Merkle Tree (BSMT) 不仅仅是一种数据结构，它是解决区块链 “状态爆炸” 和 “高效验证” 矛盾的关键技术方案。它结合了 Merkle Tree 的验证能力和 Trie（前缀树）的寻址能力。  本文结构：通俗讲解-&gt;运行机制-&gt;代码实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Binary Sparse Merkle Tree (BSMT)">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/11/21/BSMT/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Binary Sparse Merkle Tree (BSMT) 不仅仅是一种数据结构，它是解决区块链 “状态爆炸” 和 “高效验证” 矛盾的关键技术方案。它结合了 Merkle Tree 的验证能力和 Trie（前缀树）的寻址能力。  本文结构：通俗讲解-&gt;运行机制-&gt;代码实现">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-21T06:02:48.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.050Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="科研">
+<meta property="article:tag" content="区块链">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/11/21/BSMT/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/11/21/BSMT/","path":"2025/11/21/BSMT/","title":"Binary Sparse Merkle Tree (BSMT)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/11/21/BSMT/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#A-%E4%BB%80%E4%B9%88%E4%BA%8B%E6%98%AFBSMT%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">A 什么事是BSMT？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Binary%EF%BC%88%E4%BA%8C%E5%8F%89%EF%BC%89%EF%BC%9A%E8%BF%99%E6%98%AF%E2%80%9C%E5%9C%B0%E5%9B%BE%E2%80%9D"><span class="nav-number">1.1.</span> <span class="nav-text">1. Binary（二叉）：这是“地图”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Sparse%EF%BC%88%E7%A8%80%E7%96%8F%EF%BC%89%EF%BC%9A%E8%BF%99%E6%98%AF%E2%80%9C%E9%AD%94%E6%B3%95%E2%80%9D"><span class="nav-number">1.2.</span> <span class="nav-text">2. Sparse（稀疏）：这是“魔法”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Merkle-Tree%EF%BC%88%E9%BB%98%E5%85%8B%E5%B0%94%E6%A0%91%EF%BC%89%EF%BC%9A%E8%BF%99%E6%98%AF%E2%80%9C%E9%98%B2%E4%BC%AA%E9%94%81%E2%80%9D"><span class="nav-number">1.3.</span> <span class="nav-text">3. Merkle Tree（默克尔树）：这是“防伪锁”</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E8%80%8C%E8%A8%80%E4%B9%8B"><span class="nav-number">1.4.</span> <span class="nav-text">总而言之</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#B-%E8%BF%90%E8%A1%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">B 运行机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%AD%98%E5%82%A8%EF%BC%9A%E5%AE%83%E6%98%AF%E6%80%8E%E4%B9%88%E5%81%9A%E5%88%B0%E2%80%9C%E7%9C%81%E7%A9%BA%E9%97%B4%E2%80%9D%E7%9A%84%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">1. 存储：它是怎么做到“省空间”的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E6%9B%B4%E6%96%B0%EF%BC%88%E6%8F%92%E5%85%A5-%E4%BF%AE%E6%94%B9%EF%BC%89%EF%BC%9A%E5%A6%82%E4%BD%95%E6%94%BE%E5%85%A5%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="nav-number">2.2.</span> <span class="nav-text">2. 更新（插入&#x2F;修改）：如何放入数据？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E8%AF%81%E6%98%8E%E5%AD%98%E5%9C%A8%EF%BC%88Merkle-Proof%EF%BC%89%EF%BC%9A%E6%80%8E%E4%B9%88%E8%AF%81%E6%98%8E%E2%80%9C%E8%8B%B9%E6%9E%9C%E2%80%9D%E5%9C%A8%E9%87%8C%E9%9D%A2%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">3. 证明存在（Merkle Proof）：怎么证明“苹果”在里面？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%AF%81%E6%98%8E%E4%B8%8D%E5%AD%98%E5%9C%A8%EF%BC%88Non-Inclusion-Proof%EF%BC%89%EF%BC%9A%E6%80%8E%E4%B9%88%E8%AF%81%E6%98%8E%E2%80%9C%E6%B2%A1%E8%8B%B9%E6%9E%9C%E2%80%9D%EF%BC%9F"><span class="nav-number">2.4.</span> <span class="nav-text">4. 证明不存在（Non-Inclusion Proof）：怎么证明“没苹果”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B%E6%B5%81%E7%A8%8B"><span class="nav-number">2.5.</span> <span class="nav-text">总结一下流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C-%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0%EF%BC%88Go%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">C 代码实现（Go）</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/11/21/BSMT/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Binary Sparse Merkle Tree (BSMT) | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Binary Sparse Merkle Tree (BSMT)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-21 14:02:48" itemprop="dateCreated datePublished" datetime="2025-11-21T14:02:48+08:00">2025-11-21</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/" itemprop="url" rel="index"><span itemprop="name">科研</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E7%A7%91%E7%A0%94/%E5%8C%BA%E5%9D%97%E9%93%BE/" itemprop="url" rel="index"><span itemprop="name">区块链</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Binary Sparse Merkle Tree (BSMT) 不仅仅是一种数据结构，它是解决区块链 “状态爆炸” 和 “高效验证” 矛盾的关键技术方案。它结合了 Merkle Tree 的验证能力和 Trie（前缀树）的寻址能力。</p>
+<blockquote>
+<p>本文结构：通俗讲解-&gt;运行机制-&gt;代码实现</p>
+</blockquote>
+<span id="more"></span>
+<h2 id="A-什么事是BSMT？">A 什么事是BSMT？</h2>
+<p>为了让你一听就懂，我们可以把 <strong>Binary Sparse Merkle Tree (BSMT)</strong> 想象成一个 <strong>“带有魔法的无限大仓库”</strong> 。</p>
+<p>我们可以把它的三个名字拆开来理解：</p>
+<h3 id="1-Binary（二叉）：这是“地图”">1. Binary（二叉）：这是“地图”</h3>
+<p>想象你要去仓库取东西，路标只有两种：<strong>“向左”</strong>（代表0）和 <strong>“向右”</strong>（代表1）。<br>
+所有的门牌号（Key）都是由0和1组成的。比如你要找门牌号 <code>011</code> 的柜子，你就走：左 -&gt; 右 -&gt; 右。</p>
+<ul>
+<li><strong>通俗点说：</strong> 只要知道门牌号（二进制），你就能顺着唯一的路径找到那个位置。</li>
+</ul>
+<h3 id="2-Sparse（稀疏）：这是“魔法”">2. Sparse（稀疏）：这是“魔法”</h3>
+<p>这是 BSMT 最核心的技术。<br>
+这个仓库理论上<strong>大到无穷大</strong>（比如有 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>256</mn></msup></mrow><annotation encoding="application/x-tex">2^{256}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">256</span></span></span></span></span></span></span></span></span></span></span></span> 个柜子，比宇宙里的原子还多）。<br>
+如果我们要真的造这么多柜子，地球都放不下。</p>
+<p><strong>魔法在于：</strong></p>
+<ul>
+<li>在这个无限大的仓库里，<strong>99.9999% 的柜子都是空的</strong> 。</li>
+<li>对于空的柜子，我们 <strong>不造它，也不存储它</strong> 。</li>
+<li>我们预先算好一个“空柜子的指纹”（Hash），凡是没东西的地方，直接用这个“空指纹”代替。</li>
+<li><strong>通俗点说：</strong> 这是一个 <strong>“懒人仓库”</strong> 。只有当你真的往某个柜子放东西时，我们才会在那一瞬间把去往那个柜子的路和柜子造出来。其他的空间都是虚拟的，不占地方。</li>
+</ul>
+<h3 id="3-Merkle-Tree（默克尔树）：这是“防伪锁”">3. Merkle Tree（默克尔树）：这是“防伪锁”</h3>
+<p>仓库大门上有一把总锁（Root Hash）。</p>
+<ul>
+<li>如果你偷偷改了哪怕最深处一个柜子里的东西，这把总锁的“指纹”就会立刻改变。</li>
+<li><strong>通俗点说：</strong> 它可以极快地证明“某样东西确实在这个仓库里”，而且没人动过手脚。</li>
+</ul>
+<hr>
+<h3 id="总而言之">总而言之</h3>
+<p>它就是一个<strong>看起来有无限容量，但实际上只占用你存了多少东西的空间，且能随时极速验证数据真伪的超级数据库</strong>。</p>
+<p><strong>它解决了什么问题？</strong></p>
+<ul>
+<li><strong>空间小：</strong> 哪怕树深达256层，如果你只存了3个数据，它占用的空间就只和这3个数据相关，而不是整个宇宙。</li>
+<li><strong>速度快：</strong> 验证数据是否存在非常快（顺着0和1走就行）。</li>
+<li><strong>甚至能证明“不存在”：</strong> 你顺着路走到某个位置，发现那是“空指纹”，就能立刻证明“这个数据确实不存在”（Non-inclusion proof），这在区块链里非常有用。</li>
+</ul>
+<h2 id="B-运行机制">B 运行机制</h2>
+<p>好，我们继续用“魔法仓库”的比喻，把 <strong>BSMT (Binary Sparse Merkle Tree)</strong> 的具体运作流程拆解开来看。</p>
+<p>首先你要记住一个核心规则：<strong>在这个树里，位置（Key）就是导航图。</strong><br>
+比如你的 Key 是 <code>101</code>，那就代表：第一层向右走，第二层向左走，第三层向右走。</p>
+<hr>
+<h3 id="1-存储：它是怎么做到“省空间”的？">1. 存储：它是怎么做到“省空间”的？</h3>
+<p>普通的树是把所有节点都存进数据库，但 BSMT 是个“极简主义者”。</p>
+<ul>
+<li>
+<p><strong>预计算空节点（Zero Hashes）：</strong><br>
+系统启动前，就已经算好了一套“空值表”。</p>
+<ul>
+<li>第256层（最底层）如果为空，Hash是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">H_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>。</li>
+<li>第255层如果左右孩子都为空（即孩子都是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">H_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>），那这一层的Hash就是 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>H</mi><mn>1</mn></msub><mo>=</mo><mi>H</mi><mi>a</mi><mi>s</mi><mi>h</mi><mo stretchy="false">(</mo><msub><mi>H</mi><mn>0</mn></msub><mo separator="true">,</mo><msub><mi>H</mi><mn>0</mn></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">H_1 = Hash(H_0, H_0)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="mord mathnormal">a</span><span class="mord mathnormal">s</span><span class="mord mathnormal">h</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.08125em;">H</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0813em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">0</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>。</li>
+<li>…以此类推，算到根节点。<br>
+<strong>这些“空指纹”是永远不变的，不需要存进数据库，写在代码常量里就行。</strong></li>
+</ul>
+</li>
+<li>
+<p><strong>只存有效路径：</strong><br>
+当你要存一个数据时，BSMT <strong>只会把从“根”到“叶子”这条路径上的非空节点</strong> 存到数据库（通常是 KV 数据库，如 LevelDB）里。</p>
+<ul>
+<li><strong>如果一个节点的右边是空的？</strong> 数据库里不存右边，只记录“右边是默认空指纹”。</li>
+<li><strong>效果：</strong> 哪怕树有 256 层高，存一个数据只需要存 256 个节点（甚至经过优化压缩后更少），而不是存 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>256</mn></msup></mrow><annotation encoding="application/x-tex">2^{256}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8141em;"></span><span class="mord"><span class="mord">2</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">256</span></span></span></span></span></span></span></span></span></span></span></span> 个节点。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="2-更新（插入-修改）：如何放入数据？">2. 更新（插入/修改）：如何放入数据？</h3>
+<p>假设你要把 <strong>“苹果”</strong> 放入柜子 <code>10...0</code>（假设这是 Key）。</p>
+<ol>
+<li><strong>下沉（找位置）：</strong><br>
+从根节点（Root）出发，根据 Key（1 -&gt; 右，0 -&gt; 左…）一路往下走。</li>
+<li><strong>放置：</strong><br>
+走到最底层的叶子节点，把“苹果”放进去。</li>
+<li><strong>上浮（重算指纹）：</strong><br>
+这是最关键的一步。你放了苹果，叶子的指纹变了。
+<ul>
+<li>你需要算出新的叶子 Hash。</li>
+<li>回到父节点，父节点的 Hash = <code>Hash(左孩子Hash, 右孩子Hash)</code>。</li>
+<li><strong>注意：</strong> 如果左孩子是你刚改的，右孩子是空的，那就取 <code>Hash(新左Hash, 预计算的空右Hash)</code>。</li>
+<li>一路向上计算，直到生成一个新的 <strong>Root Hash</strong>。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="3-证明存在（Merkle-Proof）：怎么证明“苹果”在里面？">3. 证明存在（Merkle Proof）：怎么证明“苹果”在里面？</h3>
+<p>你要向别人证明：柜子 <code>10...0</code> 里确实有“苹果”。你不需要把整个仓库给别人看，只需要提供<strong>一条“证据链”</strong>。</p>
+<ul>
+<li>
+<p><strong>证据链（Proof）包含什么？</strong><br>
+你需要提供从“苹果”所在位置，一直到树根的路径上，<strong>所有“另一侧”的兄弟节点的 Hash</strong>。</p>
+<ul>
+<li>比如：你要算你爸爸的 Hash，你需要你自己的 Hash + 你兄弟的 Hash。</li>
+</ul>
+</li>
+<li>
+<p><strong>验证过程：</strong><br>
+验证者手里只有一个 <strong>Root Hash</strong>（可信的总指纹）。</p>
+<ol>
+<li>验证者拿着你给的“苹果”。</li>
+<li>根据 Key（路径），配合你提供的“兄弟节点 Hash”，一层层往上算。</li>
+<li>如果最后算出来的 Hash <strong>等于</strong> 他手里的 Root Hash，那就证明：<strong>苹果确实在这个位置，且没有被篡改。</strong></li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3 id="4-证明不存在（Non-Inclusion-Proof）：怎么证明“没苹果”？">4. 证明不存在（Non-Inclusion Proof）：怎么证明“没苹果”？</h3>
+<p>这是 BSMT 最厉害的地方。普通的 Merkle Tree 很难证明“没有”，通常需要把相邻的数据都拿出来由你来推断中间是空的，但 BSMT 很直接。</p>
+<p>假设有人问：柜子 <code>11...1</code> 里有东西吗？</p>
+<ul>
+<li>
+<p><strong>情况 A：路断了（遇到空子树）</strong><br>
+你顺着 <code>1</code>（向右）走，发现这里本该有个节点，但这棵子树全是空的（是一个预计算的空 Hash）。<br>
+<strong>证明：</strong> 你直接把这个“空 Hash”对应的兄弟路径给验证者。验证者一算，发现根 Hash 对得上，且路径指向的是个“空地”，那就证明<strong>该位置绝对没有数据</strong>。</p>
+</li>
+<li>
+<p><strong>情况 B：被占了（叶子节点不匹配）</strong><br>
+你顺着路走到终点，发现里面确实有个东西，但它的 Key 是 <code>11...0</code>，而不是你要找的 <code>11...1</code>。<br>
+<strong>证明：</strong> 展示这个错误的叶子节点。验证者一看：路径是对的，但这只有 <code>11...0</code> 的数据，说明 <code>11...1</code> 没地方站了（位置冲突），所以 <strong>目标数据不存在</strong>。</p>
+</li>
+</ul>
+<hr>
+<h3 id="总结一下流程">总结一下流程</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">动作</th>
+<th style="text-align:left">核心机制</th>
+<th style="text-align:left">通俗解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>存储</strong></td>
+<td style="text-align:left"><strong>剪枝 (Pruning)</strong></td>
+<td style="text-align:left">只有真的放了东西的柜子才会造出来，空的全部用“空气指纹”代替，不占硬盘。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>更新</strong></td>
+<td style="text-align:left"><strong>回溯重哈希</strong></td>
+<td style="text-align:left">动了最下面的东西，要一层层往上汇报，直到大门上的总锁（Root）换成新的。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>证明存在</strong></td>
+<td style="text-align:left"><strong>兄弟路径</strong></td>
+<td style="text-align:left">“这是我和我每一级邻居的合影，你看最后能不能拼出那把总锁。”</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>证明不存在</strong></td>
+<td style="text-align:left"><strong>证明为空</strong></td>
+<td style="text-align:left">“你顺着路走，你看，那地方是一片荒地（默认空值），所以东西肯定不在那。”</td>
+</tr>
+</tbody>
+</table>
+<p>这就是为什么 BSMT 在区块链（如 CKB, Ethereum 2.0 的某些状态树）中很受欢迎：它<strong>又大</strong>（能存无限Key），<strong>又小</strong>（只占有效数据空间），还能<strong>极速证明</strong>“有”或者“没有”。</p>
+<h2 id="C-代码实现（Go）">C 代码实现（Go）</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;bytes&quot;</span></span><br><span class="line">	<span class="string">&quot;crypto/sha256&quot;</span></span><br><span class="line">	<span class="string">&quot;encoding/hex&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 设定树的深度为 256 层 (对应 SHA256 的位宽)</span></span><br><span class="line"><span class="keyword">const</span> TreeDepth = <span class="number">256</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// SMT 定义</span></span><br><span class="line"><span class="keyword">type</span> SparseMerkleTree <span class="keyword">struct</span> &#123;</span><br><span class="line">	root       []<span class="type">byte</span>                <span class="comment">// 当前树根 Hash</span></span><br><span class="line">	db         <span class="keyword">map</span>[<span class="type">string</span>][]<span class="type">byte</span>     <span class="comment">// 模拟数据库 (NodeKey -&gt; NodeHash)</span></span><br><span class="line">	zeroHashes [TreeDepth + <span class="number">1</span>][]<span class="type">byte</span> <span class="comment">// 预计算的空节点 Hash 表（默认的，用作计算查询）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewSMT 初始化一棵空树</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewSMT</span><span class="params">()</span></span> *SparseMerkleTree &#123;</span><br><span class="line">	smt := &amp;SparseMerkleTree&#123;</span><br><span class="line">		db: <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>][]<span class="type">byte</span>),</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1. 预计算空哈希 (魔法部分)</span></span><br><span class="line">	<span class="comment">// 最底层(第256层)的空 Hash 是全 0</span></span><br><span class="line">	smt.zeroHashes[TreeDepth] = <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">32</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 从下往上计算每一层的空 Hash</span></span><br><span class="line">	<span class="comment">// Hash(Parent) = Hash(LeftChild + RightChild)</span></span><br><span class="line">	<span class="keyword">for</span> i := TreeDepth - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		childHash := smt.zeroHashes[i+<span class="number">1</span>]</span><br><span class="line">		smt.zeroHashes[i] = hashNode(childHash, childHash)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始状态下，树根就是第 0 层的空 Hash</span></span><br><span class="line">	smt.root = smt.zeroHashes[<span class="number">0</span>]</span><br><span class="line">	<span class="keyword">return</span> smt</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Set 插入或更新数据</span></span><br><span class="line"><span class="comment">// key: 32字节的大整数 (路径图), value: 要存的数据</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *SparseMerkleTree)</span></span> Set(key []<span class="type">byte</span>, value []<span class="type">byte</span>) &#123;</span><br><span class="line">	valueHash := hashData(value)</span><br><span class="line">	<span class="comment">// 更新根节点，递归更新路径</span></span><br><span class="line">	t.root = t.update(t.root, key, <span class="number">0</span>, valueHash)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// update 递归函数：下沉寻找位置，上浮重新计算 Hash</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *SparseMerkleTree)</span></span> update(nodeHash []<span class="type">byte</span>, key []<span class="type">byte</span>, depth <span class="type">int</span>, valueHash []<span class="type">byte</span>) []<span class="type">byte</span> &#123;</span><br><span class="line">	<span class="comment">// 1. 到底了 (叶子节点)，直接返回数据的 Hash</span></span><br><span class="line">	<span class="keyword">if</span> depth == TreeDepth &#123;</span><br><span class="line">		<span class="keyword">return</span> valueHash</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 确定走左边还是右边 (查看 Key 在当前深度的位是 0 还是 1)</span></span><br><span class="line">	<span class="comment">// path: 0 -&gt; Left, 1 -&gt; Right</span></span><br><span class="line">	bit := getBit(key, depth)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 获取当前节点的左右孩子</span></span><br><span class="line">	<span class="comment">// 如果当前节点是空的(ZeroHash)，那它的孩子肯定也是空的</span></span><br><span class="line">	leftChild, rightChild := t.getChildren(nodeHash, depth)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> newLeft, newRight []<span class="type">byte</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> bit == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="comment">// 向左走，右边保持不变</span></span><br><span class="line">		newLeft = t.update(leftChild, key, depth+<span class="number">1</span>, valueHash)</span><br><span class="line">		newRight = rightChild</span><br><span class="line">	&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">		<span class="comment">// 向右走，左边保持不变</span></span><br><span class="line">		newLeft = leftChild</span><br><span class="line">		newRight = t.update(rightChild, key, depth+<span class="number">1</span>, valueHash)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 上浮：计算当前节点的新 Hash</span></span><br><span class="line">	newHash := hashNode(newLeft, newRight)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4. 存储：把非空节点存入 DB (为了演示简单，这里我们存了所有经过的路径节点)</span></span><br><span class="line">	<span class="comment">// 实际 BSMT 优化中，如果 Hash 等于 ZeroHash，是不需要存 DB 的</span></span><br><span class="line">	t.db[hex.EncodeToString(newHash)] = <span class="built_in">append</span>(newLeft, newRight...)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> newHash</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GenerateProof 生成默克尔证明 (Merkle Proof)</span></span><br><span class="line"><span class="comment">// 返回：兄弟节点 Hash 列表</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *SparseMerkleTree)</span></span> GenerateProof(key []<span class="type">byte</span>) [][]<span class="type">byte</span> &#123;</span><br><span class="line">	<span class="keyword">var</span> proof [][]<span class="type">byte</span></span><br><span class="line">	currentNode := t.root</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; TreeDepth; i++ &#123;</span><br><span class="line">		bit := getBit(key, i)</span><br><span class="line">		left, right := t.getChildren(currentNode, i)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> bit == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="comment">// 我走左边，把右边的兄弟放入证据包</span></span><br><span class="line">			proof = <span class="built_in">append</span>(proof, right)</span><br><span class="line">			currentNode = left</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 我走右边，把左边的兄弟放入证据包</span></span><br><span class="line">			proof = <span class="built_in">append</span>(proof, left)</span><br><span class="line">			currentNode = right</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> proof</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// VerifyProof 验证默克尔证明</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">VerifyProof</span><span class="params">(root []<span class="type">byte</span>, key []<span class="type">byte</span>, value []<span class="type">byte</span>, proof [][]<span class="type">byte</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	currentHash := hashData(value)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 从底向上回推</span></span><br><span class="line">	<span class="comment">// 注意 proof 的顺序是 从上到下 还是 从下到上，这里生成时是从上到下，验证我们要反过来或者对应索引</span></span><br><span class="line">	<span class="comment">// 实际上循环最好还是从 Root 往下模拟，或者从 Leaf 往上计算。</span></span><br><span class="line">	<span class="comment">// 这里我们采用：从 Leaf (TreeDepth) 往上 (0) 计算</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(proof) != TreeDepth &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := TreeDepth - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		sibling := proof[i] <span class="comment">// 获取对应层的兄弟</span></span><br><span class="line">		bit := getBit(key, i)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> bit == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="comment">// Key 是 0 (左)，兄弟在右： Hash(Me, Sibling)</span></span><br><span class="line">			currentHash = hashNode(currentHash, sibling)</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// Key 是 1 (右)，兄弟在左： Hash(Sibling, Me)</span></span><br><span class="line">			currentHash = hashNode(sibling, currentHash)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 比较计算出的 Root 和 这里的 Root</span></span><br><span class="line">	<span class="keyword">return</span> bytes.Equal(currentHash, root)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 辅助函数 ---</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// getChildren 获取左右孩子，如果是空节点，返回预计算的 ZeroHash</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *SparseMerkleTree)</span></span> getChildren(nodeHash []<span class="type">byte</span>, depth <span class="type">int</span>) ([]<span class="type">byte</span>, []<span class="type">byte</span>) &#123;</span><br><span class="line">	<span class="comment">// 如果当前节点就是该层的“空哈希”，那孩子直接取下一层的空哈希</span></span><br><span class="line">	<span class="keyword">if</span> bytes.Equal(nodeHash, t.zeroHashes[depth]) &#123;</span><br><span class="line">		<span class="keyword">return</span> t.zeroHashes[depth+<span class="number">1</span>], t.zeroHashes[depth+<span class="number">1</span>]</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 否则查 DB</span></span><br><span class="line">	data, ok := t.db[hex.EncodeToString(nodeHash)]</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		<span class="comment">// 理论上不应发生，除非数据丢失，但在 Sparse 逻辑里，找不到我们就当它是空的</span></span><br><span class="line">		<span class="keyword">return</span> t.zeroHashes[depth+<span class="number">1</span>], t.zeroHashes[depth+<span class="number">1</span>]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 前32字节是左，后32字节是右</span></span><br><span class="line">	<span class="keyword">return</span> data[:<span class="number">32</span>], data[<span class="number">32</span>:]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// getBit 获取 Key 在第 depth 位的二进制值 (0 或 1)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getBit</span><span class="params">(key []<span class="type">byte</span>, depth <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	byteIndex := depth / <span class="number">8</span></span><br><span class="line">	bitIndex := <span class="number">7</span> - (depth % <span class="number">8</span>)</span><br><span class="line">	<span class="keyword">if</span> (key[byteIndex]&gt;&gt;bitIndex)&amp;<span class="number">1</span> == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// hashNode 计算中间节点 Hash = SHA256(Left + Right)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hashNode</span><span class="params">(left, right []<span class="type">byte</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	hash := sha256.New()</span><br><span class="line">	hash.Write(left)</span><br><span class="line">	hash.Write(right)</span><br><span class="line">	<span class="keyword">return</span> hash.Sum(<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// hashData 计算叶子数据 Hash</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hashData</span><span class="params">(data []<span class="type">byte</span>)</span></span> []<span class="type">byte</span> &#123;</span><br><span class="line">	hash := sha256.New()</span><br><span class="line">	hash.Write(data)</span><br><span class="line">	<span class="keyword">return</span> hash.Sum(<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 主程序 ---</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 1. 创建树</span></span><br><span class="line">	smt := NewSMT()</span><br><span class="line">	fmt.Printf(<span class="string">&quot;初始 Root: %x\n&quot;</span>, smt.root)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 准备数据</span></span><br><span class="line">	<span class="comment">// Key 需要是 32 字节 (256 bit)，这里简单构造一个</span></span><br><span class="line">	key1 := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">32</span>)</span><br><span class="line">	key1[<span class="number">31</span>] = <span class="number">0x01</span> <span class="comment">// ...0001</span></span><br><span class="line"></span><br><span class="line">	val1 := []<span class="type">byte</span>(<span class="string">&quot;Hello BSMT&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 存储数据</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;正在存储 &#x27;Hello BSMT&#x27; 到 key 1...&quot;</span>)</span><br><span class="line">	smt.Set(key1, val1)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;新 Root:   %x\n&quot;</span>, smt.root)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4. 生成证明</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;正在生成证明...&quot;</span>)</span><br><span class="line">	proof := smt.GenerateProof(key1)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 5. 验证证明 (模拟轻客户端验证)</span></span><br><span class="line">	isValid := VerifyProof(smt.root, key1, val1, proof)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;验证结果: %v\n&quot;</span>, isValid)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 6. 测试篡改验证</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;测试篡改数据...&quot;</span>)</span><br><span class="line">	fakeVal := []<span class="type">byte</span>(<span class="string">&quot;Hacker&quot;</span>)</span><br><span class="line">	isValidFake := VerifyProof(smt.root, key1, fakeVal, proof)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;篡改验证结果: %v\n&quot;</span>, isValidFake)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E7%A7%91%E7%A0%94/" rel="tag"># 科研</a>
+              <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag"># 区块链</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/" rel="prev" title="Go语言之RPC实践：push VS. pull">
+                  <i class="fa fa-angle-left"></i> Go语言之RPC实践：push VS. pull
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/29/Go%E8%AF%AD%E8%A8%80%E4%B9%8BMysql-Proxy/" rel="next" title="Go语言之Mysql-Proxy">
+                  Go语言之Mysql-Proxy <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

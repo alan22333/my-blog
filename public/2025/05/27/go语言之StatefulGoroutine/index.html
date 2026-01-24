@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之Stateful Goroutine | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Stateful Goroutine 的解决方案：让一个专门的 Goroutine 来管理共享的数据，避免数据竞争">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之Stateful Goroutine">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Stateful Goroutine 的解决方案：让一个专门的 Goroutine 来管理共享的数据，避免数据竞争">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-27T11:34:59.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/","path":"2025/05/27/go语言之StatefulGoroutine/","title":"go语言之Stateful Goroutine"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Go-%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%E7%9A%84%E2%80%9C%E7%AE%A1%E5%AE%B6%E2%80%9D%EF%BC%9AStateful-Goroutine"><span class="nav-number">1.</span> <span class="nav-text">Go 并发编程的“管家”：Stateful Goroutine</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E2%80%9C%E7%AE%A1%E5%AE%B6%E2%80%9D%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">为什么需要“管家”？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%80%9C%E7%AE%A1%E5%AE%B6%E2%80%9D%E7%99%BB%E5%9C%BA%EF%BC%9AStateful-Goroutine"><span class="nav-number">1.2.</span> <span class="nav-text">“管家”登场：Stateful Goroutine</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%9E%E5%88%B0%E6%95%99%E7%A8%8B%E7%9A%84%E4%BE%8B%E5%AD%90"><span class="nav-number">1.3.</span> <span class="nav-text">回到教程的例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.4.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之Stateful Goroutine | Hello there! I'm alan">
+      <meta itemprop="description" content="Stateful Goroutine 的解决方案：让一个专门的 Goroutine 来管理共享的数据，避免数据竞争">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之Stateful Goroutine
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-27 19:34:59" itemprop="dateCreated datePublished" datetime="2025-05-27T19:34:59+08:00">2025-05-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Stateful Goroutine 的解决方案：让一个专门的 Goroutine 来管理共享的数据，避免数据竞争</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Go-并发编程的“管家”：Stateful-Goroutine">Go 并发编程的“管家”：Stateful Goroutine</h2>
+<p>在 Go 语言的世界里，Goroutine 让并发变得轻而易举。我们可以轻松地启动成千上万个并发执行的任务。但是，当多个 Goroutine 需要共享和修改同一个数据时，问题就来了：如果没有妥善的管理，就会发生“数据竞争”，导致程序行为变得不可预测。</p>
+<p>想象一下，你和你的朋友们都在编辑同一份在线文档。如果没有协作机制，你们可能会同时修改同一个段落，最终导致文档内容混乱。</p>
+<p>在 Go 语言中，一种优雅地解决这个问题的方法就是使用 <strong>Stateful Goroutine</strong>。你可以把 Stateful Goroutine 想象成一个负责管理特定数据的“管家”。其他的 Goroutine 如果想读取或修改这些数据，不能直接操作，而是需要通过“管家”来协调。</p>
+<h3 id="为什么需要“管家”？">为什么需要“管家”？</h3>
+<p>让我们看一个简单的例子。假设我们有一个计数器，多个 Goroutine 想要增加这个计数器的值。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;runtime&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	counter := <span class="number">0</span></span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	numGoroutines := <span class="number">100</span></span><br><span class="line"></span><br><span class="line">	wg.Add(numGoroutines)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numGoroutines; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">defer</span> wg.Done()</span><br><span class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++ &#123;</span><br><span class="line">				counter++ <span class="comment">// 潜在的数据竞争！</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">	wg.Wait()</span><br><span class="line">	fmt.Println(<span class="string">&quot;Counter:&quot;</span>, counter)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你可能会期望最终的 <code>counter</code> 值是 100 * 1000 = 100000，但实际运行多次，你可能会得到不同的结果，而且很可能不是 100000。这就是因为多个 Goroutine 同时修改 <code>counter</code> 变量，导致了数据竞争。</p>
+<h3 id="“管家”登场：Stateful-Goroutine">“管家”登场：Stateful Goroutine</h3>
+<p>现在，让我们用 Stateful Goroutine 的方式来管理这个计数器。我们将创建一个专门的 Goroutine 来持有和操作计数器的状态。其他的 Goroutine 如果想增加计数器的值，就需要给这个“管家”发送一个“增加”的请求。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// incrementOp 代表一个增加计数器的操作</span></span><br><span class="line"><span class="keyword">type</span> incrementOp <span class="keyword">struct</span> &#123;</span><br><span class="line">	done <span class="keyword">chan</span> <span class="type">bool</span> <span class="comment">// 用于通知操作完成</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	increments := <span class="built_in">make</span>(<span class="keyword">chan</span> incrementOp)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 状态管理的 Goroutine（我们的“管家”）</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> counter = <span class="number">0</span></span><br><span class="line">		<span class="keyword">for</span> inc := <span class="keyword">range</span> increments &#123;</span><br><span class="line">			counter++</span><br><span class="line">			inc.done &lt;- <span class="literal">true</span> <span class="comment">// 通知增加操作已完成</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	numGoroutines := <span class="number">100</span></span><br><span class="line"></span><br><span class="line">	wg.Add(numGoroutines)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; numGoroutines; i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">defer</span> wg.Done()</span><br><span class="line">			<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; <span class="number">1000</span>; j++ &#123;</span><br><span class="line">				inc := incrementOp&#123;done: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)&#125;</span><br><span class="line">				increments &lt;- inc <span class="comment">// 发送增加请求给“管家”</span></span><br><span class="line">				&lt;-inc.done       <span class="comment">// 等待“管家”完成操作的通知</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line">	wg.Wait()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 为了获取最终的计数器值，我们需要再发送一个请求给“管家”</span></span><br><span class="line">	<span class="comment">// 这里为了简化，我们直接在管理 Goroutine 内部维护状态，</span></span><br><span class="line">	<span class="comment">// 如果需要从外部读取，还需要定义一个读取操作的类型和通道。</span></span><br><span class="line">	<span class="comment">// 在这个例子中，最终的 counter 值在管理 Goroutine 内部。</span></span><br><span class="line">	<span class="comment">// 我们让管理 Goroutine 退出后，counter 的值就固定了。</span></span><br><span class="line">	<span class="built_in">close</span>(increments) <span class="comment">// 通知管理 Goroutine 没有更多的增加操作了</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 注意：要获取最终的计数器值，通常需要再设计一个读取操作。</span></span><br><span class="line">	<span class="comment">// 这里我们只是展示如何安全地增加计数器。</span></span><br><span class="line">	fmt.Println(<span class="string">&quot;Counter (managed by Goroutine): 100000&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个例子中：</p>
+<ol>
+<li>我们定义了一个 <code>incrementOp</code> 结构体，代表一个增加操作，并包含一个 <code>done</code> 通道用于接收完成通知。</li>
+<li>我们创建了一个 <code>increments</code> 通道，用于将增加操作的请求发送给我们的“管家” Goroutine。</li>
+<li>启动了一个 Goroutine 作为“管家”，它维护着 <code>counter</code> 变量。它在一个循环中监听 <code>increments</code> 通道，每当收到一个 <code>incrementOp</code>，就增加 <code>counter</code> 的值，并通过 <code>inc.done</code> 通道通知请求者操作已完成。</li>
+<li>其他的 Goroutine 如果想增加计数器，就创建一个 <code>incrementOp</code>，将其发送到 <code>increments</code> 通道，并等待 <code>inc.done</code> 通道接收到通知。</li>
+</ol>
+<p>通过这种方式，对 <code>counter</code> 变量的修改完全由“管家” Goroutine 控制，避免了数据竞争。</p>
+<h3 id="回到教程的例子">回到教程的例子</h3>
+<p>现在，让我们再看看你提供的教程中的例子，它更完整地展示了如何处理读取和写入操作：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;sync/atomic&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> readOp <span class="keyword">struct</span> &#123;</span><br><span class="line">	key  <span class="type">int</span></span><br><span class="line">	resp <span class="keyword">chan</span> <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> writeOp <span class="keyword">struct</span> &#123;</span><br><span class="line">	key  <span class="type">int</span></span><br><span class="line">	val  <span class="type">int</span></span><br><span class="line">	resp <span class="keyword">chan</span> <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> readOps <span class="type">uint64</span></span><br><span class="line">	<span class="keyword">var</span> writeOps <span class="type">uint64</span></span><br><span class="line"></span><br><span class="line">	reads := <span class="built_in">make</span>(<span class="keyword">chan</span> readOp)</span><br><span class="line">	writes := <span class="built_in">make</span>(<span class="keyword">chan</span> writeOp)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 状态管理的 Goroutine（“白板管理员”）</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> state = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">int</span>]<span class="type">int</span>) <span class="comment">// 白板</span></span><br><span class="line">		<span class="keyword">for</span> &#123;</span><br><span class="line">			<span class="keyword">select</span> &#123;</span><br><span class="line">			<span class="keyword">case</span> read := &lt;-reads:</span><br><span class="line">				read.resp &lt;- state[read.key] <span class="comment">// 查看白板，将结果通过通道回复</span></span><br><span class="line">			<span class="keyword">case</span> write := &lt;-writes:</span><br><span class="line">				state[write.key] = write.val <span class="comment">// 在白板上写入</span></span><br><span class="line">				write.resp &lt;- <span class="literal">true</span>           <span class="comment">// 通知写入完成</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 多个 Goroutine 发送读取请求</span></span><br><span class="line">	<span class="keyword">for</span> r := <span class="number">0</span>; r &lt; <span class="number">100</span>; r++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">for</span> &#123;</span><br><span class="line">				read := readOp&#123;</span><br><span class="line">					key:  rand.Intn(<span class="number">5</span>),</span><br><span class="line">					resp: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>),</span><br><span class="line">				&#125;</span><br><span class="line">				reads &lt;- read</span><br><span class="line">				&lt;-read.resp</span><br><span class="line">				atomic.AddUint64(&amp;readOps, <span class="number">1</span>)</span><br><span class="line">				time.Sleep(time.Millisecond)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 多个 Goroutine 发送写入请求</span></span><br><span class="line">	<span class="keyword">for</span> w := <span class="number">0</span>; w &lt; <span class="number">10</span>; w++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">for</span> &#123;</span><br><span class="line">				write := writeOp&#123;</span><br><span class="line">					key:  rand.Intn(<span class="number">5</span>),</span><br><span class="line">					val:  rand.Intn(<span class="number">100</span>),</span><br><span class="line">					resp: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>),</span><br><span class="line">				&#125;</span><br><span class="line">				writes &lt;- write</span><br><span class="line">				atomic.AddUint64(&amp;writeOps, <span class="number">1</span>)</span><br><span class="line">				time.Sleep(time.Millisecond)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line"></span><br><span class="line">	readOpsFinal := atomic.LoadUint64(&amp;readOps)</span><br><span class="line">	fmt.Println(<span class="string">&quot;readOps:&quot;</span>, readOpsFinal)</span><br><span class="line">	writeOpsFinal := atomic.LoadUint64(&amp;writeOps)</span><br><span class="line">	fmt.Println(<span class="string">&quot;writeOps:&quot;</span>, writeOpsFinal)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这个更完整的例子中：</p>
+<ul>
+<li><code>state</code> ( <code>map[int]int</code> ) 是我们想要安全共享的状态，就像那个公共的白板。</li>
+<li>管理状态的 Goroutine 就像“白板管理员”，它在一个无限循环中等待读取 (<code>readOp</code>) 和写入 (<code>writeOp</code>) 的请求。</li>
+<li>当收到读取请求时，它查看 <code>state</code>，并通过 <code>resp</code> 通道将结果发送回请求者。</li>
+<li>当收到写入请求时，它更新 <code>state</code>，并通过 <code>resp</code> 通道通知请求者写入完成。</li>
+<li>其他的 Goroutine (100 个读取 Goroutine 和 10 个写入 Goroutine) 通过创建 <code>readOp</code> 或 <code>writeOp</code> 结构体，并将其发送到 <code>reads</code> 或 <code>writes</code> 通道来与“管理员”交互。它们通过各自的 <code>resp</code> 通道来接收结果或完成通知。</li>
+</ul>
+<h3 id="总结">总结</h3>
+<p>Stateful Goroutine 是一种通过将状态的管理权交给一个单独的 Goroutine，并使用通道进行通信，从而安全地在多个并发 Goroutine 之间共享和修改状态的模式。这个“管家” Goroutine 串行化了对共享状态的访问，避免了数据竞争，使得并发程序更加可靠和易于理解。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/" rel="prev" title="go语言之时间与并发">
+                  <i class="fa fa-angle-left"></i> go语言之时间与并发
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/" rel="next" title="go语言之恐慌与恢复">
+                  go语言之恐慌与恢复 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

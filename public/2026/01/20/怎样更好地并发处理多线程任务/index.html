@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Concurrent multi-threaded tasks in real life? | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="怎么才能把自己开辟的每一个支线任务完成呢">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Concurrent multi-threaded tasks in real life?">
+<meta property="og:url" content="https://alan-blog.netlify.app/2026/01/20/%E6%80%8E%E6%A0%B7%E6%9B%B4%E5%A5%BD%E5%9C%B0%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BB%BB%E5%8A%A1/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="怎么才能把自己开辟的每一个支线任务完成呢">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2026-01-20T06:16:39.000Z">
+<meta property="article:modified_time" content="2026-01-21T04:03:52.184Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="芜杂心绪">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2026/01/20/%E6%80%8E%E6%A0%B7%E6%9B%B4%E5%A5%BD%E5%9C%B0%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BB%BB%E5%8A%A1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2026/01/20/%E6%80%8E%E6%A0%B7%E6%9B%B4%E5%A5%BD%E5%9C%B0%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BB%BB%E5%8A%A1/","path":"2026/01/20/怎样更好地并发处理多线程任务/","title":"Concurrent multi-threaded tasks in real life?"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2026/01/20/%E6%80%8E%E6%A0%B7%E6%9B%B4%E5%A5%BD%E5%9C%B0%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BB%BB%E5%8A%A1/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">1.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83"><span class="nav-number">2.</span> <span class="nav-text">思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3"><span class="nav-number">3.</span> <span class="nav-text">解决</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E9%87%8D%E6%9E%84%E4%BB%BB%E5%8A%A1%E7%AE%A1%E7%90%86%E9%80%BB%E8%BE%91"><span class="nav-number">3.1.</span> <span class="nav-text">第一步：重构任务管理逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E5%81%9A%E3%80%8C%E4%B8%89%E5%B1%82%E4%BB%BB%E5%8A%A1%E6%B8%85%E5%8D%95%E3%80%8D%EF%BC%8C%E5%8F%AA%E6%8A%93-%E2%80%9C%E6%A0%B8%E5%BF%83%E5%B1%82%E2%80%9D-%E7%9A%84%E7%A7%AF%E7%B4%AF%EF%BC%8C%E5%85%B6%E4%BD%99%E9%83%BD%E6%98%AF-%E2%80%9C%E9%80%82%E9%85%8D%E5%B1%82%E2%80%9D"><span class="nav-number">3.1.1.</span> <span class="nav-text">1. 做「三层任务清单」，只抓 “核心层” 的积累，其余都是 “适配层”</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E8%AE%BE%E5%AE%9A%E3%80%8C%E6%9C%80%E5%B0%8F%E6%8E%A8%E8%BF%9B%E5%8D%95%E5%85%83%E3%80%8D%EF%BC%8C%E5%88%B6%E9%80%A0%E6%8E%A8%E8%BF%9B%E6%84%9F"><span class="nav-number">3.1.2.</span> <span class="nav-text">2. 设定「最小推进单元」，制造推进感</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%AF%8F%E5%A4%A9%E7%95%99%E3%80%8C30-%E7%9A%84%E7%A9%BA%E7%99%BD%E6%97%B6%E9%97%B4%E3%80%8D%EF%BC%8C%E4%B8%93%E9%97%A8%E5%BA%94%E5%AF%B9%E7%AA%81%E5%8F%91%EF%BC%8C%E4%B8%8D%E6%8C%A4%E5%8D%A0%E6%A0%B8%E5%BF%83%E5%B1%82"><span class="nav-number">3.1.3.</span> <span class="nav-text">3. 每天留「30% 的空白时间」，专门应对突发，不挤占核心层</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E5%BB%BA%E7%AB%8B%E6%96%AD%E7%82%B9%E6%81%A2%E5%A4%8D%E6%9C%BA%E5%88%B6"><span class="nav-number">3.2.</span> <span class="nav-text">第二步：建立断点恢复机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%BF%83%E6%80%81%E9%87%8D%E6%9E%84"><span class="nav-number">3.3.</span> <span class="nav-text">第三步：心态重构</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2026/01/20/%E6%80%8E%E6%A0%B7%E6%9B%B4%E5%A5%BD%E5%9C%B0%E5%B9%B6%E5%8F%91%E5%A4%84%E7%90%86%E5%A4%9A%E7%BA%BF%E7%A8%8B%E4%BB%BB%E5%8A%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Concurrent multi-threaded tasks in real life? | Hello there! I'm alan">
+      <meta itemprop="description" content="怎么才能把自己开辟的每一个支线任务完成呢">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Concurrent multi-threaded tasks in real life?
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2026-01-20 14:16:39" itemprop="dateCreated datePublished" datetime="2026-01-20T14:16:39+08:00">2026-01-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/talk/" itemprop="url" rel="index"><span itemprop="name">talk</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">怎么才能把自己开辟的每一个支线任务完成呢</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><blockquote>
+<p>研究生的第一个学期结束了，总觉得没太多的收获，学习上没有什么进步，不论是科研还是技术上，甚至是认知上，似乎浑浑噩噩地度过了半年。回顾这一学期，中间有开辟很多很多小的分支，有很多想学的东西，但是最终却没有一个完整做完的。有时候是突然的科研工作、有时候又是课程任务、还有心境和生活变故，似乎生活总是有数不尽变化，不论是外因还是内因总有事情打断前一个阶段学习计划。但是每个人其实应是如此，每个人每天的想法也会不断的改变，每天都可能发生特殊的事情或更高优先级的工作要去做。所以得好好想想该怎么并发地处理多线程的任务？</p>
+</blockquote>
+<hr>
+<h2 id="问题">问题</h2>
+<p>核心是未适配研究生阶段多任务、高突发的学习生活节奏，导致各类学习计划频繁被打断，最终事事搁置、半途而废。</p>
+<p>问题拆解：</p>
+<ul>
+<li><strong>任务管理逻辑错位</strong>：用本科生 “线性固定计划” 应对研究生 “非线性高变动” 场景，无明确优先级划分，想做的事分支多、无主次，突发任务无缓冲时间，直接挤占原有计划，导致计划全盘被打破。</li>
+<li><strong>任务推进模式不合理</strong>：以 “完成完整任务” 为唯一目标，一旦被打断就觉得 “无价值、白忙活”，缺乏碎片化的有效积累，也让半途而废的可惜感被放大。</li>
+<li><strong>断点衔接能力缺失</strong>：任务被搁置后无任何记录，再次拾起时需花费时间回忆进度和内容，形成明显心理负担，因做事的惯性问题，最终导致搁置的事彻底荒废。</li>
+<li><strong>心态与评价标准偏差</strong>：仍以本科生 “事事做完、标准化进步” 为自我期待，无法接受研究生阶段 “不完美的完成”，忽略了碎片化成长的常态；只关注技术、科研等显性收获，无视应对突发、多任务处理、压力下做事等隐性能力的积累，学期末复盘时过度放大 “未完成” 的遗憾，陷入自我否定。</li>
+</ul>
+<hr>
+<h2 id="思考">思考</h2>
+<p>我觉得应该从多个方面来化解这种困境</p>
+<p>[] 既然现实注定孤独无聊，那就应该无视多数不必要的交互，保持注意力在个人提升上这一件事上；<br>
+[] 需要一套更好地执行体系，不能任由小的分析被搁置抛弃，追求碎片化成长；<br>
+[] 调整到正确的心态：大道就在脚下，只管走就行，胜利之风会从背后吹来；</p>
+<hr>
+<h2 id="解决">解决</h2>
+<blockquote>
+<p>研究生阶段的核心矛盾，从 “按计划完成单一任务” 变成了 “在多线程、高突发、高优先级波动的环境里，守住自己的核心成长主线”。研究生的成长从来不是 “把一件事从头到尾完美做完”，而是 “在混乱的多任务里，抓准「可积累的有效片段」，并建立「断点续传」的能力”</p>
+</blockquote>
+<h3 id="第一步：重构任务管理逻辑">第一步：重构任务管理逻辑</h3>
+<pre><code>研究生阶段的计划，核心不是 “定时间、定内容”，而是定优先级、定 “最小推进单元”、留足缓冲
+</code></pre>
+<h4 id="1-做「三层任务清单」，只抓-“核心层”-的积累，其余都是-“适配层”">1. 做「三层任务清单」，只抓 “核心层” 的积累，其余都是 “适配层”</h4>
+<ul>
+<li>
+<p>核心层（1-2 件）：决定本学期/阶段核心成长的事，是哪怕被突发打断，也要挤碎片时间守住「最小推进」的事。<br>
+✅ <em>关键：核心层永远只留 1-2 件，多了等于没有，对抗混乱的 “定海神针”，哪怕所有事都被打断，只要核心层的事有持续的小推进，就不会有 “毫无收获” 的感觉。</em></p>
+</li>
+<li>
+<p>适配层（2-3 件）：必须做、但优先级随外部变化的事，比如课程作业、期末复习、科研加急任务、日常杂事。这类事的原则是 <strong>“随叫随到、见缝插针、完成即止”</strong>，不追求完美，只追求达标（比如期末复习不追求考 90，只求过线 / 拿到基础分，把时间省回核心层）。</p>
+</li>
+<li>
+<p>拓展层（不限）：想学、但暂时没优先级的事，比如额外的技术博客、新的编程语言、兴趣类学习。这类事的原则是 <strong>“有时间就做，没时间就放，完全无心理负担”</strong>，把它当成 “加餐”，而不是 “必完成的正餐”，避免因为这类事搁置而产生可惜感。</p>
+</li>
+</ul>
+<h4 id="2-设定「最小推进单元」，制造推进感">2. 设定「最小推进单元」，制造推进感</h4>
+<p>核心是：哪怕被突发打断，也能说 “我今天完成了这个任务的 1 个最小单元，它是有成果的”，而不是 “我又没学完，白忙活了”。这些最小单元的成果，会像积木一样，慢慢堆成完整的任务，哪怕中途搁置，也有 “看得见的积累”。</p>
+<p>例如：看一个章节博客、算法每日一题、看半篇论文等等，每个最小单元时间不能长，重点在不能停的<strong>不断积累</strong>。</p>
+<h4 id="3-每天留「30-的空白时间」，专门应对突发，不挤占核心层">3. 每天留「30% 的空白时间」，专门应对突发，不挤占核心层</h4>
+<p>以往所有的搁置，都是因为 “突发任务没有预留时间，只能挤掉原有计划”，比如科研加急、期末复习、家人就医，这些事无法预测，但可以用 “留白” 来应对。</p>
+<p>每天的时间规划，不排满，而是只排 70% 的时间给核心层和适配层的固定推进，剩下 30% 的时间完全空白，作为 “突发缓冲区”：</p>
+<ul>
+<li>如果当天没突发，这 30% 就用来推进核心层，或者补拓展层的内容；</li>
+<li>如果当天有突发（比如科研要加急），就用这 30% 来处理，实在不够再少量挤占适配层的时间，<strong>绝对不碰核心层的最小推进时间</strong>。</li>
+</ul>
+<h3 id="第二步：建立断点恢复机制">第二步：建立断点恢复机制</h3>
+<pre><code>“人做事有惯性，想再次拾起之前的进度有心理负担，学了一半没完成可惜”，
+问题的本质不是 “进度没跟上”，而是 “忘记了自己之前学到哪、学到了什么，重新拾起需要花时间回忆，
+这个回忆的过程就是最大的心理负担”。
+</code></pre>
+<p><strong>解决方法：在每次被打断、不得不搁置任务时，花 5 分钟做「断点记录」，这 5 分钟，能帮你消除后续 90% 的拾起重担。</strong></p>
+<p>「断点记录」：</p>
+<ul>
+<li><strong>当前进度</strong>：精准到具体位置；</li>
+<li><strong>已掌握核心</strong>：提炼已经学会的关键知识点；</li>
+<li><strong>待推进内容</strong>：下一步要做的具体事；</li>
+<li><strong>未解决疑问</strong>：记录暂时没懂的点；</li>
+</ul>
+<h3 id="第三步：心态重构">第三步：心态重构</h3>
+<p>研究生第一学期看清一点事实：</p>
+<ul>
+<li>本科生的成长是 <strong>「线性的、标准化的」</strong> ：按课程表上课，按考试要求复习，完成作业、通过考试，就是收获，有明确的评价标准；</li>
+<li>研究生的成长是 <strong>「非线性的、碎片化的」</strong>：科研可能做了 3 个月没结果，技术学了一半被搁置，课程只是辅助，收获没有明确的评价标准，甚至很多收获是 “隐性的”—— 比如应对突发的能力、多任务处理的能力、在压力下挤时间做事的能力，这些都是你这一学期的收获，很多时候只是没把它们当成 “收获” 而已。</li>
+</ul>
+<p>所以，首先要和自己和解，接受 “这学期就是在试错、在适应”，并在后面的学期里采纳以下的心态：</p>
+<ul>
+<li>
+<p><strong>放弃 “事事做完” 的执念，追求 “事事有积累”</strong><br>
+研究生的收获，从来不是 “完整的作品”，而是 “散落在各个任务里的、能被你提取和复用的能力 / 知识”。</p>
+</li>
+<li>
+<p><strong>把 “突发和变动” 当成研究生的「必修课」，而不是「干扰项」</strong><br>
+科研的突发需求、课程的临时任务、生活的意外变故，这些不是 “倒霉”，而是研究生阶段必须面对的「现实」—— 未来职场，只会有更多的突发和多任务，而研究生阶段，就是在相对宽容的环境里，练习 “在混乱中保持成长” 的能力。<br>
+<em>学会了 “如何判断任务优先级”“如何在压力下挤时间做事”“如何处理生活和学习的平衡”，这些能力，比学会一个技术博客更重要。</em></p>
+</li>
+<li>
+<p><strong>用「月度小复盘」代替「学期大复盘」，及时捕捉自己的收获</strong></p>
+<ul>
+<li>这一个月，核心层的任务完成了哪些「最小推进单元」？</li>
+<li>这一个月，遇到了哪些突发？我是怎么应对的？</li>
+<li>下一个月，核心层要不要调整？断点记录有没有补全？</li>
+</ul>
+</li>
+</ul>
+<p>这种短周期的复盘，能清晰地看到自己的积累，不会等到学期末才陷入 “毫无收获” 的自我否定，也能及时调整自己的任务和方法，避免问题越攒越多。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%8A%9C%E6%9D%82%E5%BF%83%E7%BB%AA/" rel="tag"># 芜杂心绪</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/12/28/2025%E5%B9%B4%E7%BB%88%E6%80%BB%E7%BB%93/" rel="prev" title="2025年终总结">
+                  <i class="fa fa-angle-left"></i> 2025年终总结
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gowebexamples学习笔记01 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="go web开发基础知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="gowebexamples学习笔记01">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="go web开发基础知识">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-04T02:54:46.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/","path":"2025/06/04/gowebexamples学习笔记01/","title":"gowebexamples学习笔记01"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-Web-%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0%E6%80%BB%E7%BB%93"><span class="nav-number">1.</span> <span class="nav-text">Go Web 开发笔记总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ch01-Hello-World"><span class="nav-number">1.1.</span> <span class="nav-text">ch01 - Hello World</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch02-HTTP-Server"><span class="nav-number">1.2.</span> <span class="nav-text">ch02 - HTTP Server</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch03-Routing"><span class="nav-number">1.3.</span> <span class="nav-text">ch03 - Routing</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch04-Database"><span class="nav-number">1.4.</span> <span class="nav-text">ch04 - Database</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch05-Template"><span class="nav-number">1.5.</span> <span class="nav-text">ch05 - Template</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch06-Asset-and-File"><span class="nav-number">1.6.</span> <span class="nav-text">ch06 - Asset and File</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch07-Form"><span class="nav-number">1.7.</span> <span class="nav-text">ch07 - Form</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch08-Middleware"><span class="nav-number">1.8.</span> <span class="nav-text">ch08 - Middleware</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch09-Sessions"><span class="nav-number">1.9.</span> <span class="nav-text">ch09 - Sessions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch10-JSON"><span class="nav-number">1.10.</span> <span class="nav-text">ch10 - JSON</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch11-Websocket"><span class="nav-number">1.11.</span> <span class="nav-text">ch11 - Websocket</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch12-Password-Hashing"><span class="nav-number">1.12.</span> <span class="nav-text">ch12 - Password Hashing</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="gowebexamples学习笔记01 | Hello there! I'm alan">
+      <meta itemprop="description" content="go web开发基础知识">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          gowebexamples学习笔记01
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-04 10:54:46" itemprop="dateCreated datePublished" datetime="2025-06-04T10:54:46+08:00">2025-06-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">go web开发基础知识</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go-Web-开发笔记总结">Go Web 开发笔记总结</h1>
+<p>本笔记根据 <code>gowebexamples</code> 项目的代码示例，总结 Go Web 开发中的常见操作。</p>
+<h2 id="ch01-Hello-World">ch01 - Hello World</h2>
+<ul>
+<li><strong>核心概念</strong>: 构建最简单的 HTTP 服务器，响应客户端请求。</li>
+<li><strong>实现</strong>: 使用 <code>net/http</code> 包的 <code>http.HandleFunc</code> 注册路由，<code>http.ListenAndServe</code> 启动服务器。</li>
+<li><strong>示例</strong>: 在根路径 <code>/</code> 上响应 “Hello, you’ve requested: [path]”。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		fmt.Fprintf(w,<span class="string">&quot;Hello, you&#x27;ve requested: %s\n&quot;</span>,r.URL.Path)</span><br><span class="line">	&#125;)</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>,<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>http.HandleFunc(&quot;/&quot;, ...)</code>: 注册一个 HTTP 处理函数，当用户访问根路径 <code>/</code> 时，会执行匿名函数。</li>
+<li><code>func(w http.ResponseWriter, r *http.Request)</code>: 这是 HTTP 处理函数的签名，<code>w</code> 用于写入响应，<code>r</code> 包含请求信息。</li>
+<li><code>fmt.Fprintf(w, ...)</code>: 将格式化的字符串写入 HTTP 响应。</li>
+<li><code>http.ListenAndServe(&quot;:8080&quot;, nil)</code>: 启动一个 HTTP 服务器，监听在 <code>8080</code> 端口。<code>nil</code> 表示使用默认的 ServeMux。</li>
+</ul>
+<h2 id="ch02-HTTP-Server">ch02 - HTTP Server</h2>
+<ul>
+<li><strong>核心概念</strong>: 在 HTTP 服务器中提供静态文件服务。</li>
+<li><strong>实现</strong>: 使用 <code>http.FileServer</code> 创建文件服务器，<code>http.StripPrefix</code> 移除 URL 前缀，然后通过 <code>http.Handle</code> 注册到特定路径。</li>
+<li><strong>示例</strong>: 将 <code>static/</code> 目录下的文件通过 <code>/static/</code> 路径暴露。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		fmt.Fprintln(w,<span class="string">&quot;welcome to my website&quot;</span>)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// set file server</span></span><br><span class="line">	fs := http.FileServer(http.Dir(<span class="string">&quot;static/&quot;</span>))</span><br><span class="line">	http.Handle(<span class="string">&quot;/static/&quot;</span>,http.StripPrefix(<span class="string">&quot;/static/&quot;</span>,fs))</span><br><span class="line"></span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>,<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>http.FileServer(http.Dir(&quot;static/&quot;))</code>: 创建一个文件服务器，它会从 <code>static/</code> 目录下提供文件。</li>
+<li><code>http.StripPrefix(&quot;/static/&quot;, fs)</code>: 移除请求 URL 中的 <code>/static/</code> 前缀，这样文件服务器就能正确地找到 <code>static/</code> 目录下的文件。</li>
+<li><code>http.Handle(&quot;/static/&quot;, ...)</code>: 将文件服务器注册到 <code>/static/</code> 路径，所有以 <code>/static/</code> 开头的请求都会由这个文件服务器处理。</li>
+</ul>
+<h2 id="ch03-Routing">ch03 - Routing</h2>
+<ul>
+<li><strong>核心概念</strong>: 路由是根据 URL 路径将请求分发到不同的处理函数。虽然示例代码为空，但在实际应用中，路由是构建复杂 Web 应用的基础。</li>
+<li><strong>常用库</strong>: <code>gorilla/mux</code> 是一个流行的第三方路由库，提供了更强大的路由匹配和中间件支持。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/gorilla/mux&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	r := mux.NewRouter()</span><br><span class="line">	r.HandleFunc(<span class="string">&quot;/products/&#123;key&#125;&quot;</span>, ProductHandler)</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, r)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ProductHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	vars := mux.Vars(r)</span><br><span class="line">	w.WriteHeader(http.StatusOK)</span><br><span class="line">	fmt.Fprintf(w, <span class="string">&quot;Category: %v\n&quot;</span>, vars[<span class="string">&quot;key&quot;</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>mux.NewRouter()</code>: 创建一个新的 <code>mux</code> 路由器。</li>
+<li><code>r.HandleFunc(&quot;/products/&#123;key&#125;&quot;, ProductHandler)</code>: 注册一个带有路径参数的路由。<code>&#123;key&#125;</code> 是一个占位符，可以匹配任何值。</li>
+<li><code>ProductHandler</code>: 处理 <code>/products/&#123;key&#125;</code> 路径的请求。</li>
+<li><code>mux.Vars(r)</code>: 从请求中提取路径参数。</li>
+<li><code>http.ListenAndServe(&quot;:8080&quot;, r)</code>: 启动 HTTP 服务器并使用 <code>mux</code> 路由器处理请求。</li>
+</ul>
+<h2 id="ch04-Database">ch04 - Database</h2>
+<ul>
+<li><strong>核心概念</strong>: Go 语言中数据库操作，以 MySQL 为例，涵盖连接、创建表、插入、查询和删除等基本 CRUD 操作。</li>
+<li><strong>实现</strong>: 使用 <code>database/sql</code> 包进行数据库交互，通过 <code>_ &quot;github.com/go-sql-driver/mysql&quot;</code> 导入 MySQL 驱动。</li>
+<li><strong>操作</strong>:
+<ul>
+<li><code>sql.Open</code>: 连接数据库。</li>
+<li><code>db.Ping</code>: 检查数据库连接。</li>
+<li><code>db.Exec</code>: 执行 DDL (如 <code>CREATE TABLE</code>) 和 DML (如 <code>INSERT</code>, <code>DELETE</code>) 语句。</li>
+<li><code>db.QueryRow</code>: 查询单行数据。</li>
+<li><code>db.Query</code>: 查询多行数据。</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;database/sql&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line"></span><br><span class="line">	_ <span class="string">&quot;github.com/go-sql-driver/mysql&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// connect to mysql</span></span><br><span class="line">	db, err := sql.Open(<span class="string">&quot;mysql&quot;</span>, <span class="string">&quot;root:password@(localhost:3306)/database?parseTime=true&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> err := db.Ping(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;connected!&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// create a new table</span></span><br><span class="line">	query := <span class="string">`</span></span><br><span class="line"><span class="string">            CREATE TABLE IF NOT EXISTS users(</span></span><br><span class="line"><span class="string">                id INT AUTO_INCREMENT,</span></span><br><span class="line"><span class="string">                username TEXT NOT NULL,</span></span><br><span class="line"><span class="string">                password TEXT NOT NULL,</span></span><br><span class="line"><span class="string">                created_at DATETIME,</span></span><br><span class="line"><span class="string">                PRIMARY KEY (id)</span></span><br><span class="line"><span class="string">            );`</span></span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span> _, err := db.Exec(query); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// insert a user</span></span><br><span class="line">	username := <span class="string">&quot;testuser&quot;</span></span><br><span class="line">	password := <span class="string">&quot;testpass&quot;</span></span><br><span class="line">	create_at := time.Now()</span><br><span class="line"></span><br><span class="line">	insertQuery := <span class="string">`INSERT INTO users (username,password,created_at) VALUES (?,?,?)`</span></span><br><span class="line"></span><br><span class="line">	res, err := db.Exec(insertQuery, username, password, create_at)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatal(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	id, err := res.LastInsertId()</span><br><span class="line">	fmt.Println(<span class="string">&quot;Inserted user with ID:&quot;</span>, id)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>sql.Open(&quot;mysql&quot;, ...)</code>: 打开一个到 MySQL 数据库的连接。请替换连接字符串中的 <code>root:password@(localhost:3306)/database</code> 为您的实际数据库凭据。</li>
+<li><code>db.Ping()</code>: 验证数据库连接是否仍然活跃。</li>
+<li><code>db.Exec(query)</code>: 执行 SQL 语句，例如创建表或插入数据。对于 <code>INSERT</code> 操作，<code>res.LastInsertId()</code> 可以获取新插入行的 ID。</li>
+</ul>
+<h2 id="ch05-Template">ch05 - Template</h2>
+<ul>
+<li><strong>核心概念</strong>: 使用 Go 的 <code>html/template</code> 包进行 HTML 模板渲染，将动态数据填充到 HTML 页面中。</li>
+<li><strong>实现</strong>:
+<ul>
+<li><code>template.ParseFiles</code>: 解析模板文件。</li>
+<li><code>template.Must</code>: 辅助函数，用于处理模板解析错误。</li>
+<li><code>tmp.Execute</code>: 将数据与模板结合并写入 <code>http.ResponseWriter</code>。</li>
+</ul>
+</li>
+<li><strong>数据结构</strong>: 定义结构体来封装需要传递给模板的数据。</li>
+<li><strong>常用库</strong>: <code>gorilla/mux</code> 用于路由。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;html/template&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/gorilla/mux&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Todo <span class="keyword">struct</span>&#123;</span><br><span class="line">	Title <span class="type">string</span></span><br><span class="line">	Done <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TodoPageData <span class="keyword">struct</span> &#123;</span><br><span class="line">	PageTitle <span class="type">string</span></span><br><span class="line">	Todos []Todo</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	tmp := template.Must(template.ParseFiles(<span class="string">&quot;layout.html&quot;</span>))</span><br><span class="line">	</span><br><span class="line">	r := mux.NewRouter()</span><br><span class="line">	r.HandleFunc(<span class="string">&quot;/&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		<span class="comment">// encapsulate data</span></span><br><span class="line">		data := TodoPageData&#123;</span><br><span class="line">			PageTitle: <span class="string">&quot;Todo-List&quot;</span>,</span><br><span class="line">			Todos: []Todo&#123;</span><br><span class="line">				&#123;<span class="string">&quot;eat&quot;</span>,<span class="literal">true</span>&#125;,</span><br><span class="line">				&#123;<span class="string">&quot;drink&quot;</span>,<span class="literal">true</span>&#125;,</span><br><span class="line">				&#123;<span class="string">&quot;sleep&quot;</span>,<span class="literal">false</span>&#125;,</span><br><span class="line">			&#125;,</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// return template</span></span><br><span class="line">		tmp.Execute(w,data)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// start server</span></span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>,r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>type Todo struct&#123;...&#125;</code> 和 <code>type TodoPageData struct&#123;...&#125;</code>: 定义了用于模板渲染的数据结构。</li>
+<li><code>template.Must(template.ParseFiles(&quot;layout.html&quot;))</code>: 解析名为 <code>layout.html</code> 的模板文件。<code>template.Must</code> 会在解析失败时 panic。</li>
+<li><code>tmp.Execute(w, data)</code>: 将 <code>data</code> 结构体中的数据填充到模板中，并将结果写入 <code>http.ResponseWriter</code>。</li>
+</ul>
+<h2 id="ch06-Asset-and-File">ch06 - Asset and File</h2>
+<ul>
+<li><strong>核心概念</strong>: 提供静态资源（如 CSS、JavaScript、图片）服务，与 ch02 类似，但更侧重于“资产”的概念。</li>
+<li><strong>实现</strong>: 同样使用 <code>http.FileServer</code> 和 <code>http.StripPrefix</code>。</li>
+<li><strong>示例</strong>: 将 <code>asset/</code> 目录下的文件通过 <code>/static/</code> 路径暴露。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fs := http.FileServer(http.Dir(<span class="string">&quot;asset/&quot;</span>))</span><br><span class="line">	http.Handle(<span class="string">&quot;/static/&quot;</span>, http.StripPrefix(<span class="string">&quot;/static/&quot;</span>, fs))</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>http.FileServer(http.Dir(&quot;asset/&quot;))</code>: 创建一个文件服务器，用于提供 <code>asset/</code> 目录下的静态文件。</li>
+<li><code>http.StripPrefix(&quot;/static/&quot;, fs)</code>: 移除请求 URL 中的 <code>/static/</code> 前缀，确保文件服务器能正确映射到 <code>asset/</code> 目录。</li>
+<li><code>http.Handle(&quot;/static/&quot;, ...)</code>: 将文件服务器注册到 <code>/static/</code> 路径，使得所有 <code>/static/</code> 开头的请求都由该文件服务器处理。</li>
+</ul>
+<h2 id="ch07-Form">ch07 - Form</h2>
+<ul>
+<li><strong>核心概念</strong>: 处理 HTML 表单提交，获取表单数据。</li>
+<li><strong>实现</strong>:
+<ul>
+<li>根据 HTTP 请求方法 (<code>r.Method</code>) 判断是 GET 请求（显示表单）还是 POST 请求（处理表单数据）。</li>
+<li>使用 <code>r.FormValue(&quot;field_name&quot;)</code> 获取表单字段的值。</li>
+</ul>
+</li>
+<li><strong>模板</strong>: 结合 <code>html/template</code> 来渲染表单页面和显示提交结果。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;html/template&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ContactDetail <span class="keyword">struct</span> &#123;</span><br><span class="line">	Email   <span class="type">string</span></span><br><span class="line">	Subject <span class="type">string</span></span><br><span class="line">	Message <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	tmpl := template.Must(template.ParseFiles(<span class="string">&quot;forms.html&quot;</span>))</span><br><span class="line"></span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> r.Method != http.MethodPost &#123;</span><br><span class="line">			tmpl.Execute(w,<span class="literal">nil</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		contactDetail := ContactDetail&#123;</span><br><span class="line">			Email: r.FormValue(<span class="string">&quot;email&quot;</span>),</span><br><span class="line">			Subject: r.FormValue(<span class="string">&quot;subject&quot;</span>),</span><br><span class="line">			Message: r.FormValue(<span class="string">&quot;message&quot;</span>),</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// do something with it...</span></span><br><span class="line">		tmpl.Execute(w,contactDetail)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>type ContactDetail struct&#123;...&#125;</code>: 定义一个结构体来存储表单提交的数据。</li>
+<li><code>tmpl := template.Must(template.ParseFiles(&quot;forms.html&quot;))</code>: 解析用于显示表单的 HTML 模板。</li>
+<li><code>if r.Method != http.MethodPost</code>: 判断请求方法，如果是 GET 请求则显示表单，如果是 POST 请求则处理表单数据。</li>
+<li><code>r.FormValue(&quot;email&quot;)</code>: 获取表单中 <code>name=&quot;email&quot;</code> 的字段值。<code>FormValue</code> 会自动解析 <code>application/x-www-form-urlencoded</code> 和 <code>multipart/form-data</code> 类型的表单数据。</li>
+</ul>
+<h2 id="ch08-Middleware">ch08 - Middleware</h2>
+<ul>
+<li><strong>核心概念</strong>: 中间件是在请求到达最终处理函数之前或之后执行的代码，用于实现日志记录、认证、压缩等横切关注点。</li>
+<li><strong>基本实现</strong>: 通过包装 <code>http.HandlerFunc</code> 来实现简单的中间件，例如日志记录。</li>
+<li><strong>高级实现</strong>: 定义 <code>Middleware</code> 类型 (<code>func(http.HandlerFunc) http.HandlerFunc</code>)，并实现 <code>Chain</code> 函数来链式调用多个中间件，提供更灵活的中间件管理。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Middleware <span class="function"><span class="keyword">func</span><span class="params">(http.HandlerFunc)</span></span> http.HandlerFunc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Logging</span><span class="params">()</span></span> Middleware&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(hf http.HandlerFunc)</span></span> http.HandlerFunc &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">			start := time.Now()</span><br><span class="line">			<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span> <span class="params">()</span></span>  &#123;</span><br><span class="line">				log.Println(r.URL.Path,time.Since(start))</span><br><span class="line">			&#125;()</span><br><span class="line">			hf(w,r)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Chain</span><span class="params">(f http.HandlerFunc,ms... Middleware)</span></span> http.HandlerFunc&#123;</span><br><span class="line">	<span class="keyword">for</span> _,middleware := <span class="keyword">range</span> ms&#123;</span><br><span class="line">		f = middleware(f)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> f</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hello</span><span class="params">(w http.ResponseWriter,r *http.Request)</span></span>&#123;</span><br><span class="line">	fmt.Fprintln(w,<span class="string">&quot;Hello there&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/&quot;</span>,Chain(hello,Logging()))</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>,<span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>type Middleware func(http.HandlerFunc) http.HandlerFunc</code>: 定义了一个 <code>Middleware</code> 类型，它是一个函数，接受一个 <code>http.HandlerFunc</code> 并返回一个新的 <code>http.HandlerFunc</code>。</li>
+<li><code>Logging() Middleware</code>: 这是一个中间件工厂函数，它返回一个 <code>Middleware</code> 类型的函数。这个中间件会在处理请求前后记录日志。</li>
+<li><code>Chain(f http.HandlerFunc,ms... Middleware) http.HandlerFunc</code>: 这个函数将多个中间件按顺序应用到一个 <code>http.HandlerFunc</code> 上，形成一个处理链。请求会依次经过每个中间件，最后到达最终的处理函数 <code>f</code>。</li>
+</ul>
+<h2 id="ch09-Sessions">ch09 - Sessions</h2>
+<ul>
+<li><strong>核心概念</strong>: 会话管理，用于在多个 HTTP 请求之间维护用户状态。</li>
+<li><strong>实现</strong>: 使用 <code>github.com/gorilla/sessions</code> 库。</li>
+<li><strong>操作</strong>:
+<ul>
+<li><code>sessions.NewCookieStore</code>: 创建基于 Cookie 的 session 存储。</li>
+<li><code>store.Get</code>: 获取或创建一个 session。</li>
+<li><code>session.Values</code>: 存储 session 数据。</li>
+<li><code>session.Save</code>: 保存 session 到客户端 Cookie。</li>
+</ul>
+</li>
+<li><strong>示例</strong>: 模拟用户登录、登出和访问受保护的资源。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/gorilla/sessions&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	key   = []<span class="type">byte</span>(<span class="string">&quot;super-secret-key&quot;</span>)</span><br><span class="line">	store = sessions.NewCookieStore(key)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">secret</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	session, _ := store.Get(r, <span class="string">&quot;cookie-name&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> auth, ok := session.Values[<span class="string">&quot;authenticated&quot;</span>].(<span class="type">bool</span>); !ok || !auth &#123;</span><br><span class="line">		http.Error(w, <span class="string">&quot;Forbidden&quot;</span>, http.StatusForbidden)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Fprintln(w, <span class="string">&quot;The cake is a lie!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">login</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">	session, _ := store.Get(r, <span class="string">&quot;cookie-name&quot;</span>)</span><br><span class="line">	session.Values[<span class="string">&quot;authenticated&quot;</span>] = <span class="literal">true</span></span><br><span class="line">	session.Save(r, w)</span><br><span class="line">	fmt.Fprintln(w, <span class="string">&quot;Successfully logged in!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/secret&quot;</span>, secret)</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/login&quot;</span>, login)</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>sessions.NewCookieStore(key)</code>: 创建一个新的 Cookie 存储，<code>key</code> 用于加密 session 数据。</li>
+<li><code>store.Get(r, &quot;cookie-name&quot;)</code>: 从请求中获取名为 “cookie-name” 的 session。如果不存在，则创建一个新的。</li>
+<li><code>session.Values[&quot;authenticated&quot;] = true</code>: 在 session 中设置一个键值对，表示用户已认证。</li>
+<li><code>session.Save(r, w)</code>: 将 session 的更改保存到客户端的 Cookie 中。</li>
+<li><code>secret</code> 函数通过检查 <code>session.Values[&quot;authenticated&quot;]</code> 来判断用户是否登录，从而保护敏感资源。</li>
+</ul>
+<h2 id="ch10-JSON">ch10 - JSON</h2>
+<ul>
+<li><strong>核心概念</strong>: 处理 JSON 数据的编码（Go 对象转 JSON 字符串）和解码（JSON 字符串转 Go 对象）。</li>
+<li><strong>实现</strong>: 使用 <code>encoding/json</code> 包。</li>
+<li><strong>操作</strong>:
+<ul>
+<li><code>json.NewDecoder(r.Body).Decode(&amp;user)</code>: 从请求体中解码 JSON 到 Go 结构体。</li>
+<li><code>json.NewEncoder(w).Encode(data)</code>: 将 Go 结构体编码为 JSON 并写入响应体。</li>
+</ul>
+</li>
+<li><strong>结构体标签</strong>: 使用 <code>json:&quot;field_name&quot;</code> 标签来控制 JSON 字段名。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;encoding/json&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span>&#123;</span><br><span class="line">	FirstName <span class="type">string</span> <span class="string">`json:&quot;firstname&quot;`</span></span><br><span class="line">	LastName <span class="type">string</span> <span class="string">`json:&quot;lastname&quot;`</span></span><br><span class="line">	Age <span class="type">int</span> <span class="string">`json:&quot;age&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/decode&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		<span class="keyword">var</span> user User</span><br><span class="line">		json.NewDecoder(r.Body).Decode(&amp;user)</span><br><span class="line">		fmt.Fprintf(w, <span class="string">&quot;%s %s is %d years old!&quot;</span>, user.FirstName, user.LastName, user.Age)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/encode&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		peter := User&#123;</span><br><span class="line">			FirstName: <span class="string">&quot;Jo&quot;</span>,</span><br><span class="line">			LastName: <span class="string">&quot;Dio&quot;</span>,</span><br><span class="line">			Age: <span class="number">100</span>,</span><br><span class="line">		&#125;</span><br><span class="line">		json.NewEncoder(w).Encode(peter)</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>type User struct&#123;...&#125;</code>: 定义一个结构体，用于映射 JSON 数据。<code>json:&quot;...&quot;</code> 标签指定了结构体字段对应的 JSON 键名。</li>
+<li><code>json.NewDecoder(r.Body).Decode(&amp;user)</code>: 创建一个 JSON 解码器，从请求体 <code>r.Body</code> 中读取 JSON 数据并解码到 <code>user</code> 结构体中。</li>
+<li><code>json.NewEncoder(w).Encode(peter)</code>: 创建一个 JSON 编码器，将 <code>peter</code> 结构体编码为 JSON 格式，并写入响应体 <code>w</code>。</li>
+</ul>
+<h2 id="ch11-Websocket">ch11 - Websocket</h2>
+<ul>
+<li><strong>核心概念</strong>: 实现全双工通信协议 WebSocket，用于实时应用。</li>
+<li><strong>实现</strong>: 使用 <code>github.com/gorilla/websocket</code> 库。</li>
+<li><strong>操作</strong>:
+<ul>
+<li><code>websocket.Upgrader</code>: 配置 WebSocket 升级器，例如 <code>CheckOrigin</code> 用于跨域检查。</li>
+<li><code>upgrader.Upgrade</code>: 将 HTTP 连接升级为 WebSocket 连接。</li>
+<li><code>conn.ReadMessage</code>: 读取 WebSocket 消息。</li>
+<li><code>conn.WriteMessage</code>: 发送 WebSocket 消息。</li>
+</ul>
+</li>
+<li><strong>示例</strong>: 实现一个简单的 WebSocket 回显服务器，并将 <code>websockets.html</code> 作为客户端页面。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/gorilla/websocket&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> upgrader = websocket.Upgrader&#123;</span><br><span class="line">	ReadBufferSize: <span class="number">1024</span>,</span><br><span class="line">	WriteBufferSize: <span class="number">1024</span>,</span><br><span class="line">	CheckOrigin: <span class="function"><span class="keyword">func</span><span class="params">(r *http.Request)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">	http.HandleFunc(<span class="string">&quot;/echo&quot;</span>,<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">		conn,err := upgrader.Upgrade(w,r,<span class="literal">nil</span>)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			http.Error(w, <span class="string">&quot;Could not open websocket connection&quot;</span>, http.StatusBadRequest)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="keyword">for</span>&#123;</span><br><span class="line">			msgType,msg,err := conn.ReadMessage()</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				fmt.Println(<span class="string">&quot;Read error:&quot;</span>, err)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;%s sent: %s\n&quot;</span>, conn.RemoteAddr(), <span class="type">string</span>(msg))</span><br><span class="line"></span><br><span class="line">			<span class="keyword">if</span> err := conn.WriteMessage(msgType, msg); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				fmt.Println(<span class="string">&quot;Write error:&quot;</span>, err)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;)</span><br><span class="line">	http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>websocket.Upgrader</code>: 用于将普通的 HTTP 连接升级为 WebSocket 连接。<code>CheckOrigin</code> 设置为 <code>true</code> 允许跨域连接（生产环境中应谨慎设置）。</li>
+<li><code>upgrader.Upgrade(w, r, nil)</code>: 执行连接升级操作，成功后返回一个 <code>*websocket.Conn</code> 对象，代表 WebSocket 连接。</li>
+<li><code>conn.ReadMessage()</code>: 从 WebSocket 连接中读取消息。它返回消息类型、消息数据和可能的错误。</li>
+<li><code>conn.WriteMessage(msgType, msg)</code>: 向 WebSocket 连接写入消息，将接收到的消息原样发送回客户端，实现了“回显”功能。</li>
+</ul>
+<h2 id="ch12-Password-Hashing">ch12 - Password Hashing</h2>
+<ul>
+<li><strong>核心概念</strong>: 使用安全的哈希算法存储用户密码，而不是明文存储，以提高安全性。</li>
+<li><strong>实现</strong>: 使用 <code>golang.org/x/crypto/bcrypt</code> 包。</li>
+<li><strong>操作</strong>:
+<ul>
+<li><code>bcrypt.GenerateFromPassword</code>: 生成密码哈希。</li>
+<li><code>bcrypt.CompareHashAndPassword</code>: 比较明文密码和哈希值是否匹配。</li>
+</ul>
+</li>
+<li><strong>安全性</strong>: <code>bcrypt</code> 是一种自适应的哈希函数，可以抵御彩虹表攻击和暴力破解。</li>
+</ul>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;golang.org/x/crypto/bcrypt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">HashPassword</span><span class="params">(pwd <span class="type">string</span>)</span></span>(<span class="type">string</span>,<span class="type">error</span>)&#123;</span><br><span class="line">	bytes,err := bcrypt.GenerateFromPassword([]<span class="type">byte</span>(pwd),<span class="number">14</span>)</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(bytes),err</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CheckPasswordHash</span><span class="params">(password, hash <span class="type">string</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	err := bcrypt.CompareHashAndPassword([]<span class="type">byte</span>(hash),[]<span class="type">byte</span>(password))</span><br><span class="line">	<span class="keyword">return</span> err == <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    password := <span class="string">&quot;secret&quot;</span></span><br><span class="line">    hash, _ := HashPassword(password)</span><br><span class="line"></span><br><span class="line">    fmt.Println(<span class="string">&quot;Password:&quot;</span>, password)</span><br><span class="line">    fmt.Println(<span class="string">&quot;Hash:    &quot;</span>, hash)</span><br><span class="line"></span><br><span class="line">    match := CheckPasswordHash(password, hash)</span><br><span class="line">    fmt.Println(<span class="string">&quot;Match:   &quot;</span>, match)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解</strong>:</p>
+<ul>
+<li><code>bcrypt.GenerateFromPassword([]byte(pwd), 14)</code>: 使用 bcrypt 算法对密码进行哈希。第二个参数 <code>14</code> 是成本因子（cost factor），值越大，哈希计算越慢，安全性越高，但也会消耗更多计算资源。</li>
+<li><code>bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))</code>: 比较明文密码和哈希值是否匹配。这个函数会处理哈希和盐值的提取，并进行安全的比较，防止时序攻击。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/03/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90%E5%B5%8C%E5%85%A5/" rel="prev" title="go语言之Embedding vs. OOP subclassing">
+                  <i class="fa fa-angle-left"></i> go语言之Embedding vs. OOP subclassing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/" rel="next" title="go语言之跨平台">
+                  go语言之跨平台 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

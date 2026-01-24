@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之空返回值的选择 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="紧接着上一篇文章关于“空”的问题，在 Go 开发中经常碰到：函数&#x2F;方法返回结构体、切片、map、指针等时，应该返回 nil，还是返回空值（如 T&#123;&#125;、[]T&#123;&#125;、map[T]U&#123;&#125;）？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之空返回值的选择">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="紧接着上一篇文章关于“空”的问题，在 Go 开发中经常碰到：函数&#x2F;方法返回结构体、切片、map、指针等时，应该返回 nil，还是返回空值（如 T&#123;&#125;、[]T&#123;&#125;、map[T]U&#123;&#125;）？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-09T02:16:11.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/","path":"2025/06/09/go语言之空返回值的选择/","title":"go语言之空返回值的选择"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-%E5%BC%80%E5%8F%91%E4%B8%AD%E5%87%BD%E6%95%B0%E8%BF%94%E5%9B%9E-nil-vs-%E7%A9%BA%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9%E4%B8%8E%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.</span> <span class="nav-text">Go 开发中函数返回 nil vs 空值的选择与实践</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E8%BF%94%E5%9B%9E%E7%A9%BA%E5%80%BC-vs-nil%EF%BC%9A%E5%90%AB%E4%B9%89%E5%AF%B9%E6%AF%94"><span class="nav-number">1.1.</span> <span class="nav-text">一、返回空值 vs nil：含义对比</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%8D%E5%90%8C%E7%B1%BB%E5%9E%8B%E7%9A%84%E8%BF%94%E5%9B%9E%E8%AE%BE%E8%AE%A1%E5%BB%BA%E8%AE%AE%E5%8F%8A%E8%B0%83%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">1.2.</span> <span class="nav-text">二、不同类型的返回设计建议及调用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-1-%E7%BB%93%E6%9E%84%E4%BD%93%EF%BC%88%E5%80%BC%E7%B1%BB%E5%9E%8B%EF%BC%89%E8%BF%94%E5%9B%9E-T"><span class="nav-number">1.2.1.</span> <span class="nav-text">✅ 1. 结构体（值类型）返回 T{}</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%EF%BC%9A"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">函数设计：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E5%88%A4%E6%96%AD%EF%BC%9A"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">调用判断：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-2-%E6%8C%87%E9%92%88%E7%B1%BB%E5%9E%8B%E8%BF%94%E5%9B%9E-nil-%E8%A1%A8%E7%A4%BA%E2%80%9C%E6%97%A0%E7%BB%93%E6%9E%9C%E2%80%9D"><span class="nav-number">1.2.2.</span> <span class="nav-text">✅ 2. 指针类型返回 nil 表示“无结果”</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%EF%BC%9A-2"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">函数设计：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E5%88%A4%E6%96%AD%EF%BC%9A-2"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">调用判断：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-3-%E5%88%87%E7%89%87%EF%BC%9A%E8%BF%94%E5%9B%9E-T-%E6%9B%B4%E5%AE%89%E5%85%A8%EF%BC%8C%E9%81%BF%E5%85%8D-JSON-%E4%B8%AD%E5%8F%98%E6%88%90-null"><span class="nav-number">1.2.3.</span> <span class="nav-text">✅ 3. 切片：返回 []T{} 更安全，避免 JSON 中变成 null</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%EF%BC%9A-3"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">函数设计：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E5%88%A4%E6%96%AD%EF%BC%9A-3"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">调用判断：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JSON-%E5%BA%8F%E5%88%97%E5%8C%96%E5%AF%B9%E6%AF%94%EF%BC%9A"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">JSON 序列化对比：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-4-map%EF%BC%9A%E8%BF%94%E5%9B%9E%E7%A9%BA-map-%E6%AF%94-nil-%E6%9B%B4%E5%AE%89%E5%85%A8"><span class="nav-number">1.2.4.</span> <span class="nav-text">✅ 4. map：返回空 map 比 nil 更安全</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E8%AE%BE%E8%AE%A1%EF%BC%9A-4"><span class="nav-number">1.2.4.1.</span> <span class="nav-text">函数设计：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E5%88%A4%E6%96%AD%EF%BC%9A-4"><span class="nav-number">1.2.4.2.</span> <span class="nav-text">调用判断：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%9A%A0%EF%B8%8F-%E5%B0%8F%E5%BF%83%EF%BC%9Anil-map-%E5%86%99%E5%85%A5%E4%BC%9A-panic"><span class="nav-number">1.2.4.3.</span> <span class="nav-text">⚠️ 小心：nil map 写入会 panic</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%8C%E6%95%B4%E5%AF%B9%E6%AF%94%E6%80%BB%E7%BB%93%E8%A1%A8"><span class="nav-number">1.3.</span> <span class="nav-text">三、完整对比总结表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%A1%A5%E5%85%85%EF%BC%9A%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E4%B8%BA-%E2%80%9C%E7%A9%BA%E5%80%BC%E2%80%9D-%E7%9A%84%E6%9C%80%E4%BD%B3%E5%86%99%E6%B3%95"><span class="nav-number">1.4.</span> <span class="nav-text">四、补充：判断是否为 “空值” 的最佳写法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E9%99%85%E5%BC%80%E5%8F%91%E4%B8%AD%E6%A1%88%E4%BE%8B%E9%80%89%E5%9E%8B%E5%8F%82%E8%80%83"><span class="nav-number">1.5.</span> <span class="nav-text">五、实际开发中案例选型参考</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之空返回值的选择 | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之空返回值的选择
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-09 10:16:11" itemprop="dateCreated datePublished" datetime="2025-06-09T10:16:11+08:00">2025-06-09</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>紧接着上一篇文章关于“空”的问题，在 Go 开发中经常碰到：<strong>函数/方法返回结构体、切片、map、指针等时，应该返回 <code>nil</code>，还是返回空值（如 <code>T&#123;&#125;</code>、<code>[]T&#123;&#125;</code>、<code>map[T]U&#123;&#125;</code>）？</strong></p>
+<span id="more"></span>
+<h1 id="Go-开发中函数返回-nil-vs-空值的选择与实践">Go 开发中函数返回 nil vs 空值的选择与实践</h1>
+<p>这个选择看似简单，实际上对代码的 <strong>健壮性、易读性、兼容性（如 JSON 序列化</strong> 影响非常大。</p>
+<hr>
+<h2 id="一、返回空值-vs-nil：含义对比">一、返回空值 vs nil：含义对比</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>nil 的语义</th>
+<th>空值的语义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>指针 <code>*T</code></td>
+<td>表示“无对象”或“不存在”</td>
+<td>无意义（结构体指针不能用 <code>T&#123;&#125;</code> 表示）</td>
+</tr>
+<tr>
+<td>值类型 <code>T</code>（结构体）</td>
+<td>不可为 nil，除非用指针</td>
+<td>有效的零值（字段默认）</td>
+</tr>
+<tr>
+<td>切片 <code>[]T</code></td>
+<td>通常表示“无结果”或“无数据”</td>
+<td>表示“结果为空”</td>
+</tr>
+<tr>
+<td>映射 <code>map[K]V</code></td>
+<td>表示“未初始化”</td>
+<td>初始化但为空</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>✅ 建议：在大多数场景下，<strong>返回空值而非 nil</strong> 更稳健安全，尤其是集合类型。</p>
+</blockquote>
+<hr>
+<h2 id="二、不同类型的返回设计建议及调用示例">二、不同类型的返回设计建议及调用示例</h2>
+<h3 id="✅-1-结构体（值类型）返回-T">✅ 1. 结构体（值类型）返回 <code>T&#123;&#125;</code></h3>
+<p><strong>推荐使用空结构体而非指针或 nil</strong></p>
+<h4 id="函数设计：">函数设计：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Config <span class="keyword">struct</span> &#123;</span><br><span class="line">	Port  <span class="type">int</span></span><br><span class="line">	Debug <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">LoadDefaultConfig</span><span class="params">()</span></span> Config &#123;</span><br><span class="line">	<span class="keyword">return</span> Config&#123;Port: <span class="number">8080</span>, Debug: <span class="literal">false</span>&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="调用判断：">调用判断：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cfg := LoadDefaultConfig()</span><br><span class="line"><span class="keyword">if</span> cfg.Port == <span class="number">0</span> &amp;&amp; !cfg.Debug &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;使用默认配置&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>空结构体返回可避免 nil 指针错误，并保持良好封装。</p>
+</blockquote>
+<hr>
+<h3 id="✅-2-指针类型返回-nil-表示“无结果”">✅ 2. 指针类型返回 nil 表示“无结果”</h3>
+<h4 id="函数设计：-2">函数设计：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">FindUserByName</span><span class="params">(name <span class="type">string</span>)</span></span> *User &#123;</span><br><span class="line">	<span class="keyword">if</span> name == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span> <span class="comment">// 明确表示“无用户”</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> &amp;User&#123;Name: name&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="调用判断：-2">调用判断：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">u := FindUserByName(<span class="string">&quot;&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> u == <span class="literal">nil</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;用户不存在&quot;</span>)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;找到用户:&quot;</span>, u.Name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="✅-3-切片：返回-T-更安全，避免-JSON-中变成-null">✅ 3. 切片：返回 <code>[]T&#123;&#125;</code> 更安全，避免 JSON 中变成 <code>null</code></h3>
+<h4 id="函数设计：-3">函数设计：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserTasks</span><span class="params">(uid <span class="type">int</span>)</span></span> []<span class="type">string</span> &#123;</span><br><span class="line">	<span class="comment">// 查询数据库...未找到任何任务</span></span><br><span class="line">	<span class="keyword">return</span> []<span class="type">string</span>&#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="调用判断：-3">调用判断：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tasks := GetUserTasks(<span class="number">42</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(tasks) == <span class="number">0</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;当前没有任何任务&quot;</span>)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;任务列表：&quot;</span>, tasks)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="JSON-序列化对比：">JSON 序列化对比：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 返回 nil： &quot;tasks&quot;: null</span></span><br><span class="line"><span class="comment">// 返回 []：  &quot;tasks&quot;: []</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>🚫 如果返回 <code>nil</code>，前端或调用方可能误解为“值未初始化”。</p>
+</blockquote>
+<hr>
+<h3 id="✅-4-map：返回空-map-比-nil-更安全">✅ 4. map：返回空 map 比 nil 更安全</h3>
+<h4 id="函数设计：-4">函数设计：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserSettings</span><span class="params">(uid <span class="type">int</span>)</span></span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>&#123;&#125; <span class="comment">// 安全返回空 map</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="调用判断：-4">调用判断：</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">settings := GetUserSettings(<span class="number">42</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(settings) == <span class="number">0</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;使用系统默认设置&quot;</span>)</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;用户设置:&quot;</span>, settings)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="⚠️-小心：nil-map-写入会-panic">⚠️ 小心：nil map 写入会 panic</h4>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> m <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span> <span class="comment">// nil</span></span><br><span class="line">m[<span class="string">&quot;a&quot;</span>] = <span class="string">&quot;b&quot;</span> <span class="comment">// ❌ panic: assignment to entry in nil map</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="三、完整对比总结表">三、完整对比总结表</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>返回 nil 表示</th>
+<th>返回空值含义</th>
+<th>推荐返回值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*T</code>（指针）</td>
+<td>“无对象”</td>
+<td>不适用</td>
+<td><code>nil</code> ✅</td>
+</tr>
+<tr>
+<td><code>T</code>（结构体）</td>
+<td>不可为 nil</td>
+<td>有效默认值</td>
+<td><code>T&#123;&#125;</code> ✅</td>
+</tr>
+<tr>
+<td><code>[]T</code>（切片）</td>
+<td>“无数据”或“查询失败”</td>
+<td>查询成功但为空结果</td>
+<td><code>[]T&#123;&#125;</code> ✅</td>
+</tr>
+<tr>
+<td><code>map[K]V</code>（映射）</td>
+<td>“未初始化”</td>
+<td>初始化但为空</td>
+<td><code>map[K]V&#123;&#125;</code> ✅</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="四、补充：判断是否为-“空值”-的最佳写法">四、补充：判断是否为 “空值” 的最佳写法</h2>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>判断方式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]T</code></td>
+<td><code>len(slice) == 0</code></td>
+<td><code>if len(s) == 0 &#123;&#125;</code></td>
+</tr>
+<tr>
+<td><code>map</code></td>
+<td><code>len(map) == 0</code></td>
+<td><code>if len(m) == 0 &#123;&#125;</code></td>
+</tr>
+<tr>
+<td><code>*T</code></td>
+<td><code>pointer == nil</code></td>
+<td><code>if u == nil &#123;&#125;</code></td>
+</tr>
+<tr>
+<td><code>T</code></td>
+<td>判断字段是否为默认值</td>
+<td><code>if cfg.Port == 0 &#123;&#125;</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="五、实际开发中案例选型参考">五、实际开发中案例选型参考</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议返回</th>
+<th>原因说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>查询单个用户</td>
+<td><code>*User</code> 或 <code>nil</code></td>
+<td>可表示“用户不存在”</td>
+</tr>
+<tr>
+<td>查询订单列表</td>
+<td><code>[]Order&#123;&#125;</code></td>
+<td>空切片清晰表达“查询成功但无结果”</td>
+</tr>
+<tr>
+<td>返回配置项</td>
+<td><code>Config&#123;&#125;</code></td>
+<td>结构体零值可使用默认设置</td>
+</tr>
+<tr>
+<td>获取用户自定义设置</td>
+<td><code>map[string]string&#123;&#125;</code></td>
+<td>空 map 表示“无设置项”，避免写入 panic</td>
+</tr>
+<tr>
+<td>API JSON 返回结果字段</td>
+<td><code>[]T&#123;&#125;</code>、<code>map&#123;&#125;</code></td>
+<td>避免前端出现 <code>null</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%90%84%E7%A7%8D%E7%A9%BA%E5%88%87%E7%89%87%E7%9A%84%E5%BA%94%E7%94%A8/" rel="prev" title="go语言之各种空切片的应用">
+                  <i class="fa fa-angle-left"></i> go语言之各种空切片的应用
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/" rel="next" title="go-blockchain学习笔记01">
+                  go-blockchain学习笔记01 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

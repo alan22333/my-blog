@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之恐慌与恢复 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="panic 和 recover 机制提供了异常处理能力，但 Go 社区普遍认为应谨慎使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之恐慌与恢复">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="panic 和 recover 机制提供了异常处理能力，但 Go 社区普遍认为应谨慎使用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-28T02:03:51.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/","path":"2025/05/28/go语言之恐慌与恢复/","title":"go语言之恐慌与恢复"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-%E8%AF%AD%E8%A8%80%E4%B8%AD-panic-%E5%92%8C-recover-%E7%9A%84%E4%BD%BF%E7%94%A8%E5%87%86%E5%88%99"><span class="nav-number">1.</span> <span class="nav-text">Go 语言中 panic 和 recover 的使用准则</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E5%8E%9F%E5%88%99%EF%BC%9A%E4%BC%98%E5%85%88%E4%BD%BF%E7%94%A8-error"><span class="nav-number">1.1.</span> <span class="nav-text">主要原则：优先使用 error</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E5%90%88%E4%BD%BF%E7%94%A8-panic-%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">1.2.</span> <span class="nav-text">适合使用 panic 的场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%B8%8D%E5%8F%AF%E6%81%A2%E5%A4%8D%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">1.2.1.</span> <span class="nav-text">1. 不可恢复的错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E7%A8%8B%E5%BA%8F%E5%88%9D%E5%A7%8B%E5%8C%96%E9%98%B6%E6%AE%B5%E7%9A%84%E9%94%99%E8%AF%AF"><span class="nav-number">1.2.2.</span> <span class="nav-text">2. 程序初始化阶段的错误</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%BC%96%E7%A8%8B%E9%94%99%E8%AF%AF%EF%BC%88bug%EF%BC%89"><span class="nav-number">1.2.3.</span> <span class="nav-text">3. 编程错误（bug）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%9C%A8%E6%B5%8B%E8%AF%95%E4%B8%AD%E6%A0%87%E8%AE%B0%E6%B5%8B%E8%AF%95%E5%A4%B1%E8%B4%A5"><span class="nav-number">1.2.4.</span> <span class="nav-text">4. 在测试中标记测试失败</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-recover-%E7%9A%84%E5%9C%BA%E6%99%AF"><span class="nav-number">1.3.</span> <span class="nav-text">使用 recover 的场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%98%B2%E6%AD%A2-goroutine-%E5%B4%A9%E6%BA%83%E5%BD%B1%E5%93%8D%E6%95%B4%E4%B8%AA%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.3.1.</span> <span class="nav-text">1. 防止 goroutine 崩溃影响整个程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%A1%B6%E7%BA%A7-HTTP-%E5%A4%84%E7%90%86%E5%99%A8%E4%B8%AD%E6%8D%95%E8%8E%B7-panic"><span class="nav-number">1.3.2.</span> <span class="nav-text">2. 顶级 HTTP 处理器中捕获 panic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%9C%A8%E5%BA%93%E7%9A%84%E8%BE%B9%E7%95%8C%E5%A4%84%E6%81%A2%E5%A4%8D-panic%EF%BC%88%E8%8B%A5%E5%BA%93%E5%86%85%E9%83%A8%E4%BD%BF%E7%94%A8%E4%BA%86-panic%EF%BC%89"><span class="nav-number">1.3.3.</span> <span class="nav-text">3. 在库的边界处恢复 panic（若库内部使用了 panic）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE"><span class="nav-number">1.4.</span> <span class="nav-text">最佳实践建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%AF%B9%E6%AF%94"><span class="nav-number">1.5.</span> <span class="nav-text">示例对比</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-error%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">1.5.1.</span> <span class="nav-text">使用 error（推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-panic%EF%BC%88%E4%B8%8D%E6%8E%A8%E8%8D%90%EF%BC%8C%E9%99%A4%E9%9D%9E%E7%89%B9%E6%AE%8A%E6%83%85%E5%86%B5%EF%BC%89"><span class="nav-number">1.5.2.</span> <span class="nav-text">使用 panic（不推荐，除非特殊情况）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%81%90%E6%85%8C%E4%B8%8E%E6%81%A2%E5%A4%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之恐慌与恢复 | Hello there! I'm alan">
+      <meta itemprop="description" content="panic 和 recover 机制提供了异常处理能力，但 Go 社区普遍认为应谨慎使用">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之恐慌与恢复
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-28 10:03:51" itemprop="dateCreated datePublished" datetime="2025-05-28T10:03:51+08:00">2025-05-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">panic 和 recover 机制提供了异常处理能力，但 Go 社区普遍认为应谨慎使用</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go-语言中-panic-和-recover-的使用准则">Go 语言中 panic 和 recover 的使用准则</h1>
+<p>在 Go 语言中，panic 和 recover 机制提供了异常处理能力，但 Go 社区普遍认为应谨慎使用。以下是关于何时使用 panic 和 error 的原则：</p>
+<h2 id="主要原则：优先使用-error">主要原则：优先使用 error</h2>
+<p>在大多数情况下，应使用返回 error 的方式而非 panic，原因如下：</p>
+<ul>
+<li><strong>显式错误处理</strong>：调用者可明确知道哪些操作可能失败，并决定如何处理。</li>
+<li><strong>代码可读性</strong>：错误处理流程清晰可见。</li>
+<li><strong>控制流明确</strong>：避免意外的程序终止。</li>
+<li><strong>符合 Go 语言哲学</strong>：Go 鼓励显式错误处理而非异常机制。</li>
+</ul>
+<h2 id="适合使用-panic-的场景">适合使用 panic 的场景</h2>
+<p>以下情况可考虑使用 panic：</p>
+<h3 id="1-不可恢复的错误">1. 不可恢复的错误</h3>
+<p>程序遇到无法继续执行的严重问题：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> !criticalCondition &#123;</span><br><span class="line">    <span class="built_in">panic</span>(<span class="string">&quot;系统处于不可恢复状态&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-程序初始化阶段的错误">2. 程序初始化阶段的错误</h3>
+<p>如配置文件缺失、数据库连接失败等：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">loadConfig</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> configFile == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">&quot;配置文件路径不能为空&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-编程错误（bug）">3. 编程错误（bug）</h3>
+<p>如违反接口约定、不可达的代码路径等：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">switch</span> value := v.(<span class="keyword">type</span>) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="type">int</span>:</span><br><span class="line">    <span class="comment">// 处理int</span></span><br><span class="line"><span class="keyword">case</span> <span class="type">string</span>:</span><br><span class="line">    <span class="comment">// 处理string</span></span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="built_in">panic</span>(fmt.Sprintf(<span class="string">&quot;未处理的类型: %T&quot;</span>, v))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-在测试中标记测试失败">4. 在测试中标记测试失败</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestSomething</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> result != expected &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">&quot;测试失败&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="使用-recover-的场景">使用 recover 的场景</h2>
+<p>recover 主要用于：</p>
+<h3 id="1-防止-goroutine-崩溃影响整个程序">1. 防止 goroutine 崩溃影响整个程序</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">safeDo</span><span class="params">(f <span class="keyword">func</span>()</span></span>) &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">            log.Println(<span class="string">&quot;捕获到panic:&quot;</span>, r)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    f()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-顶级-HTTP-处理器中捕获-panic">2. 顶级 HTTP 处理器中捕获 panic</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">handler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> err := <span class="built_in">recover</span>(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">            http.Error(w, <span class="string">&quot;内部服务器错误&quot;</span>, http.StatusInternalServerError)</span><br><span class="line">            log.Printf(<span class="string">&quot;处理器panic: %v&quot;</span>, err)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    <span class="comment">// 处理器逻辑</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-在库的边界处恢复-panic（若库内部使用了-panic）">3. 在库的边界处恢复 panic（若库内部使用了 panic）</h3>
+<h2 id="最佳实践建议">最佳实践建议</h2>
+<ul>
+<li><strong>在应用程序代码中</strong>：几乎总是使用 error 而非 panic。</li>
+<li><strong>在库代码中</strong>：更加谨慎，通常应返回 error 而非 panic。</li>
+<li><strong>保持一致性</strong>：若一个包使用了 panic，整个包需采用相同策略。</li>
+<li><strong>文档记录</strong>：若函数可能 panic，必须在文档中明确说明。</li>
+</ul>
+<h2 id="示例对比">示例对比</h2>
+<h3 id="使用-error（推荐）">使用 error（推荐）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Divide</span><span class="params">(a, b <span class="type">int</span>)</span></span> (<span class="type">int</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>, fmt.Errorf(<span class="string">&quot;除数不能为零&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> a / b, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用处</span></span><br><span class="line">result, err := Divide(<span class="number">10</span>, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="comment">// 处理错误</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="使用-panic（不推荐，除非特殊情况）">使用 panic（不推荐，除非特殊情况）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">MustDivide</span><span class="params">(a, b <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> b == <span class="number">0</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(<span class="string">&quot;除数不能为零&quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> a / b</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 调用处</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">        <span class="keyword">if</span> r := <span class="built_in">recover</span>(); r != <span class="literal">nil</span> &#123;</span><br><span class="line">            fmt.Println(<span class="string">&quot;错误:&quot;</span>, r)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;()</span><br><span class="line">    result := MustDivide(<span class="number">10</span>, <span class="number">0</span>)</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="总结">总结</h2>
+<p>在 Go 中，error 是处理错误的默认和推荐方式，panic 应保留给真正异常的情况（如不可恢复的错误或编程错误）。recover 则用于捕获 panic，防止程序或 goroutine 崩溃。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/" rel="prev" title="go语言之Stateful Goroutine">
+                  <i class="fa fa-angle-left"></i> go语言之Stateful Goroutine
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/28/go%E8%AF%AD%E8%A8%80%E4%B9%8BURL%E8%A7%A3%E6%9E%90/" rel="next" title="go语言之URL解析">
+                  go语言之URL解析 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之依赖注入 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="依赖注入是一种设计模式，它将组件所依赖的资源（例如数据库连接、日志工具、配置项等）“注入”到组件中，而不是让组件自己创建这些资源">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之依赖注入">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="依赖注入是一种设计模式，它将组件所依赖的资源（例如数据库连接、日志工具、配置项等）“注入”到组件中，而不是让组件自己创建这些资源">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-06T06:11:14.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/","path":"2025/06/06/go语言之依赖注入/","title":"go语言之依赖注入"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%A6-%E7%90%86%E8%A7%A3%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9A%E5%8E%9F%E7%90%86%E4%B8%8E-Go-%E9%A1%B9%E7%9B%AE%E5%AE%9E%E6%88%98"><span class="nav-number">1.</span> <span class="nav-text">📦 理解依赖注入：原理与 Go 项目实战</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E7%8E%B0%E4%BB%A3%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91%E4%B8%AD%EF%BC%8C%E2%80%9C%E8%A7%A3%E8%80%A6%E2%80%9D-%E6%98%AF%E5%AE%9E%E7%8E%B0%E9%AB%98%E8%B4%A8%E9%87%8F%E3%80%81%E5%8F%AF%E7%BB%B4%E6%8A%A4%E4%BB%A3%E7%A0%81%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8E%9F%E5%88%99%E4%B9%8B%E4%B8%80%EF%BC%8C%E8%80%8C%E2%80%9C%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E2%80%9D%EF%BC%88Dependency-Injection-%E7%AE%80%E7%A7%B0-DI%EF%BC%89%E6%AD%A3%E6%98%AF%E5%AE%9E%E7%8E%B0%E8%BF%99%E4%B8%80%E7%9B%AE%E6%A0%87%E7%9A%84%E9%87%8D%E8%A6%81%E6%89%8B%E6%AE%B5%E3%80%82"><span class="nav-number">1.1.</span> <span class="nav-text">在现代软件开发中，“解耦” 是实现高质量、可维护代码的核心原则之一，而“依赖注入”（Dependency Injection, 简称 DI）正是实现这一目标的重要手段。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%8D-%E4%BB%80%E4%B9%88%E6%98%AF%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">🔍 什么是依赖注入？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%8F%EF%B8%8F-%E4%B8%BE%E4%B8%AA%E5%B0%8F%E4%BE%8B%E5%AD%90%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">✏️ 举个小例子：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E4%BD%BF%E7%94%A8%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">🧠 为什么要使用依赖注入？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9B%A0-Go-%E9%A1%B9%E7%9B%AE%E4%B8%AD%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5"><span class="nav-number">1.4.</span> <span class="nav-text">🛠 Go 项目中如何实现依赖注入</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%80%EF%BC%9A%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0%E6%B3%A8%E5%85%A5%EF%BC%88%E6%9C%80%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">1.4.1.</span> <span class="nav-text">✅ 方法一：构造函数注入（最推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%BA%8C%EF%BC%9A%E6%8E%A5%E5%8F%A3%E6%B3%A8%E5%85%A5%EF%BC%88%E5%AE%9E%E7%8E%B0%E8%A7%A3%E8%80%A6%EF%BC%89"><span class="nav-number">1.4.2.</span> <span class="nav-text">✅ 方法二：接口注入（实现解耦）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E6%96%B9%E6%B3%95%E4%B8%89%EF%BC%9A%E5%BA%94%E7%94%A8%E7%BB%93%E6%9E%84%E4%BD%93%E7%BB%9F%E4%B8%80%E7%AE%A1%E7%90%86%E4%BE%9D%E8%B5%96"><span class="nav-number">1.4.3.</span> <span class="nav-text">✅ 方法三：应用结构体统一管理依赖</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9A%A1%EF%B8%8F-%E8%87%AA%E5%8A%A8%E5%8C%96%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9F%E7%9C%8B%E4%B8%80%E4%B8%8B-Wire"><span class="nav-number">1.5.</span> <span class="nav-text">⚡️ 自动化依赖注入？看一下 Wire</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%94%A7-Google-Wire"><span class="nav-number">1.5.1.</span> <span class="nav-text">🔧 Google Wire</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%AA-%E5%8D%95%E5%85%83%E6%B5%8B%E8%AF%95%E4%B8%AD%E7%9A%84%E5%A5%BD%E5%B8%AE%E6%89%8B"><span class="nav-number">1.6.</span> <span class="nav-text">🧪 单元测试中的好帮手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%92%A1-%E5%BC%80%E5%8F%91%E4%B8%AD%E7%9A%84%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">1.7.</span> <span class="nav-text">💡 开发中的最佳实践</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之依赖注入 | Hello there! I'm alan">
+      <meta itemprop="description" content="依赖注入是一种设计模式，它将组件所依赖的资源（例如数据库连接、日志工具、配置项等）“注入”到组件中，而不是让组件自己创建这些资源">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之依赖注入
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-06 14:11:14" itemprop="dateCreated datePublished" datetime="2025-06-06T14:11:14+08:00">2025-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">依赖注入是一种设计模式，它将组件所依赖的资源（例如数据库连接、日志工具、配置项等）“注入”到组件中，而不是让组件自己创建这些资源</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="📦-理解依赖注入：原理与-Go-项目实战">📦 理解依赖注入：原理与 Go 项目实战</h1>
+<h2 id="在现代软件开发中，“解耦”-是实现高质量、可维护代码的核心原则之一，而“依赖注入”（Dependency-Injection-简称-DI）正是实现这一目标的重要手段。">在现代软件开发中，<strong>“解耦”</strong> 是实现高质量、可维护代码的核心原则之一，而“依赖注入”（Dependency Injection, 简称 DI）正是实现这一目标的重要手段。</h2>
+<h2 id="🔍-什么是依赖注入？">🔍 什么是依赖注入？</h2>
+<p><strong>依赖注入是一种设计模式，它将组件所依赖的资源（例如数据库连接、日志工具、配置项等）“注入”到组件中，而不是让组件自己创建这些资源。</strong></p>
+<p>简单来说：</p>
+<ul>
+<li>传统写法：组件自己负责依赖的创建和管理。</li>
+<li>依赖注入：依赖由外部提供，组件只负责使用。</li>
+</ul>
+<h3 id="✏️-举个小例子：">✏️ 举个小例子：</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 不使用依赖注入</span></span><br><span class="line"><span class="keyword">type</span> Service <span class="keyword">struct</span> &#123;</span><br><span class="line">    db *sql.DB</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewService</span><span class="params">()</span></span> *Service &#123;</span><br><span class="line">    db, _ := sql.Open(<span class="string">&quot;mysql&quot;</span>, <span class="string">&quot;dsn&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> &amp;Service&#123;db: db&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个 Service 被“绑定”到 MySQL 数据库，难以测试或替换。</p>
+<p>使用依赖注入后：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用依赖注入</span></span><br><span class="line"><span class="keyword">type</span> Service <span class="keyword">struct</span> &#123;</span><br><span class="line">    db *sql.DB</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewService</span><span class="params">(db *sql.DB)</span></span> *Service &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;Service&#123;db: db&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在，Service 不再关心 db 是什么来源，外部可以灵活传入真实的数据库或 mock 实现，方便测试。</p>
+<hr>
+<h2 id="🧠-为什么要使用依赖注入？">🧠 为什么要使用依赖注入？</h2>
+<ul>
+<li>✅ <strong>解耦模块之间的依赖关系</strong></li>
+<li>✅ <strong>提升代码的测试性和可维护性</strong></li>
+<li>✅ <strong>更方便进行单元测试（mock 替代）</strong></li>
+<li>✅ <strong>逻辑更清晰，依赖一目了然</strong></li>
+</ul>
+<hr>
+<h2 id="🛠-Go-项目中如何实现依赖注入">🛠 Go 项目中如何实现依赖注入</h2>
+<p>Go 语言没有内建 DI 容器（不像 Java 的 Spring 或 C# 的 .NET Core），但通过其简洁的语法结构，我们可以轻松地<strong>手动实现依赖注入</strong>。</p>
+<hr>
+<h3 id="✅-方法一：构造函数注入（最推荐）">✅ 方法一：构造函数注入（最推荐）</h3>
+<p>这是 Go 项目中最常见和推荐的做法。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Logger <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"><span class="keyword">type</span> DB <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"><span class="keyword">type</span> Service <span class="keyword">struct</span> &#123;</span><br><span class="line">    logger *Logger</span><br><span class="line">    db     *DB</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewService</span><span class="params">(logger *Logger, db *DB)</span></span> *Service &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;Service&#123;logger: logger, db: db&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>好处</strong>：</p>
+<ul>
+<li>依赖通过构造函数显式传入</li>
+<li>可替换、可 mock</li>
+<li>编译时强类型校验，安全可靠</li>
+</ul>
+<hr>
+<h3 id="✅-方法二：接口注入（实现解耦）">✅ 方法二：接口注入（实现解耦）</h3>
+<p>通过依赖接口而非具体类型，进一步提升灵活性。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Notifier <span class="keyword">interface</span> &#123;</span><br><span class="line">    Send(msg <span class="type">string</span>) <span class="type">error</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> EmailNotifier <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e *EmailNotifier)</span></span> Send(msg <span class="type">string</span>) <span class="type">error</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Email sent:&quot;</span>, msg)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 业务逻辑只依赖接口</span></span><br><span class="line"><span class="keyword">type</span> UserService <span class="keyword">struct</span> &#123;</span><br><span class="line">    notifier Notifier</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewUserService</span><span class="params">(n Notifier)</span></span> *UserService &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;UserService&#123;notifier: n&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以轻松替换为 <code>MockNotifier</code> 做测试，而无需改动核心业务代码。</p>
+<hr>
+<h3 id="✅-方法三：应用结构体统一管理依赖">✅ 方法三：应用结构体统一管理依赖</h3>
+<p>适用于中型项目，可以封装一个 <code>App</code> 或 <code>Container</code> 结构体，集中管理各依赖组件。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> App <span class="keyword">struct</span> &#123;</span><br><span class="line">    DB     *sql.DB</span><br><span class="line">    Logger *log.Logger</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewApp</span><span class="params">(db *sql.DB, logger *log.Logger)</span></span> *App &#123;</span><br><span class="line">    <span class="keyword">return</span> &amp;App&#123;DB: db, Logger: logger&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a *App)</span></span> HandleHome(w http.ResponseWriter, r *http.Request) &#123;</span><br><span class="line">    a.Logger.Println(<span class="string">&quot;Serving Home&quot;</span>)</span><br><span class="line">    fmt.Fprintln(w, <span class="string">&quot;Welcome to Go App&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    logger := log.New(os.Stdout, <span class="string">&quot;[APP] &quot;</span>, log.LstdFlags)</span><br><span class="line">    db, _ := sql.Open(<span class="string">&quot;sqlite3&quot;</span>, <span class="string">&quot;:memory:&quot;</span>)</span><br><span class="line"></span><br><span class="line">    app := NewApp(db, logger)</span><br><span class="line"></span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/&quot;</span>, app.HandleHome)</span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="⚡️-自动化依赖注入？看一下-Wire">⚡️ 自动化依赖注入？看一下 Wire</h2>
+<p>Go 社区也有自动化的依赖注入工具，例如：</p>
+<h3 id="🔧-Google-Wire">🔧 <a target="_blank" rel="noopener" href="https://github.com/google/wire">Google Wire</a></h3>
+<p><code>wire</code> 是一种<strong>静态代码生成</strong>的依赖注入工具，在编译阶段生成注入代码，不增加运行时成本。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// +build wireinject</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InitApp</span><span class="params">()</span></span> *App &#123;</span><br><span class="line">    wire.Build(NewLogger, NewDB, NewApp)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行 <code>wire</code> 命令会生成等效的构造代码。</p>
+<p>适用于大型项目，能自动解决依赖图。</p>
+<hr>
+<h2 id="🧪-单元测试中的好帮手">🧪 单元测试中的好帮手</h2>
+<p>依赖注入最大的优势之一：<strong>便于测试</strong>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MockNotifier <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *MockNotifier)</span></span> Send(msg <span class="type">string</span>) <span class="type">error</span> &#123;</span><br><span class="line">    fmt.Println(<span class="string">&quot;Mock:&quot;</span>, msg)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">TestNotify</span><span class="params">(t *testing.T)</span></span> &#123;</span><br><span class="line">    userService := NewUserService(&amp;MockNotifier&#123;&#125;)</span><br><span class="line">    userService.notifier.Send(<span class="string">&quot;Hello&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在测试中，你不需要真正的数据库、HTTP 请求或 Email 服务——只需要替代实现。</p>
+<hr>
+<h2 id="💡-开发中的最佳实践">💡 开发中的最佳实践</h2>
+<ol>
+<li>✅ <strong>用构造函数注入依赖</strong>，而不是在内部硬编码。</li>
+<li>✅ <strong>依赖接口而非具体实现</strong>（面向抽象编程）。</li>
+<li>✅ <strong>封装 App 结构统一注入服务</strong>。</li>
+<li>✅ <strong>避免全局变量，除非确实是常量或全局唯一实例（如配置）</strong>。</li>
+<li>✅ <strong>中大型项目可以考虑 Wire 等工具自动生成依赖注入代码</strong>。</li>
+</ol>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/" rel="prev" title="go语言之RESTful Routing">
+                  <i class="fa fa-angle-left"></i> go语言之RESTful Routing
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/06/%E4%B8%BB%E6%B5%81%E8%AF%AD%E8%A8%80%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%AF%B9%E6%AF%94/" rel="next" title="主流语言依赖注入对比">
+                  主流语言依赖注入对比 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

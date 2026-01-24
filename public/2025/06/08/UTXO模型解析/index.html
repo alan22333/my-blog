@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UTXO模型解析 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="什么是什么比特币的UTXO模型？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="UTXO模型解析">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/08/UTXO%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="什么是什么比特币的UTXO模型？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-08T06:17:17.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.060Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="web3">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/08/UTXO%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/08/UTXO%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90/","path":"2025/06/08/UTXO模型解析/","title":"UTXO模型解析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/08/UTXO%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%80%9A%E4%BF%97%E7%90%86%E8%A7%A3-UTXO-%E6%A8%A1%E5%9E%8B%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E6%AF%94%E7%89%B9%E5%B8%81%E4%B8%8D%E5%83%8F%E9%93%B6%E8%A1%8C%E5%8D%A1%E9%82%A3%E6%A0%B7%E2%80%9C%E8%AE%B0%E4%BD%99%E9%A2%9D%E2%80%9D%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">通俗理解 UTXO 模型：为什么比特币不像银行卡那样“记余额”？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-UTXO%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">一、什么是 UTXO？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A%E5%B0%8F%E6%98%8E%E8%AF%B7%E5%AE%A2%E5%90%83%E9%A5%AD"><span class="nav-number">1.2.</span> <span class="nav-text">二、举个例子：小明请客吃饭</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF%EF%BC%9A"><span class="nav-number">1.2.1.</span> <span class="nav-text">场景：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%A8%E8%B4%A6%E6%88%B7%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%80%9D%E7%BB%B4%E6%98%AF%E8%BF%99%E6%A0%B7%EF%BC%9A"><span class="nav-number">1.2.2.</span> <span class="nav-text">用账户模型的思维是这样：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8-UTXO-%E6%A8%A1%E5%9E%8B%E4%B8%8B%EF%BC%8C%E5%B0%8F%E6%98%8E%E5%BF%85%E9%A1%BB%E9%80%89%E6%8B%A9%E7%BA%B8%E5%B8%81%E6%9D%A5%E6%94%AF%E4%BB%98"><span class="nav-number">1.2.3.</span> <span class="nav-text">在 UTXO 模型下，小明必须选择纸币来支付</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%AF%94%E7%89%B9%E5%B8%81%E4%BA%A4%E6%98%93%E5%88%B0%E5%BA%95%E9%95%BF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">三、比特币交易到底长什么样？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%EF%BC%88%E5%B0%8F%E6%98%8E%E6%8B%BF%E5%87%BA%E6%9D%A5%E7%94%A8%E7%9A%84%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">输入（小明拿出来用的）：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%EF%BC%88%E8%BF%99%E7%AC%94%E9%92%B1%E8%A6%81%E7%BB%99%E8%B0%81%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.2.</span> <span class="nav-text">输出（这笔钱要给谁）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81UTXO-%E5%92%8C%E8%B4%A6%E6%88%B7%E6%A8%A1%E5%9E%8B%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">1.4.</span> <span class="nav-text">四、UTXO 和账户模型有什么区别？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%86%8D%E4%B8%BE%E4%B8%80%E4%B8%AA%E5%AE%8C%E6%95%B4%E4%BE%8B%E5%AD%90%EF%BC%9A%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%A4%8D%E6%9D%82%EF%BC%8C%E5%85%B6%E5%AE%9E%E5%B0%B1%E6%98%AF%E8%8A%B1%E9%92%B1%E6%89%BE%E9%9B%B6"><span class="nav-number">1.5.</span> <span class="nav-text">五、再举一个完整例子：看起来复杂，其实就是花钱找零</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%85%A5%EF%BC%9A"><span class="nav-number">1.5.1.</span> <span class="nav-text">输入：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%EF%BC%9A"><span class="nav-number">1.5.2.</span> <span class="nav-text">输出：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%92%B1%E5%8C%85%E8%BD%AF%E4%BB%B6%E5%9C%A8%E5%B8%AE%E4%BD%A0%E8%87%AA%E5%8A%A8%E5%81%9A%E8%BF%99%E4%BA%9B%E4%BA%8B"><span class="nav-number">1.6.</span> <span class="nav-text">六、钱包软件在帮你自动做这些事</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81UTXO-%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="nav-number">1.7.</span> <span class="nav-text">七、UTXO 模型的好处</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E4%BD%86%E5%AE%83%E4%B9%9F%E6%9C%89%E7%82%B9%E9%BA%BB%E7%83%A6%E2%80%A6"><span class="nav-number">1.8.</span> <span class="nav-text">八、但它也有点麻烦…</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E7%BB%93%E8%AF%AD%EF%BC%9A%E6%8A%8A%E6%AF%94%E7%89%B9%E5%B8%81%E7%9A%84%E9%92%B1%E7%9C%8B%E4%BD%9C%E7%8E%B0%E9%87%91%EF%BC%8C%E4%BD%A0%E5%B0%B1%E7%90%86%E8%A7%A3%E4%BA%86"><span class="nav-number">1.9.</span> <span class="nav-text">九、结语：把比特币的钱看作现金，你就理解了</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/08/UTXO%E6%A8%A1%E5%9E%8B%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="UTXO模型解析 | Hello there! I'm alan">
+      <meta itemprop="description" content="什么是什么比特币的UTXO模型？">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          UTXO模型解析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-08 14:17:17" itemprop="dateCreated datePublished" datetime="2025-06-08T14:17:17+08:00">2025-06-08</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">什么是什么比特币的UTXO模型？</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="通俗理解-UTXO-模型：为什么比特币不像银行卡那样“记余额”？">通俗理解 UTXO 模型：为什么比特币不像银行卡那样“记余额”？</h1>
+<p>如果你用过支付宝、微信或者银行App，你肯定很熟悉“账户余额”这个概念。你存了多少钱、花了多少钱，系统都会直接加减金额，很直观。</p>
+<p>但比特币却不是这么做的。</p>
+<p>比特币并没有为每个用户记一个“账户余额”。它使用一种叫做 <strong>UTXO</strong> 的模型来管理你的比特币。</p>
+<hr>
+<h2 id="一、什么是-UTXO？">一、什么是 UTXO？</h2>
+<p><strong>UTXO 是 “未花费交易输出” 的缩写</strong>。你可以把它想象成一张张“找零纸币”，每次收钱和花钱，其实就是一张张纸币的流转。</p>
+<p>它就像你口袋里的一堆零钱，而不是银行账户里的一串数字。</p>
+<hr>
+<h2 id="二、举个例子：小明请客吃饭">二、举个例子：小明请客吃饭</h2>
+<h3 id="场景：">场景：</h3>
+<p>小明钱包里有：</p>
+<ul>
+<li>一张 50 元</li>
+<li>一张 30 元</li>
+<li>一张 20 元</li>
+</ul>
+<p>这些就是他的 <strong>UTXO</strong> —— 还能用的钱。</p>
+<p>现在他要请小红吃饭，花了 70 元。</p>
+<hr>
+<h3 id="用账户模型的思维是这样：">用账户模型的思维是这样：</h3>
+<ul>
+<li>账户原有：100 元</li>
+<li>花掉：70 元</li>
+<li>剩下：30 元</li>
+</ul>
+<p>但比特币不是这么处理的。</p>
+<hr>
+<h3 id="在-UTXO-模型下，小明必须选择纸币来支付">在 UTXO 模型下，小明必须选择纸币来支付</h3>
+<p>他选择用：</p>
+<ul>
+<li>一张 50 元</li>
+<li>一张 30 元</li>
+</ul>
+<p>合计：80 元</p>
+<p>饭钱 70 元，那多出来的 10 元怎么办？</p>
+<blockquote>
+<p>✅ 自动找零！系统会再给他一张 10 元，回到他钱包里。</p>
+</blockquote>
+<hr>
+<h2 id="三、比特币交易到底长什么样？">三、比特币交易到底长什么样？</h2>
+<p>继续上面例子，小明发起一个交易：</p>
+<h3 id="输入（小明拿出来用的）：">输入（小明拿出来用的）：</h3>
+<ul>
+<li>50 元</li>
+<li>30 元</li>
+</ul>
+<h3 id="输出（这笔钱要给谁）：">输出（这笔钱要给谁）：</h3>
+<ul>
+<li>70 元 → 小红（餐费）</li>
+<li>10 元 → 小明（找零）</li>
+</ul>
+<p>注意！这次花的钱，不是“账户减少70元”，而是“把原来的两张纸币销毁”，再新发两张纸币出来，一张给小红，一张自己。</p>
+<p>而且原来那两张 50 元和 30 元 <strong>就被视为“已花费”，再也不能用了</strong>。</p>
+<hr>
+<h2 id="四、UTXO-和账户模型有什么区别？">四、UTXO 和账户模型有什么区别？</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>UTXO 模型（比特币）</th>
+<th>账户模型（以太坊/支付宝）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>钱的表现</td>
+<td>一张张“零钱”（UTXO）</td>
+<td>账户里的一个余额数字</td>
+</tr>
+<tr>
+<td>花钱方式</td>
+<td>选几张零钱 → 分成若干份输出</td>
+<td>直接余额减一笔钱</td>
+</tr>
+<tr>
+<td>找零机制</td>
+<td>系统自动返回一笔UTXO</td>
+<td>不存在找零</td>
+</tr>
+<tr>
+<td>隐私性</td>
+<td>更高（每笔钱可用新地址）</td>
+<td>低（账户固定）</td>
+</tr>
+<tr>
+<td>处理方式</td>
+<td>类似现金</td>
+<td>类似银行</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="五、再举一个完整例子：看起来复杂，其实就是花钱找零">五、再举一个完整例子：看起来复杂，其实就是花钱找零</h2>
+<p><strong>场景：</strong></p>
+<p>小红有三笔比特币：</p>
+<ul>
+<li>0.2 BTC</li>
+<li>0.4 BTC</li>
+<li>0.6 BTC<br>
+她一共拥有 1.2 BTC</li>
+</ul>
+<p>现在她要支付 0.7 BTC 给 Bob。</p>
+<p>她钱包自动选择：</p>
+<ul>
+<li>0.6 BTC</li>
+<li>0.2 BTC</li>
+</ul>
+<p>总共 0.8 BTC，用于支付。</p>
+<p>系统处理如下：</p>
+<h3 id="输入：">输入：</h3>
+<ul>
+<li>0.6 BTC（小红）</li>
+<li>0.2 BTC（小红）</li>
+</ul>
+<h3 id="输出：">输出：</h3>
+<ul>
+<li>0.7 BTC（给 Bob）</li>
+<li>0.1 BTC（回给小红自己，找零）</li>
+</ul>
+<p>这就是一笔 UTXO 交易。</p>
+<hr>
+<h2 id="六、钱包软件在帮你自动做这些事">六、钱包软件在帮你自动做这些事</h2>
+<p>你在比特币钱包里看到的是“余额：1.2 BTC”，但其实这个余额是很多个 UTXO 叠加的总和。</p>
+<p>钱包会：</p>
+<ul>
+<li>选择哪些 UTXO 来组合成你要支付的金额</li>
+<li>自动生成找零地址</li>
+<li>组装交易</li>
+<li>计算手续费</li>
+<li>签名并发送交易</li>
+</ul>
+<p>你只需要点一下“发送”，但背后做了很多 UTXO 的“搭配”和“更新”。</p>
+<hr>
+<h2 id="七、UTXO-模型的好处">七、UTXO 模型的好处</h2>
+<ul>
+<li>✅ <strong>简单可靠</strong>：每笔钱从哪来、给了谁，链上都能查</li>
+<li>✅ <strong>匿名性好</strong>：每次可以用新地址收款，不容易关联身份</li>
+<li>✅ <strong>更安全清晰</strong>：每个“纸币”只能用一次，不会出现双花</li>
+</ul>
+<hr>
+<h2 id="八、但它也有点麻烦…">八、但它也有点麻烦…</h2>
+<ul>
+<li>❌ <strong>你有太多零钱（UTXO）时</strong>，会导致交易变大，手续费变高</li>
+<li>❌ <strong>开发智能合约不方便</strong>，因为它不像账户模型有“变量状态”</li>
+</ul>
+<hr>
+<h2 id="九、结语：把比特币的钱看作现金，你就理解了">九、结语：把比特币的钱看作现金，你就理解了</h2>
+<p>UTXO 模型其实就像现实生活的现金支付，每次掏出几张钞票，然后收回找零。和我们在银行App里看到的“账户减余额”的方式很不一样。</p>
+<p>但这种方式，正是比特币设计的初衷：<strong>简单、清晰、不可篡改</strong>。</p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web3/" rel="tag"># web3</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/06/%E4%B8%BB%E6%B5%81%E8%AF%AD%E8%A8%80%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%E5%AF%B9%E6%AF%94/" rel="prev" title="主流语言依赖注入对比">
+                  <i class="fa fa-angle-left"></i> 主流语言依赖注入对比
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/08/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%BB%93%E6%9E%84%E4%BD%93%E5%93%88%E5%B8%8C%E6%96%B9%E6%B3%95/" rel="next" title="go语言之结构体哈希方法">
+                  go语言之结构体哈希方法 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

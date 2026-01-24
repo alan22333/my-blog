@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之select指南 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="通俗化学习select语法的用法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之select指南">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="通俗化学习select语法的用法">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-26T00:57:21.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/","path":"2025/05/26/go语言之select指南/","title":"go语言之select指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%B6%85%E6%97%B6%E6%8E%A7%E5%88%B6"><span class="nav-number">1.</span> <span class="nav-text">1. 超时控制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%8F%96%E6%B6%88%E6%93%8D%E4%BD%9C"><span class="nav-number">2.</span> <span class="nav-text">2. 取消操作</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之select指南 | Hello there! I'm alan">
+      <meta itemprop="description" content="通俗化学习select语法的用法">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之select指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-26 08:57:21" itemprop="dateCreated datePublished" datetime="2025-05-26T08:57:21+08:00">2025-05-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">通俗化学习select语法的用法</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p><strong>想象一下场景：</strong></p>
+<p>你现在是一位咖啡师，你的面前有多个顾客在不同的窗口等待点单（每个窗口可以看作一个 channel）。你不可能同时处理所有窗口的请求，但你希望尽快处理到来的请求。<code>select</code> 语句就像你的耳朵和眼睛，让你能够同时监听所有窗口，一旦有顾客按下呼叫铃（channel 有数据可接收），你就可以优先处理那个窗口的请求。</p>
+<p><strong><code>select</code> 语句的基本结构：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> &#123;</span><br><span class="line"><span class="keyword">case</span> &lt;-chan1:</span><br><span class="line">    <span class="comment">// 如果 chan1 可读，执行这里的代码</span></span><br><span class="line"><span class="keyword">case</span> val := &lt;-chan2:</span><br><span class="line">    <span class="comment">// 如果 chan2 可读，执行这里的代码，并将接收到的值赋给 val</span></span><br><span class="line"><span class="keyword">case</span> chan3 &lt;- expr:</span><br><span class="line">    <span class="comment">// 如果 chan3 可写（非满），执行这里的代码，并将 expr 发送到 chan3</span></span><br><span class="line"><span class="keyword">default</span>:</span><br><span class="line">    <span class="comment">// 如果没有任何 case 准备好，执行这里的代码（可选）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>核心要点：</strong></p>
+<ol>
+<li><strong>多路复用：</strong> <code>select</code> 允许你同时等待多个 channel 的操作（发送或接收）。</li>
+<li><strong>非阻塞：</strong> <code>select</code> 本身不会阻塞。它会检查所有的 <code>case</code>，如果其中一个 <code>case</code> 满足条件（可以进行收发操作），就执行该 <code>case</code> 对应的代码。</li>
+<li><strong>随机选择：</strong> 如果有多个 <code>case</code> 同时满足条件，Go 语言会<strong>随机</strong>选择一个 <code>case</code> 执行。</li>
+<li><strong><code>default</code> 子句（可选）：</strong> 如果没有 <code>case</code> 准备好，并且存在 <code>default</code> 子句，那么会执行 <code>default</code> 中的代码。如果不存在 <code>default</code>，<code>select</code> 语句会阻塞，直到至少有一个 <code>case</code> 可以执行。</li>
+</ol>
+<p><strong>生动解释每个 <code>case</code>：</strong></p>
+<ul>
+<li><code>case &lt;-chan1:</code>：这表示尝试从通道 <code>chan1</code> 接收数据。如果 <code>chan1</code> 中有数据，这个 <code>case</code> 就会被选中，并且接收到的数据会被丢弃（因为你没有用变量接收）。你可以把它想象成你听到一个窗口的铃响了，你知道有人要点单了。</li>
+<li><code>case val := &lt;-chan2:</code>：这同样是尝试从通道 <code>chan2</code> 接收数据。如果 <code>chan2</code> 中有数据，这个 <code>case</code> 会被选中，并且接收到的数据会存储在变量 <code>val</code> 中。这就像你听到另一个窗口的铃响了，并且你知道了顾客想要点什么。</li>
+<li><code>case chan3 &lt;- expr:</code>：这表示尝试向通道 <code>chan3</code> 发送数据 <code>expr</code>。如果 <code>chan3</code> 有足够的空间（非满），这个 <code>case</code> 就会被选中，并且 <code>expr</code> 会被发送到 <code>chan3</code>。这就像你准备好了一杯咖啡，准备送到一个等待的窗口。</li>
+<li><code>default:</code>：如果没有任何顾客按下铃（没有任何 channel 可读或可写），并且你不想一直等待，你可以使用 <code>default</code> 子句来做一些其他的事情，比如擦桌子或者看看还有哪些咖啡豆。</li>
+</ul>
+<p><strong>实际应用示例代码：</strong></p>
+<p>让我们模拟一个场景，有两个不同的服务在向我们的主程序发送消息。我们希望能够同时监听这两个服务，并处理先到达的消息。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟服务 1 发送消息</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">service1</span><span class="params">(ch <span class="keyword">chan</span> <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; ; i++ &#123;</span><br><span class="line">		time.Sleep(time.Duration(rand.Intn(<span class="number">1000</span>)) * time.Millisecond) <span class="comment">// 模拟处理时间</span></span><br><span class="line">		message := fmt.Sprintf(<span class="string">&quot;来自服务 1 的消息 #%d&quot;</span>, i)</span><br><span class="line">		fmt.Println(<span class="string">&quot;服务 1 发送:&quot;</span>, message)</span><br><span class="line">		ch &lt;- message</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟服务 2 发送消息</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">service2</span><span class="params">(ch <span class="keyword">chan</span> <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; ; i++ &#123;</span><br><span class="line">		time.Sleep(time.Duration(rand.Intn(<span class="number">1500</span>)) * time.Millisecond) <span class="comment">// 模拟处理时间</span></span><br><span class="line">		message := fmt.Sprintf(<span class="string">&quot;来自服务 2 的消息 #%d&quot;</span>, i)</span><br><span class="line">		fmt.Println(<span class="string">&quot;服务 2 发送:&quot;</span>, message)</span><br><span class="line">		ch &lt;- message</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	ch1 := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">string</span>)</span><br><span class="line">	ch2 := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">string</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> service1(ch1)</span><br><span class="line">	<span class="keyword">go</span> service2(ch2)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123; <span class="comment">// 我们只接收前 5 条消息</span></span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> msg1 := &lt;-ch1:</span><br><span class="line">			fmt.Println(<span class="string">&quot;主程序接收到:&quot;</span>, msg1)</span><br><span class="line">		<span class="keyword">case</span> msg2 := &lt;-ch2:</span><br><span class="line">			fmt.Println(<span class="string">&quot;主程序接收到:&quot;</span>, msg2)</span><br><span class="line">		&#125;</span><br><span class="line">		fmt.Println(<span class="string">&quot;--- 处理了一条消息 ---&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;处理完毕！&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解释：</strong></p>
+<ol>
+<li>我们创建了两个通道 <code>ch1</code> 和 <code>ch2</code>，分别用于接收来自 <code>service1</code> 和 <code>service2</code> 的消息。</li>
+<li><code>service1</code> 和 <code>service2</code>  Goroutine 会不断地生成消息并通过各自的通道发送。它们发送消息的时间间隔是随机的，模拟了不同的服务可能在不同的时间发送数据。</li>
+<li>在 <code>main</code> 函数的 <code>for</code> 循环中，我们使用 <code>select</code> 语句同时监听 <code>ch1</code> 和 <code>ch2</code>。</li>
+<li>哪个通道先有数据到达，对应的 <code>case</code> 就会被执行，主程序会接收并打印该消息。</li>
+<li>由于 <code>select</code> 的随机性，你每次运行程序，接收到的消息顺序可能会不同。</li>
+</ol>
+<p><strong>更进一步的应用场景：</strong></p>
+<ul>
+<li><strong>超时控制：</strong> 你可以在 <code>select</code> 中加入一个 <code>time.After</code> 的 <code>case</code>，如果在指定时间内没有从其他通道接收到数据，就可以执行超时处理逻辑。</li>
+<li><strong>取消操作：</strong> 可以使用一个 done channel，在需要取消某个 Goroutine 的时候关闭这个 channel，然后在 <code>select</code> 中监听这个 done channel，一旦关闭就退出 Goroutine。</li>
+<li><strong>多路网络请求：</strong> 同时等待多个网络请求的响应，哪个先返回就先处理哪个。</li>
+</ul>
+<h3 id="1-超时控制">1. 超时控制</h3>
+<p><strong>场景：</strong> 假设我们正在尝试从一个外部服务获取数据，但这个服务有时响应很慢或者没有响应。我们不希望程序一直等待下去，而是希望在一定时间后放弃并进行其他处理。</p>
+<p><strong>实现方式：</strong> 在 <code>select</code> 语句中加入一个 <code>time.After(timeout)</code> 的 <code>case</code>。<code>time.After(timeout)</code> 会返回一个在 <code>timeout</code> 时间后会收到一个 <code>time.Time</code> 值的 channel。</p>
+<p><strong>示例代码：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fetchData</span><span class="params">(ch <span class="keyword">chan</span> <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 模拟耗时操作</span></span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line">	ch &lt;- <span class="string">&quot;来自外部服务的数据&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	result := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">string</span>, <span class="number">1</span>) <span class="comment">// 使用带缓冲的 channel，防止 Goroutine 阻塞</span></span><br><span class="line">	<span class="keyword">go</span> fetchData(result)</span><br><span class="line"></span><br><span class="line">	timeout := <span class="number">1</span> * time.Second</span><br><span class="line"></span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> data := &lt;-result:</span><br><span class="line">		fmt.Println(<span class="string">&quot;成功获取到数据:&quot;</span>, data)</span><br><span class="line">	<span class="keyword">case</span> &lt;-time.After(timeout):</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求超时，放弃等待。&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;程序继续执行...&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解释：</strong></p>
+<ol>
+<li><code>fetchData</code> 函数模拟了一个需要 2 秒才能完成的操作，并将结果发送到 <code>result</code> channel。</li>
+<li>在 <code>main</code> 函数中，我们启动了一个 Goroutine 来执行 <code>fetchData</code>。</li>
+<li>我们设置了一个 <code>timeout</code> 为 1 秒。</li>
+<li><code>select</code> 语句同时监听 <code>result</code> channel 和 <code>time.After(timeout)</code> 返回的 channel。</li>
+<li>如果 <code>fetchData</code> 在 1 秒内完成，我们会从 <code>result</code> 接收到数据并打印。</li>
+<li>如果超过 1 秒后，<code>time.After(timeout)</code> 返回的 channel 会收到一个值，<code>case &lt;-time.After(timeout):</code> 就会被选中，我们打印 “请求超时，放弃等待。”。</li>
+</ol>
+<p><strong>运行结果（可能）：</strong></p>
+<p>由于 <code>fetchData</code> 需要 2 秒，而超时时间是 1 秒，所以很可能会输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">请求超时，放弃等待。</span><br><span class="line">程序继续执行...</span><br></pre></td></tr></table></figure>
+<p>如果你将 <code>time.Sleep(2 * time.Second)</code> 改为一个小于 1 秒的值，你就会看到成功获取数据的输出。</p>
+<h3 id="2-取消操作">2. 取消操作</h3>
+<p><strong>场景：</strong> 有时我们需要在某个操作进行到一半的时候取消它，例如用户关闭了一个页面，我们不再需要等待后台任务完成。</p>
+<p><strong>实现方式：</strong> 使用一个 “done” channel。当需要取消操作时，关闭这个 done channel。在执行任务的 Goroutine 中，使用 <code>select</code> 监听这个 done channel。一旦 done channel 被关闭，Goroutine 就可以清理资源并退出。</p>
+<p><strong>示例代码：</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(done &lt;-<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; ; i++ &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-done:</span><br><span class="line">			fmt.Println(<span class="string">&quot;工作者收到取消信号，退出。&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">default</span>:</span><br><span class="line">			fmt.Printf(<span class="string">&quot;工作者正在努力工作... (%d)\n&quot;</span>, i)</span><br><span class="line">			time.Sleep(<span class="number">500</span> * time.Millisecond)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	done := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">struct</span>&#123;&#125;)</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;启动工作者...&quot;</span>)</span><br><span class="line">	<span class="keyword">go</span> worker(done)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟一段时间后需要取消工作者</span></span><br><span class="line">	time.Sleep(<span class="number">2</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;发送取消信号...&quot;</span>)</span><br><span class="line">	<span class="built_in">close</span>(done) <span class="comment">// 关闭 done channel 通知 worker 停止</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 等待一段时间，确保 worker 有机会退出</span></span><br><span class="line">	time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;主程序结束。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码解释：</strong></p>
+<ol>
+<li><code>worker</code> 函数在一个无限循环中模拟工作。</li>
+<li>它使用 <code>select</code> 同时监听 <code>done</code> channel 和默认情况。</li>
+<li>如果 <code>done</code> channel 接收到值（当它被关闭时，会一直可以接收到零值），则 <code>case &lt;-done:</code> 会被选中，worker 打印退出信息并返回。</li>
+<li><code>default</code> case 表示如果没有收到取消信号，worker 就继续工作一段时间。</li>
+<li>在 <code>main</code> 函数中，我们创建了一个 <code>done</code> channel 并启动了 <code>worker</code> Goroutine，并将 <code>done</code> channel 传递给它。</li>
+<li>主程序等待 2 秒后，通过 <code>close(done)</code> 关闭了 <code>done</code> channel，向 <code>worker</code> 发送取消信号。</li>
+<li><code>worker</code> 接收到信号后会退出。</li>
+</ol>
+<p><strong>运行结果（大致）：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">启动工作者...</span><br><span class="line">工作者正在努力工作... (0)</span><br><span class="line">工作者正在努力工作... (1)</span><br><span class="line">工作者正在努力工作... (2)</span><br><span class="line">工作者正在努力工作... (3)</span><br><span class="line">发送取消信号...</span><br><span class="line">工作者收到取消信号，退出。</span><br><span class="line">主程序结束。</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/25/go%E8%AF%AD%E8%A8%80%E4%B9%8BCLI%E6%A1%86%E6%9E%B6cobra/" rel="prev" title="go语言之CLI框架：cobra">
+                  <i class="fa fa-angle-left"></i> go语言之CLI框架：cobra
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/" rel="next" title="go语言之时间与并发">
+                  go语言之时间与并发 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

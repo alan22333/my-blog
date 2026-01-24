@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之接口指针误区 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="经典的初学者错误 *Interface">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之接口指针误区">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E6%8C%87%E9%92%88%E8%AF%AF%E5%8C%BA/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="经典的初学者错误 *Interface">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-05T01:00:13.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.058Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E6%8C%87%E9%92%88%E8%AF%AF%E5%8C%BA/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E6%8C%87%E9%92%88%E8%AF%AF%E5%8C%BA/","path":"2025/07/05/Go语言之接口指针误区/","title":"Go语言之接口指针误区"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E6%8C%87%E9%92%88%E8%AF%AF%E5%8C%BA/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%A7%A0-Go%E8%AF%AD%E8%A8%80%E6%8E%A5%E5%8F%A3%E8%AF%AF%E5%8C%BA%E8%A7%A3%E6%9E%90%EF%BC%9A%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E8%83%BD%E4%BD%BF%E7%94%A8-Interface%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">🧠 Go语言接口误区解析：为什么不能使用 []*Interface？</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%9D-%E5%89%8D%E8%A8%80"><span class="nav-number">1.1.</span> <span class="nav-text">📝 前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9D%8C-%E9%94%99%E8%AF%AF%E7%A4%BA%E4%BE%8B%EF%BC%9A-Interface-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">❌ 错误示例：*Interface 是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%98%B5-%E5%8E%9F%E5%9B%A0%E8%A7%A3%E6%9E%90"><span class="nav-number">1.2.1.</span> <span class="nav-text">😵 原因解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E6%AD%A3%E7%A1%AE%E5%81%9A%E6%B3%95%EF%BC%9A%E6%8E%A5%E5%8F%A3%E6%98%AF%E5%BC%95%E7%94%A8%E7%B1%BB%E5%9E%8B%EF%BC%8C%E7%9B%B4%E6%8E%A5%E7%94%A8-MyInterface"><span class="nav-number">1.3.</span> <span class="nav-text">✅ 正确做法：接口是引用类型，直接用 []MyInterface</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%A6-%E5%BB%B6%E4%BC%B8%E7%9F%A5%E8%AF%86%EF%BC%9A%E7%BB%93%E6%9E%84%E4%BD%93-vs-%E6%8C%87%E9%92%88%E6%8E%A5%E6%94%B6%E8%80%85%E5%AE%9E%E7%8E%B0%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.4.</span> <span class="nav-text">📦 延伸知识：结构体 vs 指针接收者实现接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">1.4.1.</span> <span class="nav-text">总结：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%92%A1-%E5%AE%9E%E6%88%98%E5%BB%BA%E8%AE%AE"><span class="nav-number">1.5.</span> <span class="nav-text">💡 实战建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%BE-%E5%B0%8F%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">🧾 小结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%8E%A5%E5%8F%A3%E6%8C%87%E9%92%88%E8%AF%AF%E5%8C%BA/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之接口指针误区 | Hello there! I'm alan">
+      <meta itemprop="description" content="经典的初学者错误 *Interface">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之接口指针误区
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-05 09:00:13" itemprop="dateCreated datePublished" datetime="2025-07-05T09:00:13+08:00">2025-07-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">经典的初学者错误 *Interface</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="🧠-Go语言接口误区解析：为什么不能使用-Interface？">🧠 Go语言接口误区解析：为什么不能使用 <code>[]*Interface</code>？</h1>
+<h2 id="📝-前言">📝 前言</h2>
+<p>在 Go 语言中，接口是实现“面向抽象编程”的关键工具。很多初学者在使用接口切片时会犯一个<strong>常见错误</strong>：将接口类型声明为指针切片 <code>[]*Interface</code>。一旦这样写，Go 编译器就会报出如下错误：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cannot use x (variable of type *MyStruct) as *MyInterface value in argument to append:</span><br><span class="line">*MyStruct does not implement *MyInterface (type *MyInterface is pointer to interface, not interface)</span><br></pre></td></tr></table></figure>
+<p>这到底是为什么？本篇文章将从实战场景出发，深入剖析背后的机制，并给出正确写法。</p>
+<hr>
+<h2 id="❌-错误示例：-Interface-是什么？">❌ 错误示例：*Interface 是什么？</h2>
+<p>假设我们想维护一个接口类型的切片，并将实现类注册进去。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyInterface <span class="keyword">interface</span> &#123;</span><br><span class="line">    DoWork()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> System <span class="keyword">struct</span> &#123;</span><br><span class="line">    Workers []*MyInterface  <span class="comment">// ❌ 错误：不应该是指针接口</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实现这个接口的结构体如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Worker <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *Worker)</span></span> DoWork() &#123;</span><br><span class="line">    fmt.Println(w.Name, <span class="string">&quot;is working&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后我们想注册一个 <code>*Worker</code> 实例：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sys := &amp;System&#123;&#125;</span><br><span class="line">worker := &amp;Worker&#123;Name: <span class="string">&quot;Alice&quot;</span>&#125;</span><br><span class="line">sys.Workers = <span class="built_in">append</span>(sys.Workers, worker)</span><br></pre></td></tr></table></figure>
+<p>结果编译器报错：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cannot use worker (<span class="keyword">type</span> *Worker) as <span class="keyword">type</span> *MyInterface in <span class="built_in">append</span></span><br></pre></td></tr></table></figure>
+<h3 id="😵-原因解析">😵 原因解析</h3>
+<blockquote>
+<p><code>*MyInterface</code> 是“<strong>指向接口的指针</strong>”，但在 Go 中接口本身已经是一个引用类型！</p>
+</blockquote>
+<p>换句话说：</p>
+<ul>
+<li>
+<p><code>MyInterface</code> 是接口 ✅</p>
+</li>
+<li>
+<p><code>*MyInterface</code> 是“指向接口的指针” ❌ —— Go 根本不允许这种类型的存在！</p>
+</li>
+</ul>
+<hr>
+<h2 id="✅-正确做法：接口是引用类型，直接用-MyInterface">✅ 正确做法：接口是引用类型，直接用 <code>[]MyInterface</code></h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> System <span class="keyword">struct</span> &#123;</span><br><span class="line">    Workers []MyInterface  <span class="comment">// ✅ 正确：接口本身是引用类型</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样我们就可以放心地将实现接口的结构体指针加入进去：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sys := &amp;System&#123;&#125;</span><br><span class="line">worker := &amp;Worker&#123;Name: <span class="string">&quot;Alice&quot;</span>&#125;</span><br><span class="line">sys.Workers = <span class="built_in">append</span>(sys.Workers, worker)  <span class="comment">// ✅ 正常</span></span><br></pre></td></tr></table></figure>
+<p>因为 <code>*Worker</code> 实现了 <code>MyInterface</code>，可以自动被赋值给 <code>MyInterface</code> 类型。</p>
+<hr>
+<h2 id="📦-延伸知识：结构体-vs-指针接收者实现接口">📦 延伸知识：结构体 vs 指针接收者实现接口</h2>
+<p>在 Go 中，<strong>只有结构体或其指针的“方法集”完整实现接口的方法集，才能认为实现了接口</strong>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> MyInterface <span class="keyword">interface</span> &#123;</span><br><span class="line">    DoWork()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Worker <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w Worker)</span></span> DoWork() &#123; ... &#125;      <span class="comment">// 实现了接口</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *Worker)</span></span> DoWork() &#123; ... &#125;     <span class="comment">// 也可以实现接口（常见）</span></span><br></pre></td></tr></table></figure>
+<h3 id="总结：">总结：</h3>
+<table>
+<thead>
+<tr>
+<th>方法定义</th>
+<th>能否让 <code>Worker</code> 实现接口</th>
+<th>能否让 <code>*Worker</code> 实现接口</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>(w Worker)</code></td>
+<td>✅ 是</td>
+<td>✅ 是（值自动取地址）</td>
+</tr>
+<tr>
+<td><code>(*w Worker)</code></td>
+<td>❌ 否（值不能用）</td>
+<td>✅ 是</td>
+</tr>
+</tbody>
+</table>
+<p>建议：<strong>接口方法接收者多数使用 <code>*T</code>，以便避免值复制和保持一致性。</strong></p>
+<hr>
+<h2 id="💡-实战建议">💡 实战建议</h2>
+<ul>
+<li>
+<p>始终使用 <code>[]Interface</code>，不要使用 <code>[]*Interface</code></p>
+</li>
+<li>
+<p>实现接口的结构体通常使用指针接收者（<code>*T</code>）</p>
+</li>
+<li>
+<p>接口是引用类型，不要再取地址（<code>&amp;iface</code> 是没有意义的）</p>
+</li>
+<li>
+<p>若你持有的是多个类型实例，实现接口是最佳解耦方式</p>
+</li>
+</ul>
+<hr>
+<h2 id="🧾-小结">🧾 小结</h2>
+<table>
+<thead>
+<tr>
+<th>错误写法</th>
+<th>原因</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]*Interface</code></td>
+<td>Go 中接口本身就是引用类型，无需加 <code>*</code></td>
+</tr>
+<tr>
+<td><code>*Interface</code> 参数</td>
+<td>Go 不允许指针指向接口类型</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>正确写法</th>
+<th>场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[]Interface</code></td>
+<td>保持接口多态、模块解耦</td>
+</tr>
+<tr>
+<td><code>*Struct</code> 实现接口</td>
+<td>避免值复制，更灵活</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/02/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%98%A0%E5%B0%84/" rel="prev" title="Go语言之双线性映射">
+                  <i class="fa fa-angle-left"></i> Go语言之双线性映射
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/06/Go%E8%AF%AD%E8%A8%80%E4%B9%8Bnew%E5%85%B3%E9%94%AE%E5%AD%97/" rel="next" title="Go语言之new关键字">
+                  Go语言之new关键字 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

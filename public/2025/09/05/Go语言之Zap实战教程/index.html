@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之Zap实战教程 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Zap 日志框架与 Gin、Viper 和 Google Wire 相结合，构建一个功能完备、灵活且易于维护的日志系统">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之Zap实战教程">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/09/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8BZap%E5%AE%9E%E6%88%98%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Zap 日志框架与 Gin、Viper 和 Google Wire 相结合，构建一个功能完备、灵活且易于维护的日志系统">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-09-05T08:03:24.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.055Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/09/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8BZap%E5%AE%9E%E6%88%98%E6%95%99%E7%A8%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/09/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8BZap%E5%AE%9E%E6%88%98%E6%95%99%E7%A8%8B/","path":"2025/09/05/Go语言之Zap实战教程/","title":"Go语言之Zap实战教程"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/09/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8BZap%E5%AE%9E%E6%88%98%E6%95%99%E7%A8%8B/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Go-%E5%BA%94%E7%94%A8%E4%B8%AD%E7%9A%84-Zap-%E6%97%A5%E5%BF%97%E6%A1%86%E6%9E%B6%E5%AE%9E%E6%88%98%EF%BC%9AGin-Viper-Wire"><span class="nav-number">1.</span> <span class="nav-text">Go 应用中的 Zap 日志框架实战：Gin + Viper + Wire</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A0%B8%E5%BF%83%E8%AE%BE%E8%AE%A1%E7%90%86%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">1. 核心设计理念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%97%A5%E5%BF%97%E5%BA%93%E5%B0%81%E8%A3%85%EF%BC%9Apkg-logger-logger-go"><span class="nav-number">1.2.</span> <span class="nav-text">2. 日志库封装：pkg&#x2F;logger&#x2F;logger.go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="nav-number">1.2.1.</span> <span class="nav-text">代码解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86%EF%BC%9Aconfig-yaml-%E5%92%8C-configs-config-go"><span class="nav-number">1.3.</span> <span class="nav-text">3. 配置管理：config.yaml 和 configs&#x2F;config.go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#config-yaml"><span class="nav-number">1.3.1.</span> <span class="nav-text">config.yaml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#configs-config-go"><span class="nav-number">1.3.2.</span> <span class="nav-text">configs&#x2F;config.go</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5%EF%BC%9Acmd-wire-go-%E5%92%8C-cmd-main-go"><span class="nav-number">1.4.</span> <span class="nav-text">4. 依赖注入：cmd&#x2F;wire.go 和 cmd&#x2F;main.go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#cmd-wire-go"><span class="nav-number">1.4.1.</span> <span class="nav-text">cmd&#x2F;wire.go</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cmd-main-go"><span class="nav-number">1.4.2.</span> <span class="nav-text">cmd&#x2F;main.go</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-Gin-%E4%B8%AD%E9%97%B4%E4%BB%B6%EF%BC%9Ainternal-middleware-logger-go"><span class="nav-number">1.5.</span> <span class="nav-text">5. Gin 中间件：internal&#x2F;middleware&#x2F;logger.go</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90-2"><span class="nav-number">1.5.1.</span> <span class="nav-text">代码解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E6%B3%A8%E5%86%8C%E5%88%B0%E8%B7%AF%E7%94%B1%EF%BC%9Ainternal-router-router-go"><span class="nav-number">1.6.</span> <span class="nav-text">6. 注册到路由：internal&#x2F;router&#x2F;router.go</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/09/05/Go%E8%AF%AD%E8%A8%80%E4%B9%8BZap%E5%AE%9E%E6%88%98%E6%95%99%E7%A8%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之Zap实战教程 | Hello there! I'm alan">
+      <meta itemprop="description" content=" Zap 日志框架与 Gin、Viper 和 Google Wire 相结合，构建一个功能完备、灵活且易于维护的日志系统">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之Zap实战教程
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-09-05 16:03:24" itemprop="dateCreated datePublished" datetime="2025-09-05T16:03:24+08:00">2025-09-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description"> Zap 日志框架与 Gin、Viper 和 Google Wire 相结合，构建一个功能完备、灵活且易于维护的日志系统</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="Go-应用中的-Zap-日志框架实战：Gin-Viper-Wire">Go 应用中的 Zap 日志框架实战：Gin + Viper + Wire</h1>
+<p>在现代 Go Web 应用开发中，日志系统是不可或缺的一环。一个设计良好、功能强大的日志框架不仅能帮助我们快速定位和解决问题，还能在生产环境中提供关键的监控数据。</p>
+<p>我们将分步解析一个实际的项目案例，从日志库的封装、配置管理、依赖注入，到 Gin 中间件的应用，让你全面掌握 Zap 在生产环境中的最佳实践。</p>
+<h2 id="1-核心设计理念">1. 核心设计理念</h2>
+<p>在开始编码之前，我们先明确本次日志框架的核心设计目标：</p>
+<ul>
+<li><strong>封装与解耦</strong>：将 Zap 的初始化和配置逻辑封装在一个独立的包中，使其与其他业务逻辑解耦。</li>
+<li><strong>集中式配置</strong>：通过 Viper 从外部配置文件（<code>config.yaml</code>）加载所有日志配置，便于管理和修改。</li>
+<li><strong>依赖注入</strong>：利用 Google Wire 实现日志实例的依赖注入，确保 Logger 在应用生命周期中只被初始化一次，并能在任何需要的地方方便地获取和使用。</li>
+<li><strong>多输出与格式化</strong>：支持同时将日志输出到文件和控制台，并根据环境（开发/生产）选择不同的日志格式（彩色/JSON）。</li>
+<li><strong>安全与健壮</strong>：利用 <code>lumberjack</code> 实现日志文件的自动切割、压缩和清理，防止日志文件无限增长。</li>
+</ul>
+<h2 id="2-日志库封装：pkg-logger-logger-go">2. 日志库封装：<code>pkg/logger/logger.go</code></h2>
+<p><code>logger.go</code> 是整个日志系统的核心，它负责封装 Zap 的初始化逻辑，并对外提供简单易用的日志函数。</p>
+<h3 id="代码解析">代码解析</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> logger</span><br><span class="line"></span><br><span class="line"><span class="comment">// 全局日志实例：公共</span></span><br><span class="line"><span class="keyword">var</span> (</span><br><span class="line">	Logger *zap.Logger</span><br><span class="line">	Sugar  *zap.SugaredLogger</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Config 日志配置</span></span><br><span class="line"><span class="keyword">type</span> Config <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// ... (省略配置结构体定义)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 默认配置</span></span><br><span class="line"><span class="keyword">var</span> defaultConfig = Config&#123;</span><br><span class="line">	<span class="comment">// ... (省略默认配置)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewLogger 是一个依赖注入函数，返回Logger实例，用于wire依赖注入</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewLogger</span><span class="params">(config *configs.Config)</span></span> *zap.Logger &#123;</span><br><span class="line">	<span class="comment">// 将从Viper加载的配置转换为logger包的配置格式</span></span><br><span class="line">	loggerConfig := &amp;Config&#123;</span><br><span class="line">		Level:       config.Logger.Level,</span><br><span class="line">		FilePath:    config.Logger.FilePath,</span><br><span class="line">		Console:     config.Logger.Console,</span><br><span class="line">		Development: config.Logger.Development,</span><br><span class="line">		MaxSize:     config.Logger.MaxSize,</span><br><span class="line">		MaxAge:      config.Logger.MaxAge,</span><br><span class="line">		MaxBackups:  config.Logger.MaxBackups,</span><br><span class="line">		Compress:    config.Logger.Compress,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化日志</span></span><br><span class="line">	err := Init(loggerConfig)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="comment">// 初始化失败时使用默认配置再次尝试，确保应用能正常启动</span></span><br><span class="line">		log.Printf(<span class="string">&quot;Failed to initialize logger with config: %v, using default config&quot;</span>, err)</span><br><span class="line">		Init(<span class="literal">nil</span>) <span class="comment">// 使用默认配置</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> Logger</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Init 初始化日志</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(cfg *Config)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> cfg == <span class="literal">nil</span> &#123;</span><br><span class="line">		cfg = &amp;defaultConfig</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 确保日志目录存在</span></span><br><span class="line">	logDir := filepath.Dir(cfg.FilePath)</span><br><span class="line">	<span class="keyword">if</span> err := os.MkdirAll(logDir, <span class="number">0755</span>); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;创建日志目录失败: %w&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 解析日志级别</span></span><br><span class="line">	level := getLogLevel(cfg.Level)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建编码器配置</span></span><br><span class="line">	encoderConfig := getEncoderConfig(cfg.Development)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建Core，Zap的核心接口，用于组合不同的输出</span></span><br><span class="line">	<span class="keyword">var</span> cores []zapcore.Core</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 文件输出</span></span><br><span class="line">	fileWriter := getFileWriter(cfg)</span><br><span class="line">	fileCore := zapcore.NewCore(</span><br><span class="line">		zapcore.NewJSONEncoder(encoderConfig), <span class="comment">// 使用JSON格式编码</span></span><br><span class="line">		zapcore.AddSync(fileWriter),</span><br><span class="line">		level,</span><br><span class="line">	)</span><br><span class="line">	cores = <span class="built_in">append</span>(cores, fileCore)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 控制台输出</span></span><br><span class="line">	<span class="keyword">if</span> cfg.Console &#123;</span><br><span class="line">		consoleEncoder := zapcore.NewConsoleEncoder(encoderConfig)</span><br><span class="line">		consoleCore := zapcore.NewCore(</span><br><span class="line">			consoleEncoder,</span><br><span class="line">			zapcore.AddSync(os.Stdout),</span><br><span class="line">			level,</span><br><span class="line">		)</span><br><span class="line">		cores = <span class="built_in">append</span>(cores, consoleCore)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 使用zapcore.NewTee组合多个Core，实现多输出</span></span><br><span class="line">	core := zapcore.NewTee(cores...)</span><br><span class="line">	Logger = zap.New(core, getOptions(cfg.Development)...)</span><br><span class="line">	<span class="comment">// 创建SugaredLogger，提供更友好的格式化日志函数</span></span><br><span class="line">	Sugar = Logger.Sugar()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 替换全局Logger，方便在任何地方直接使用zap.L()</span></span><br><span class="line">	zap.ReplaceGlobals(Logger)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// getLogLevel 获取日志级别</span></span><br><span class="line"><span class="comment">// ... (省略代码)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// getEncoderConfig 获取编码器配置</span></span><br><span class="line"><span class="comment">// 根据Development模式决定日志格式</span></span><br><span class="line"><span class="comment">// ... (省略代码)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// timeEncoder 自定义时间编码器</span></span><br><span class="line"><span class="comment">// ... (省略代码)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// getFileWriter 获取文件写入器</span></span><br><span class="line"><span class="comment">// 结合lumberjack实现日志文件自动切割</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getFileWriter</span><span class="params">(cfg *Config)</span></span> zapcore.WriteSyncer &#123;</span><br><span class="line">	lumberJackLogger := &amp;lumberjack.Logger&#123;</span><br><span class="line">		Filename:   cfg.FilePath,</span><br><span class="line">		MaxSize:    cfg.MaxSize,</span><br><span class="line">		MaxBackups: cfg.MaxBackups,</span><br><span class="line">		MaxAge:     cfg.MaxAge,</span><br><span class="line">		Compress:   cfg.Compress,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> zapcore.AddSync(lumberJackLogger)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// getOptions 获取日志选项</span></span><br><span class="line"><span class="comment">// 添加调用者信息和跳过层级，确保日志能正确显示调用位置</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getOptions</span><span class="params">(development <span class="type">bool</span>)</span></span> []zap.Option &#123;</span><br><span class="line">	options := []zap.Option&#123;</span><br><span class="line">		zap.AddCaller(),      <span class="comment">// 记录调用文件和行号</span></span><br><span class="line">		zap.AddCallerSkip(<span class="number">1</span>), <span class="comment">// 跳过封装函数，显示调用方的真实位置</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> development &#123;</span><br><span class="line">		options = <span class="built_in">append</span>(options, zap.Development())</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> options</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Debug, Info, Warn, Error ...</span></span><br><span class="line"><span class="comment">// 对外封装的日志函数，方便直接调用</span></span><br><span class="line"><span class="comment">// ... (省略代码)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Sync 同步日志</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Sync</span><span class="params">()</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> Logger.Sync()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点解析：</strong></p>
+<ol>
+<li><strong><code>NewLogger</code> 函数</strong>：这个函数是专为 <strong>Google Wire</strong> 设计的。它接受一个配置对象，进行日志初始化，并返回一个 <code>*zap.Logger</code> 实例。Wire 会识别这个函数并将其作为依赖提供者。</li>
+<li><strong><code>Init</code> 函数</strong>：这是真正的日志初始化入口。它处理了配置的转换、日志目录的创建、Zap <code>Core</code> 的构建，以及最终 <code>Logger</code> 和 <code>SugaredLogger</code> 的创建。</li>
+<li><strong>多 Core 合并</strong>：<code>zapcore.NewTee</code> 是一个非常强大的功能。它允许我们将多个 <code>Core</code> 组合在一起，实现同时输出到多个目的地，如文件（<code>fileCore</code>）和控制台（<code>consoleCore</code>）。</li>
+<li><strong><code>lumberjack</code> 集成</strong>：通过 <code>lumberjack.Logger</code>，我们无需自己编写复杂的日志切割逻辑。它会自动处理日志文件的轮转、压缩和清理，大大简化了文件日志的管理。</li>
+<li><strong>自定义封装函数</strong>：提供 <code>Info</code>、<code>Errorf</code> 等一系列封装函数，让业务代码无需直接与 <code>zap.Logger</code> 或 <code>zap.SugaredLogger</code> 实例打交道，保持 API 的一致性。</li>
+</ol>
+<h2 id="3-配置管理：config-yaml-和-configs-config-go">3. 配置管理：<code>config.yaml</code> 和 <code>configs/config.go</code></h2>
+<p>通过 <strong>Viper</strong> 从配置文件加载配置，是实现日志系统灵活性的关键。</p>
+<h3 id="config-yaml"><code>config.yaml</code></h3>
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">logger:</span></span><br><span class="line">  <span class="attr">level:</span> <span class="string">&quot;info&quot;</span></span><br><span class="line">  <span class="attr">file_path:</span> <span class="string">&quot;logs/nexus.log&quot;</span></span><br><span class="line">  <span class="attr">console:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">development:</span> <span class="literal">true</span></span><br><span class="line">  <span class="attr">max_size:</span> <span class="number">100</span></span><br><span class="line">  <span class="attr">max_age:</span> <span class="number">30</span></span><br><span class="line">  <span class="attr">max_backups:</span> <span class="number">10</span></span><br><span class="line">  <span class="attr">compress:</span> <span class="literal">false</span></span><br></pre></td></tr></table></figure>
+<p>这份配置清晰地定义了日志的各项参数，业务开发人员可以根据环境轻松调整。</p>
+<h3 id="configs-config-go"><code>configs/config.go</code></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> configs</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;os&quot;</span></span><br><span class="line"></span><br><span class="line">	<span class="string">&quot;github.com/fsnotify/fsnotify&quot;</span></span><br><span class="line">	<span class="string">&quot;github.com/spf13/viper&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Config 包含了应用的所有配置</span></span><br><span class="line"><span class="keyword">type</span> Config <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// ... (其他配置)</span></span><br><span class="line">	Logger LoggerConfig <span class="string">`mapstructure:&quot;logger&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LoggerConfig 定义了日志配置</span></span><br><span class="line"><span class="keyword">type</span> LoggerConfig <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// ... (日志配置结构体定义)</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// LoadConfig 用于Wire依赖注入</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">LoadConfig</span><span class="params">()</span></span> (*Config, <span class="type">error</span>) &#123;</span><br><span class="line">	<span class="comment">// ... (加载配置逻辑)</span></span><br><span class="line">	workDir, err := os.Getwd()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	viper.SetConfigName(<span class="string">&quot;config&quot;</span>)</span><br><span class="line">	viper.SetConfigType(<span class="string">&quot;yaml&quot;</span>)</span><br><span class="line">	viper.AddConfigPath(workDir)</span><br><span class="line"></span><br><span class="line">	err = viper.ReadInConfig()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> config Config</span><br><span class="line">	err = viper.Unmarshal(&amp;config)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span>, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 监视配置文件变化，实现热更新</span></span><br><span class="line">	viper.WatchConfig()</span><br><span class="line">	viper.OnConfigChange(<span class="function"><span class="keyword">func</span><span class="params">(e fsnotify.Event)</span></span> &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;Config file changed:&quot;</span>, e.Name)</span><br><span class="line">		<span class="keyword">if</span> err := viper.Unmarshal(&amp;config); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;viper.Unmarshal on config change failed, err: %v&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;)</span><br><span class="line"></span><br><span class="line">	log.Println(<span class="string">&quot;Configuration loaded successfully!&quot;</span>)</span><br><span class="line">	<span class="keyword">return</span> &amp;config, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点解析：</strong></p>
+<ul>
+<li><strong><code>mapstructure</code> 标签</strong>：通过 <code>mapstructure</code> 标签，Viper 能够将配置文件中的 <code>logger</code> 部分正确映射到 <code>LoggerConfig</code> 结构体中。</li>
+<li><strong><code>LoadConfig</code> 函数</strong>：同样是为 Google Wire 准备的依赖提供者。它负责从 <code>config.yaml</code> 加载并解析配置，返回一个配置实例。</li>
+</ul>
+<h2 id="4-依赖注入：cmd-wire-go-和-cmd-main-go">4. 依赖注入：<code>cmd/wire.go</code> 和 <code>cmd/main.go</code></h2>
+<p><strong>Google Wire</strong> 在这里扮演了“胶水”的角色，它将配置、日志等各个模块连接在一起，构建出最终的应用实例。</p>
+<h3 id="cmd-wire-go"><code>cmd/wire.go</code></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//go:build wireinject</span></span><br><span class="line"><span class="comment">// +build wireinject</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... (导入包)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> App <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// ... (应用结构体)</span></span><br><span class="line">	Logger *zap.Logger</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewApp 构造函数</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewApp</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">	// ... (其他参数)</span></span></span><br><span class="line">	logger *zap.Logger,</span><br><span class="line">) *App &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;App&#123;</span><br><span class="line">		<span class="comment">// ... (初始化)</span></span><br><span class="line">		Logger: logger,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Wire Provider Set</span></span><br><span class="line"><span class="keyword">var</span> ProviderSet = wire.NewSet(</span><br><span class="line">	<span class="comment">// ... (其他依赖)</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// Config</span></span><br><span class="line">	configs.LoadConfig,</span><br><span class="line"></span><br><span class="line">	<span class="comment">// Logger</span></span><br><span class="line">	logger.NewLogger,</span><br><span class="line"></span><br><span class="line">	<span class="comment">// App</span></span><br><span class="line">	NewApp,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">InitializeApp</span><span class="params">()</span></span> (*App, <span class="type">error</span>) &#123;</span><br><span class="line">	wire.Build(ProviderSet)</span><br><span class="line">	<span class="keyword">return</span> &amp;App&#123;&#125;, <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点解析：</strong></p>
+<ul>
+<li><strong><code>ProviderSet</code></strong>：这是 Wire 的核心。我们将 <code>configs.LoadConfig</code> 和 <code>logger.NewLogger</code> 都添加到集合中。</li>
+<li><strong><code>wire.Build</code></strong>：当 Wire 运行时，它会分析 <code>NewApp</code> 的依赖（需要 <code>*configs.Config</code> 和 <code>*zap.Logger</code>），然后从 <code>ProviderSet</code> 中找到对应的提供者 (<code>LoadConfig</code> 和 <code>NewLogger</code>)，自动生成代码来构建 <code>App</code> 实例。</li>
+</ul>
+<h3 id="cmd-main-go"><code>cmd/main.go</code></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... (导入包)</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 通过Wire初始化整个应用</span></span><br><span class="line">	app, err := InitializeApp()</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Failed to initialize app: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 确保日志在程序退出时正确同步</span></span><br><span class="line">	<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> err := logger.Sync(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;Failed to sync logger: %v&quot;</span>, err)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 启动Web服务</span></span><br><span class="line">	router := app.Router.SetupRouter()</span><br><span class="line">	logger.Info(<span class="string">&quot;Server starting&quot;</span>, zap.Int(<span class="string">&quot;port&quot;</span>, app.Config.Server.Port))</span><br><span class="line"></span><br><span class="line">	<span class="comment">// ... (优雅关闭逻辑)</span></span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> os.Signal, <span class="number">1</span>)</span><br><span class="line">	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)</span><br><span class="line">	&lt;-quit</span><br><span class="line">	logger.Info(<span class="string">&quot;Shutting down server...&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点解析：</strong></p>
+<ul>
+<li><strong><code>InitializeApp()</code></strong>：在主函数中，我们只需要调用这个函数，即可获得一个完全初始化好的 <code>App</code> 实例，其中包含了配置和日志实例。</li>
+<li><strong><code>defer logger.Sync()</code></strong>：在程序退出前调用 <code>Sync()</code> 是一个好习惯。它会确保所有缓冲的日志都写入磁盘，防止日志丢失。</li>
+</ul>
+<h2 id="5-Gin-中间件：internal-middleware-logger-go">5. Gin 中间件：<code>internal/middleware/logger.go</code></h2>
+<p>在 Gin 中，我们可以创建两个中间件来处理日志和错误恢复，这极大地增强了应用的健壮性。</p>
+<h3 id="代码解析-2">代码解析</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> middleware</span><br><span class="line"></span><br><span class="line"><span class="comment">// ... (导入包)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// ZapLogger 是基于zap的日志中间件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ZapLogger</span><span class="params">()</span></span> gin.HandlerFunc &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		start := time.Now()</span><br><span class="line">		path := c.Request.URL.Path</span><br><span class="line">		query := c.Request.URL.RawQuery</span><br><span class="line">		c.Next()</span><br><span class="line"></span><br><span class="line">		end := time.Now()</span><br><span class="line">		latency := end.Sub(start)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> <span class="built_in">len</span>(c.Errors) &gt; <span class="number">0</span> &#123;</span><br><span class="line">			<span class="comment">// 记录包含错误的请求</span></span><br><span class="line">			<span class="keyword">for</span> _, e := <span class="keyword">range</span> c.Errors.Errors() &#123;</span><br><span class="line">				logger.Error(e)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 记录正常的请求</span></span><br><span class="line">			logger.Info(<span class="string">&quot;Request&quot;</span>,</span><br><span class="line">				zap.Int(<span class="string">&quot;status&quot;</span>, c.Writer.Status()),</span><br><span class="line">				zap.String(<span class="string">&quot;method&quot;</span>, c.Request.Method),</span><br><span class="line">				zap.String(<span class="string">&quot;path&quot;</span>, path),</span><br><span class="line">				zap.String(<span class="string">&quot;query&quot;</span>, query),</span><br><span class="line">				zap.String(<span class="string">&quot;ip&quot;</span>, c.ClientIP()),</span><br><span class="line">				zap.String(<span class="string">&quot;user-agent&quot;</span>, c.Request.UserAgent()),</span><br><span class="line">				zap.Duration(<span class="string">&quot;latency&quot;</span>, latency),</span><br><span class="line">			)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ZapRecovery 是基于zap的恢复中间件</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ZapRecovery</span><span class="params">()</span></span> gin.HandlerFunc &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">		<span class="keyword">defer</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">			<span class="keyword">if</span> err := <span class="built_in">recover</span>(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">				<span class="comment">// 记录堆栈信息</span></span><br><span class="line">				logger.Error(<span class="string">&quot;Panic recovered&quot;</span>,</span><br><span class="line">					zap.Any(<span class="string">&quot;error&quot;</span>, err),</span><br><span class="line">					zap.String(<span class="string">&quot;request&quot;</span>, c.Request.URL.Path),</span><br><span class="line">				)</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 返回500响应</span></span><br><span class="line">				c.AbortWithStatus(<span class="number">500</span>)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;()</span><br><span class="line">		c.Next()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>关键点解析：</strong></p>
+<ol>
+<li><strong><code>ZapLogger</code></strong>：该中间件在请求处理前后记录关键信息，如 HTTP 方法、路径、状态码、延迟等。通过 <code>c.Errors</code> 判断请求是否出错，并记录错误日志。</li>
+<li><strong><code>ZapRecovery</code></strong>：这是 Gin 官方 <code>Recovery</code> 中间件的 Zap 版本。它使用 <code>recover()</code> 捕获 <code>panic</code>，记录详细的错误日志（包括堆栈信息），并返回 500 状态码，避免应用崩溃。</li>
+</ol>
+<h2 id="6-注册到路由：internal-router-router-go">6. 注册到路由：<code>internal/router/router.go</code></h2>
+<p>最后，将中间件注册到 Gin 路由中，使其对所有请求生效。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">r := gin.New()</span><br><span class="line">r.Use(router.middlewareManager.ErrorHandler(),</span><br><span class="line">	router.middlewareManager.CORSMiddleware(),</span><br><span class="line">	router.middlewareManager.Logger(),</span><br><span class="line">	router.middlewareManager.Recovery())</span><br></pre></td></tr></table></figure>
+<p>通过这种方式，我们确保了每个请求都经过日志和恢复中间件的处理，为整个应用提供了统一、健壮的日志和错误处理能力。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/09/02/Go%E8%AF%AD%E8%A8%80%E4%B9%8BSwaggo/" rel="prev" title="Go语言之Swaggo">
+                  <i class="fa fa-angle-left"></i> Go语言之Swaggo
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/09/20/Python%E9%80%9F%E9%80%9A/" rel="next" title="Python速通">
+                  Python速通 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

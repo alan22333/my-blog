@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之RPC实践：push VS. pull | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="在本文中，我们使用两个示例学习一下go中的rpc的基本使用。这是一个非常经典的 RPC 应用场景：Master&#x2F;Worker，其中Master负责分发任务，Worker负责接收并执行任务，然后返回结果。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之RPC实践：push VS. pull">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="在本文中，我们使用两个示例学习一下go中的rpc的基本使用。这是一个非常经典的 RPC 应用场景：Master&#x2F;Worker，其中Master负责分发任务，Worker负责接收并执行任务，然后返回结果。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-11-16T10:14:44.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.051Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="考研, 技术, 生活">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/","path":"2025/11/16/Go语言之RPC实战/","title":"Go语言之RPC实践：push VS. pull"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Push%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">Push模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pull%E6%A8%A1%E5%BC%8F"><span class="nav-number">2.</span> <span class="nav-text">Pull模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%81%E6%9D%A5%E7%AE%A1%E7%90%86%E7%8A%B6%E6%80%81%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">谁来管理状态？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E4%B8%80%EF%BC%9A%E6%9C%8D%E5%8A%A1%E7%AB%AF%E7%AE%A1%E7%90%86%E7%8A%B6%E6%80%81%EF%BC%88Stateful-Server%EF%BC%89-%E6%88%91%E4%BB%AC%E7%9A%84-Pull-%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.1.</span> <span class="nav-text">模式一：服务端管理状态（Stateful Server）- 我们的 Pull 模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E7%82%B9%EF%BC%9A"><span class="nav-number">3.1.1.</span> <span class="nav-text">优点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9%EF%BC%9A"><span class="nav-number">3.1.2.</span> <span class="nav-text">缺点：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E4%BA%8C%EF%BC%9A%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%AE%A1%E7%90%86%E7%8A%B6%E6%80%81%EF%BC%88Stateless-Server%EF%BC%89-%E6%88%91%E4%BB%AC%E7%9A%84-Push-%E6%A8%A1%E5%BC%8F%EF%BC%88%E7%AC%AC%E4%B8%80%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">模式二：客户端管理状态（Stateless Server）- 我们的 Push 模式（第一个例子）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E7%82%B9%EF%BC%9A-2"><span class="nav-number">3.2.1.</span> <span class="nav-text">优点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9%EF%BC%9A-2"><span class="nav-number">3.2.2.</span> <span class="nav-text">缺点：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E4%B8%89%EF%BC%9A%E5%8F%8C%E6%96%B9%E7%AE%A1%E7%90%86%E7%8A%B6%E6%80%81%EF%BC%88Hybrid%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">模式三：双方管理状态（Hybrid）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E7%82%B9%EF%BC%9A-3"><span class="nav-number">3.3.1.</span> <span class="nav-text">优点：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9%EF%BC%9A-3"><span class="nav-number">3.3.2.</span> <span class="nav-text">缺点：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%93%E8%AE%BA%E4%B8%8E%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">3.4.</span> <span class="nav-text">结论与最佳实践</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%AE%9E%E6%88%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之RPC实践：push VS. pull | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之RPC实践：push VS. pull
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-11-16 18:14:44" itemprop="dateCreated datePublished" datetime="2025-11-16T18:14:44+08:00">2025-11-16</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>在本文中，我们使用两个示例学习一下go中的rpc的基本使用。这是一个非常经典的 RPC 应用场景：Master/Worker，其中Master负责分发任务，Worker负责接收并执行任务，然后返回结果。</p>
+<span id="more"></span>
+<h2 id="Push模式">Push模式</h2>
+<p>这个例子可以理解为：</p>
+<blockquote>
+<p>Master有很多的任务要做，但是不可能自己去做，他要检查自己有哪些Worker，然后并发调用Worker的RPC函数得到结果，仿佛是自己完成了所有工作。</p>
+</blockquote>
+<ol>
+<li>项目结构</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">rpc-master-worker/</span><br><span class="line">├── go.mod</span><br><span class="line">├── master/</span><br><span class="line">│   └── main.go</span><br><span class="line">├── shared/</span><br><span class="line">│   └── common.go</span><br><span class="line">└── worker/</span><br><span class="line">    └── main.go</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>共享数据结构（shared/common.go）</li>
+</ol>
+<p>为了让 Master 和 Worker 能够共享数据结构（如任务参数和回复），我们创建一个 shared 包。<br>
+这是 Master 和 Worker 之间的“契约”。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> shared</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务参数</span></span><br><span class="line"><span class="keyword">type</span> TaskArgs <span class="keyword">struct</span> &#123;</span><br><span class="line">	TaskID   <span class="type">int</span></span><br><span class="line">	TaskData <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务回复</span></span><br><span class="line"><span class="keyword">type</span> TaskReply <span class="keyword">struct</span> &#123;</span><br><span class="line">	WorkerID   <span class="type">int</span></span><br><span class="line">	ResultData <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个通用的服务名称，以便双方都能引用</span></span><br><span class="line"><span class="keyword">const</span> WorkerServiceName = <span class="string">&quot;WorkerService&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 辅助函数，用于格式化任务</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *TaskArgs)</span></span> String() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Task(ID: %d, Data: &#x27;%s&#x27;)&quot;</span>, t.TaskID, t.TaskData)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 辅助函数，用于格式化回复</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(r *TaskReply)</span></span> String() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Reply(Worker: %d, Result: &#x27;%s&#x27;)&quot;</span>, r.WorkerID, r.ResultData)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>服务端(worker/main.go)</li>
+</ol>
+<p>Worker 是这个例子中的 RPC 服务端。它注册一个 WorkerService，实现一个 DoTask 方法，然后在指定的端口上监听来自 Master 的连接。</p>
+<p>我们将使用 flag 包允许从命令行指定每个 Worker 的 ID 和端口，这样我们就可以轻松地启动多个 Worker。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;flag&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;net/rpc&quot;</span></span><br><span class="line">	<span class="string">&quot;rpc-master-worker/shared&quot;</span> <span class="comment">// 导入共享包</span></span><br><span class="line">	<span class="string">&quot;strings&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// WorkerService 是 RPC 服务端暴露的对象</span></span><br><span class="line"><span class="keyword">type</span> WorkerService <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// DoTask 是 RPC 调用的方法</span></span><br><span class="line"><span class="comment">// 必须遵循 net/rpc 规范: (args *ArgType, reply *ReplyType) error</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *WorkerService)</span></span> DoTask(args *shared.TaskArgs, reply *shared.TaskReply) <span class="type">error</span> &#123;</span><br><span class="line">	log.Printf(<span class="string">&quot;Worker %d: 接收到任务 %s\n&quot;</span>, w.ID, args)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟执行任务（例如：将字符串转换为大写）</span></span><br><span class="line">	result := strings.ToUpper(args.TaskData)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 填充回复</span></span><br><span class="line">	reply.WorkerID = w.ID</span><br><span class="line">	reply.ResultData = result</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Worker %d: 完成任务 %d, 结果: %s\n&quot;</span>, w.ID, args.TaskID, result)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 1. 使用 flag 允许从命令行传入 ID 和 端口</span></span><br><span class="line">	workerID := flag.Int(<span class="string">&quot;id&quot;</span>, <span class="number">0</span>, <span class="string">&quot;Worker ID&quot;</span>)</span><br><span class="line">	port := flag.String(<span class="string">&quot;port&quot;</span>, <span class="string">&quot;:9001&quot;</span>, <span class="string">&quot;Worker 监听的端口 (例如 :9001)&quot;</span>)</span><br><span class="line">	flag.Parse()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 创建 WorkerService 实例</span></span><br><span class="line">	workerService := &amp;WorkerService&#123;</span><br><span class="line">		ID: *workerID,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 注册 RPC 服务</span></span><br><span class="line">	err := rpc.RegisterName(shared.WorkerServiceName, workerService)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Worker %d: 注册服务失败: %v&quot;</span>, *workerID, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4. 在指定端口上启动 TCP 监听(其他的也差不多)</span></span><br><span class="line">	listener, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, *port)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;Worker %d: 监听 %s 失败: %v&quot;</span>, *workerID, *port, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> listener.Close()</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Worker %d: 正在 %s 上监听 RPC 请求...\n&quot;</span>, *workerID, *port)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 5. 接受并处理连接</span></span><br><span class="line">	<span class="comment">// rpc.Accept 会阻塞并等待新的连接，为每个连接启动一个 goroutine 处理</span></span><br><span class="line">	rpc.Accept(listener)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>客户端（master/main.go）</li>
+</ol>
+<p>Master 是这个例子中的 RPC 客户端。它持有一组任务和一个 Worker 地址列表（理解为我需要使用的服务们）。<br>
+它将并发地（使用 goroutine 和 WaitGroup）将任务分发给 Worker，并收集所有的结果。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net/rpc&quot;</span></span><br><span class="line">	<span class="string">&quot;rpc-master-worker/shared&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	log.Println(<span class="string">&quot;Master 启动...&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1. 定义 Worker 列表</span></span><br><span class="line">	<span class="comment">// 在生产环境中，这应该通过服务发现（如 Consul, Etcd）动态获取</span></span><br><span class="line">	workerAddresses := []<span class="type">string</span>&#123;</span><br><span class="line">		<span class="string">&quot;localhost:9001&quot;</span>,</span><br><span class="line">		<span class="string">&quot;localhost:9002&quot;</span>,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 定义任务列表</span></span><br><span class="line">	tasks := []*shared.TaskArgs&#123;</span><br><span class="line">		&#123;TaskID: <span class="number">1</span>, TaskData: <span class="string">&quot;hello world&quot;</span>&#125;,</span><br><span class="line">		&#123;TaskID: <span class="number">2</span>, TaskData: <span class="string">&quot;go rpc is simple&quot;</span>&#125;,</span><br><span class="line">		&#123;TaskID: <span class="number">3</span>, TaskData: <span class="string">&quot;learn by example&quot;</span>&#125;,</span><br><span class="line">		&#123;TaskID: <span class="number">4</span>, TaskData: <span class="string">&quot;concurrency is fun&quot;</span>&#125;,</span><br><span class="line">		&#123;TaskID: <span class="number">5</span>, TaskData: <span class="string">&quot;master worker pattern&quot;</span>&#125;,</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">var</span> wg sync.WaitGroup</span><br><span class="line">	numWorkers := <span class="built_in">len</span>(workerAddresses)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i, task := <span class="keyword">range</span> tasks &#123;</span><br><span class="line">		wg.Add(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 3. 选择一个 Worker (这里使用简单的轮询)</span></span><br><span class="line">		workerAddr := workerAddresses[i%numWorkers]</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 4. 为每个任务启动一个 goroutine</span></span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(task *shared.TaskArgs, addr <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">			<span class="keyword">defer</span> wg.Done()</span><br><span class="line"></span><br><span class="line">			<span class="comment">// a. 连接 Worker</span></span><br><span class="line">			client, err := rpc.Dial(<span class="string">&quot;tcp&quot;</span>, addr)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				log.Printf(<span class="string">&quot;Master: 连接 Worker %s 失败: %v&quot;</span>, addr, err)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">defer</span> client.Close()</span><br><span class="line"></span><br><span class="line">			<span class="comment">// b. 准备回复</span></span><br><span class="line">			<span class="keyword">var</span> reply shared.TaskReply</span><br><span class="line"></span><br><span class="line">			log.Printf(<span class="string">&quot;Master: 分发任务 %s 到 Worker %s\n&quot;</span>, task, addr)</span><br><span class="line"></span><br><span class="line">			<span class="comment">// c. 发起同步 RPC 调用</span></span><br><span class="line">			<span class="comment">// 我们也可以使用 client.Go() 进行异步调用，但这里在 goroutine 中，Call() 已经实现了并发</span></span><br><span class="line">			err = client.Call(shared.WorkerServiceName+<span class="string">&quot;.DoTask&quot;</span>, task, &amp;reply)</span><br><span class="line">			<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">				log.Printf(<span class="string">&quot;Master: 调用 Worker %s 失败: %v&quot;</span>, addr, err)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">			<span class="comment">// d. 打印结果</span></span><br><span class="line">			log.Printf(<span class="string">&quot;Master: 收到结果: %s\n&quot;</span>, &amp;reply)</span><br><span class="line"></span><br><span class="line">		&#125;(task, workerAddr)</span><br><span class="line">		</span><br><span class="line">		<span class="comment">// 稍微错开任务分发，便于观察</span></span><br><span class="line">		time.Sleep(<span class="number">100</span> * time.Millisecond)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 5. 等待所有任务完成</span></span><br><span class="line">	wg.Wait()</span><br><span class="line">	log.Println(<span class="string">&quot;Master: 所有任务已完成。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="6">
+<li>运行<br>
+打开 3 个终端窗口。</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> rpc-master-worker</span><br><span class="line">go run . -<span class="built_in">id</span>=1 -port=:9001</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> rpc-master-worker</span><br><span class="line">go run . -<span class="built_in">id</span>=2 -port=:9002</span><br></pre></td></tr></table></figure>
+<p>等待两个 Worker 都启动后，运行 Master：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> rpc-master-worker</span><br><span class="line">go run .</span><br></pre></td></tr></table></figure>
+<h2 id="Pull模式">Pull模式</h2>
+<p>这个例子可以理解为：</p>
+<blockquote>
+<p>Master有很多的任务要做，但是不可能自己去做，他的Worker会不停的询问他有没有待完成的工作，如果有请求+工作，Master就会把工作分发出去，否则阻塞工作进程。另外，我们再加入一点容错机制，例如超时机制（一个worker领取了任务但是没有及时完成，则任务会被重置等待新的Worker来领取）。</p>
+</blockquote>
+<ol>
+<li>项目结构</li>
+</ol>
+<p>和之前一样</p>
+<ol start="2">
+<li>共享数据结构（shared/common.go）</li>
+</ol>
+<p>依旧定义一些约定</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> shared</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 提供的服务名</span></span><br><span class="line"><span class="keyword">const</span> MasterServiceName = <span class="string">&quot;MasterService&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// MasterTaskTimeout 定义任务超时时间</span></span><br><span class="line"><span class="keyword">const</span> MasterTaskTimeout = <span class="number">3</span> * time.Second</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 1. Worker 请求任务 ---</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Worker 请求任务的参数</span></span><br><span class="line"><span class="keyword">type</span> RequestTaskArgs <span class="keyword">struct</span> &#123;</span><br><span class="line">	WorkerID <span class="type">string</span> <span class="comment">// Worker 用自己的ID来注册</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 返回给 Worker 的任务</span></span><br><span class="line"><span class="comment">// (注意：Task 本身也定义在这里)</span></span><br><span class="line"><span class="keyword">type</span> Task <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID   <span class="type">int</span></span><br><span class="line">	Data <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 返回任务的回复</span></span><br><span class="line"><span class="keyword">type</span> RequestTaskReply <span class="keyword">struct</span> &#123;</span><br><span class="line">	Task        *Task <span class="comment">// 要执行的任务 (如果为 nil，表示暂时没有)</span></span><br><span class="line">	NoMoreTasks <span class="type">bool</span>  <span class="comment">// 如果为 true，表示所有任务都完成了</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 2. Worker 提交结果 ---</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Worker 提交结果的参数</span></span><br><span class="line"><span class="keyword">type</span> SubmitTaskArgs <span class="keyword">struct</span> &#123;</span><br><span class="line">	WorkerID   <span class="type">string</span></span><br><span class="line">	TaskID     <span class="type">int</span></span><br><span class="line">	ResultData <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 对提交的回复（简单确认）</span></span><br><span class="line"><span class="keyword">type</span> SubmitTaskReply <span class="keyword">struct</span> &#123;</span><br><span class="line">	Acknowledged <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 辅助函数 ---</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Task)</span></span> String() <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Task(ID: %d, Data: &#x27;%s&#x27;)&quot;</span>, t.ID, t.Data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟任务执行</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Task)</span></span> Process() <span class="type">string</span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;... 正在处理任务 %d ...\n&quot;</span>, t.ID)</span><br><span class="line">	<span class="comment">// 模拟耗时工作</span></span><br><span class="line">	time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">	<span class="comment">// 简单的字符串处理</span></span><br><span class="line">	<span class="keyword">return</span> fmt.Sprintf(<span class="string">&quot;Processed data from task %d&quot;</span>, t.ID)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>客户端（Worker/main.go）</li>
+</ol>
+<p>Worker 现在是客户端。它在一个无限循环中工作(RPC注册/连接后)：请求 -&gt; 处理 -&gt; 提交。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;flag&quot;</span></span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;io&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net/rpc&quot;</span></span><br><span class="line">	<span class="string">&quot;rpc/shared&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Worker 结构（无状态，只持有配置）</span></span><br><span class="line"><span class="keyword">type</span> Worker <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID         <span class="type">string</span></span><br><span class="line">	MasterAddr <span class="type">string</span></span><br><span class="line">	client     *rpc.Client</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewWorker 创建 Worker</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewWorker</span><span class="params">(id, masterAddr <span class="type">string</span>)</span></span> *Worker &#123;</span><br><span class="line">	<span class="keyword">return</span> &amp;Worker&#123;</span><br><span class="line">		ID:         id,</span><br><span class="line">		MasterAddr: masterAddr,</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// connect 连接到 Master</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *Worker)</span></span> connect() <span class="type">error</span> &#123;</span><br><span class="line">	client, err := rpc.Dial(<span class="string">&quot;tcp&quot;</span>, w.MasterAddr)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;连接 Master (%s) 失败: %v&quot;</span>, w.MasterAddr, err)</span><br><span class="line">	&#125;</span><br><span class="line">	log.Printf(<span class="string">&quot;Worker %s: 已连接到 Master %s\n&quot;</span>, w.ID, w.MasterAddr)</span><br><span class="line">	w.client = client</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Run 开始工作循环</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(w *Worker)</span></span> Run() &#123;</span><br><span class="line">	<span class="keyword">if</span> err := w.connect(); err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(err.Error())</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> w.client.Close()</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Worker %s: 开始请求任务...\n&quot;</span>, w.ID)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="comment">// 1. 请求任务</span></span><br><span class="line">		reqArgs := &amp;shared.RequestTaskArgs&#123;WorkerID: w.ID&#125;</span><br><span class="line">		reply := &amp;shared.RequestTaskReply&#123;&#125;</span><br><span class="line"></span><br><span class="line">		err := w.client.Call(shared.MasterServiceName+<span class="string">&quot;.RequestTask&quot;</span>, reqArgs, &amp;reply)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// 如果连接断开 (io.EOF 或 rpc.ErrShutdown)，说明 Master 可能已关闭</span></span><br><span class="line">			<span class="keyword">if</span> err == io.EOF || err == rpc.ErrShutdown &#123;</span><br><span class="line">				log.Printf(<span class="string">&quot;Worker %s: 与 Master 的连接已断开。退出。\n&quot;</span>, w.ID)</span><br><span class="line">				<span class="keyword">return</span></span><br><span class="line">			&#125;</span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: 请求任务失败: %v. 正在重试...\n&quot;</span>, w.ID, err)</span><br><span class="line">			time.Sleep(<span class="number">1</span> * time.Second) <span class="comment">// 发生错误时稍等</span></span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 2. 检查 Master 是否已无任务</span></span><br><span class="line">		<span class="keyword">if</span> reply.NoMoreTasks &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: Master 通知所有任务已完成。退出。\n&quot;</span>, w.ID)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 3. 检查是否真的拿到了任务</span></span><br><span class="line">		<span class="keyword">if</span> reply.Task == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="comment">// 这种情况在本例中不应发生（因为 Master 队列是阻塞的），但作为健壮性检查</span></span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: 暂时没有任务，1秒后重试...\n&quot;</span>, w.ID)</span><br><span class="line">			time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 4. 拿到了任务，开始处理</span></span><br><span class="line">		task := reply.Task</span><br><span class="line">		log.Printf(<span class="string">&quot;Worker %s: 领到任务 %s\n&quot;</span>, w.ID, task)</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 模拟w01处理任务3 处理超时</span></span><br><span class="line">		<span class="keyword">if</span> task.ID == <span class="number">3</span> &amp;&amp; w.ID == <span class="string">&quot;w01&quot;</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: !!! 模拟处理任务 3 超时 !!!&quot;</span>, w.ID)</span><br><span class="line">			time.Sleep(shared.MasterTaskTimeout + <span class="number">2</span>*time.Second)</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 在自己的地址空间里执行任务</span></span><br><span class="line">		resultData := task.Process() <span class="comment">// 模拟执行</span></span><br><span class="line"></span><br><span class="line">		<span class="comment">// 5. 提交结果</span></span><br><span class="line">		submitArgs := &amp;shared.SubmitTaskArgs&#123;</span><br><span class="line">			WorkerID:   w.ID,</span><br><span class="line">			TaskID:     task.ID,</span><br><span class="line">			ResultData: resultData,</span><br><span class="line">		&#125;</span><br><span class="line">		submitReply := &amp;shared.SubmitTaskReply&#123;&#125;</span><br><span class="line"></span><br><span class="line">		err = w.client.Call(shared.MasterServiceName+<span class="string">&quot;.SubmitTaskResult&quot;</span>, submitArgs, &amp;submitReply)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: 提交任务 %d 结果失败: %v\n&quot;</span>, w.ID, task.ID, err)</span><br><span class="line">			<span class="comment">// (在实际应用中，这里需要重试策略)</span></span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> submitReply.Acknowledged &#123;</span><br><span class="line">			log.Printf(<span class="string">&quot;Worker %s: 成功提交任务 %d 结果\n&quot;</span>, w.ID, task.ID)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	workerID := flag.String(<span class="string">&quot;id&quot;</span>, <span class="string">&quot;worker-01&quot;</span>, <span class="string">&quot;Worker 的唯一ID&quot;</span>)</span><br><span class="line">	masterAddr := flag.String(<span class="string">&quot;master&quot;</span>, <span class="string">&quot;localhost:9000&quot;</span>, <span class="string">&quot;Master 的地址&quot;</span>)</span><br><span class="line">	flag.Parse()</span><br><span class="line"></span><br><span class="line">	worker := NewWorker(*workerID, *masterAddr)</span><br><span class="line">	worker.Run()</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>服务端（Master/main.go）</li>
+</ol>
+<p>Master 现在是有状态的服务端。它需要维护任务队列，并处理并发（因为多个 Worker 会同时请求）。我们将使用 Mutex (互斥锁) 来保护任务状态。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;log&quot;</span></span><br><span class="line">	<span class="string">&quot;net&quot;</span></span><br><span class="line">	<span class="string">&quot;net/rpc&quot;</span></span><br><span class="line">	<span class="string">&quot;rpc/shared&quot;</span></span><br><span class="line">	<span class="string">&quot;sync&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 任务状态</span></span><br><span class="line"><span class="keyword">type</span> TaskStatus <span class="type">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	StatusIdle       TaskStatus = <span class="number">0</span> <span class="comment">// 待分配</span></span><br><span class="line">	StatusInProgress TaskStatus = <span class="number">1</span> <span class="comment">// 已分配，处理中</span></span><br><span class="line">	StatusCompleted  TaskStatus = <span class="number">2</span> <span class="comment">// 已完成</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 内部维护的任务结构</span></span><br><span class="line"><span class="keyword">type</span> MasterTask <span class="keyword">struct</span> &#123;</span><br><span class="line">	Task      *shared.Task</span><br><span class="line">	Status    TaskStatus</span><br><span class="line">	WorkerID  <span class="type">string</span>    <span class="comment">// 哪个 Worker 正在处理</span></span><br><span class="line">	StartTime time.Time <span class="comment">// 开始时间（用于处理超时）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Master 服务</span></span><br><span class="line"><span class="keyword">type</span> Master <span class="keyword">struct</span> &#123;</span><br><span class="line">	mu             sync.Mutex</span><br><span class="line">	tasks          <span class="keyword">map</span>[<span class="type">int</span>]*MasterTask <span class="comment">// 所有任务的 &quot;数据库&quot;</span></span><br><span class="line">	taskQueue      <span class="keyword">chan</span> <span class="type">int</span>            <span class="comment">// 待分配的任务ID队列</span></span><br><span class="line">	totalTasks     <span class="type">int</span></span><br><span class="line">	completedTasks <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// NewMaster 创建并初始化 Master</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">NewMaster</span><span class="params">()</span></span> *Master &#123;</span><br><span class="line">	m := &amp;Master&#123;</span><br><span class="line">		tasks:     <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">int</span>]*MasterTask),</span><br><span class="line">		taskQueue: <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">int</span>, <span class="number">100</span>), <span class="comment">// 带缓冲的通道</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1. 初始化任务列表</span></span><br><span class="line">	m.initTasks()</span><br><span class="line">	m.totalTasks = <span class="built_in">len</span>(m.tasks)</span><br><span class="line">	log.Printf(<span class="string">&quot;Master 初始化完成，总共有 %d 个任务待处理。\n&quot;</span>, m.totalTasks)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 启动扫描器，定时检查有没有超时任务</span></span><br><span class="line">	<span class="keyword">go</span> m.runScanner()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> m</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Master)</span></span> runScanner() &#123;</span><br><span class="line">	ticker := time.NewTicker(<span class="number">1</span> * time.Second) <span class="comment">// 每秒扫描一次</span></span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">		m.mu.Lock()</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 检查是否所有任务都已完成</span></span><br><span class="line">		<span class="keyword">if</span> m.totalTasks == m.completedTasks &#123;</span><br><span class="line">			m.mu.Unlock()</span><br><span class="line">			<span class="keyword">return</span> <span class="comment">// 所有任务完成，扫描器退出</span></span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		log.Println(<span class="string">&quot;Scanner: 正在扫描超时任务...&quot;</span>)</span><br><span class="line"></span><br><span class="line">		<span class="keyword">var</span> tasksToRequeue []<span class="type">int</span></span><br><span class="line">		<span class="keyword">for</span> taskID, masterTask := <span class="keyword">range</span> m.tasks &#123;</span><br><span class="line">			<span class="comment">// 检查正在进行中 且 超时 的任务</span></span><br><span class="line">			<span class="keyword">if</span> masterTask.Status == StatusInProgress &amp;&amp;</span><br><span class="line">				time.Since(masterTask.StartTime) &gt; shared.MasterTaskTimeout &#123;</span><br><span class="line"></span><br><span class="line">				log.Printf(<span class="string">&quot;Master: 任务 %d 在 Worker %s 上已超时! 准备重新排队。&quot;</span>, taskID, masterTask.WorkerID)</span><br><span class="line"></span><br><span class="line">				<span class="comment">// 1. 重置任务状态</span></span><br><span class="line">				masterTask.Status = StatusIdle</span><br><span class="line">				masterTask.WorkerID = <span class="string">&quot;&quot;</span></span><br><span class="line">				tasksToRequeue = <span class="built_in">append</span>(tasksToRequeue, taskID)</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 【重要】在操作 channel 前解锁</span></span><br><span class="line">		m.mu.Unlock()</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 2. 将超时的任务ID重新放回队列</span></span><br><span class="line">		<span class="keyword">for</span> _, taskID := <span class="keyword">range</span> tasksToRequeue &#123;</span><br><span class="line">			m.taskQueue &lt;- taskID</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// initTasks 辅助函数：填充初始任务</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Master)</span></span> initTasks() &#123;</span><br><span class="line">	tasksData := []<span class="type">string</span>&#123;</span><br><span class="line">		<span class="string">&quot;task data 1&quot;</span>,</span><br><span class="line">		<span class="string">&quot;task data 2&quot;</span>,</span><br><span class="line">		<span class="string">&quot;task data 3&quot;</span>,</span><br><span class="line">		<span class="string">&quot;task data 4&quot;</span>,</span><br><span class="line">		<span class="string">&quot;task data 5&quot;</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i, data := <span class="keyword">range</span> tasksData &#123;</span><br><span class="line">		taskID := i + <span class="number">1</span></span><br><span class="line">		m.tasks[taskID] = &amp;MasterTask&#123;</span><br><span class="line">			Task:   &amp;shared.Task&#123;ID: taskID, Data: data&#125;,</span><br><span class="line">			Status: StatusIdle,</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 推入待办队列</span></span><br><span class="line">		m.taskQueue &lt;- taskID</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- RPC 方法 ---</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// RequestTask (Worker 调用此方法来请求任务)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Master)</span></span> RequestTask(args *shared.RequestTaskArgs, reply *shared.RequestTaskReply) <span class="type">error</span> &#123;</span><br><span class="line">	<span class="comment">// 1. 从任务队列中获取一个任务ID</span></span><br><span class="line">	<span class="comment">//    这是一个阻塞操作，如果没有任务，goroutine会在此等待</span></span><br><span class="line">	taskID, ok := &lt;-m.taskQueue</span><br><span class="line">	<span class="keyword">if</span> !ok &#123;</span><br><span class="line">		<span class="comment">// 如果通道被关闭，意味着所有任务都已完成</span></span><br><span class="line">		reply.NoMoreTasks = <span class="literal">true</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 锁定状态，更新任务</span></span><br><span class="line">	m.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> m.mu.Unlock()</span><br><span class="line"></span><br><span class="line">	masterTask, exists := m.tasks[taskID]</span><br><span class="line">	<span class="keyword">if</span> !exists &#123;</span><br><span class="line">		<span class="comment">// 理论上不应该发生</span></span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;内部错误：任务ID %d 不存在&quot;</span>, taskID)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 分配任务</span></span><br><span class="line">	masterTask.Status = StatusInProgress</span><br><span class="line">	masterTask.WorkerID = args.WorkerID</span><br><span class="line">	masterTask.StartTime = time.Now()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 4. 填充回复</span></span><br><span class="line">	reply.Task = masterTask.Task</span><br><span class="line">	reply.NoMoreTasks = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Master: 分配任务 %d 给 Worker %s\n&quot;</span>, taskID, args.WorkerID)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// SubmitTaskResult (Worker 调用此方法来提交结果)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(m *Master)</span></span> SubmitTaskResult(args *shared.SubmitTaskArgs, reply *shared.SubmitTaskReply) <span class="type">error</span> &#123;</span><br><span class="line">	m.mu.Lock()</span><br><span class="line">	<span class="keyword">defer</span> m.mu.Unlock()</span><br><span class="line"></span><br><span class="line">	taskID := args.TaskID</span><br><span class="line">	masterTask, exists := m.tasks[taskID]</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1. 验证</span></span><br><span class="line">	<span class="keyword">if</span> !exists &#123;</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;任务 %d 不存在&quot;</span>, taskID)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 情况1: 已经超时了，但尚未被分配出去（来迟半步）</span></span><br><span class="line">	<span class="keyword">if</span> masterTask.Status == StatusIdle &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;Master: 收到任务 %d 的【过时】提交 (来自 %s)，任务已超时并正在等待重新分配。忽略。&quot;</span>,</span><br><span class="line">			taskID, args.WorkerID)</span><br><span class="line">		reply.Acknowledged = <span class="literal">true</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 情况2: 已经超时了，并且分配给了其他worker，且正在处理（来迟一步）</span></span><br><span class="line">	<span class="keyword">if</span> masterTask.Status == StatusInProgress &amp;&amp; masterTask.WorkerID != args.WorkerID &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;Master: 收到 Worker %s 对任务 %d 的【过时】提交 (任务现分配给 %s)。忽略此结果。&quot;</span>,</span><br><span class="line">			args.WorkerID, taskID, masterTask.WorkerID)</span><br><span class="line">		reply.Acknowledged = <span class="literal">true</span> <span class="comment">// 仍然告诉它 &quot;收到了&quot;，但我们不做处理</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 情况3: 已经超时了，并且分配给了其他worker，且已经完成（来迟两步）</span></span><br><span class="line">	<span class="keyword">if</span> masterTask.Status == StatusCompleted &#123;</span><br><span class="line">		log.Printf(<span class="string">&quot;Master: 收到任务 %d 的【重复】提交 (来自 %s)，任务已由 %s 完成。忽略。&quot;</span>,</span><br><span class="line">			taskID, args.WorkerID, masterTask.WorkerID)</span><br><span class="line">		reply.Acknowledged = <span class="literal">true</span></span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 通过验证，说明是一个及时的提交</span></span><br><span class="line">	<span class="comment">// 2. 更新状态</span></span><br><span class="line">	masterTask.Status = StatusCompleted</span><br><span class="line">	masterTask.WorkerID = args.WorkerID <span class="comment">// 记录最后由谁完成</span></span><br><span class="line">	m.completedTasks++</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Master: 收到 Worker %s 对任务 %d 的结果: &#x27;%s&#x27;\n&quot;</span>, args.WorkerID, taskID, args.ResultData)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 检查是否所有任务都已完成</span></span><br><span class="line">	<span class="keyword">if</span> m.completedTasks == m.totalTasks &#123;</span><br><span class="line">		log.Println(<span class="string">&quot;--- 所有任务已完成！即将关闭任务队列。 ---&quot;</span>)</span><br><span class="line">		<span class="comment">// 关闭任务队列，这将导致所有阻塞在 &lt;-m.taskQueue 上的 Worker 收到 !ok</span></span><br><span class="line">		<span class="built_in">close</span>(m.taskQueue)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	reply.Acknowledged = <span class="literal">true</span></span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// --- 主程序 ---</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	master := NewMaster()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 1. 注册 MasterService</span></span><br><span class="line">	err := rpc.RegisterName(shared.MasterServiceName, master)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;注册 Master 服务失败: %v&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 2. 监听端口</span></span><br><span class="line">	port := <span class="string">&quot;:9000&quot;</span></span><br><span class="line">	listener, err := net.Listen(<span class="string">&quot;tcp&quot;</span>, port)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Fatalf(<span class="string">&quot;监听 %s 失败: %v&quot;</span>, port, err)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">defer</span> listener.Close()</span><br><span class="line"></span><br><span class="line">	log.Printf(<span class="string">&quot;Master 服务端正在 %s 上监听...&quot;</span>, port)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 3. 接受连接</span></span><br><span class="line">	rpc.Accept(listener)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="谁来管理状态？">谁来管理状态？</h2>
+<p>这是一个经典问题。答案是：“尽可能地将状态推给服务端（接收方），让客户端保持无状态。”</p>
+<p>我们来分析不同的模式：</p>
+<h3 id="模式一：服务端管理状态（Stateful-Server）-我们的-Pull-模式">模式一：服务端管理状态（Stateful Server）- 我们的 Pull 模式</h3>
+<p>谁管理？ 接收方（Master）。</p>
+<p>状态：Master 维护着所有任务的完整状态（空闲、处理中、已完成）、哪个 Worker 在处理、什么时候开始的。</p>
+<p>客户端（Worker）：完全无状态。它不记得自己做过什么，它只知道“请求 -&gt; 执行 -&gt; 提交”。如果一个 Worker 崩溃重启了，它会像一个新 Worker 一样简单地重新加入工作池，开始请求任务。</p>
+<p>实例：</p>
+<p>我们的 Master/Worker：这是最佳实践。</p>
+<p>数据库：数据库（服务端）管理所有数据状态，客户端只是发出 CRUD 请求。</p>
+<p>Web Sessions (服务端存储)：用户登录后，服务器创建一个 Session ID，并将用户信息（如购物车）存储在服务器的内存或 Redis 中。</p>
+<h4 id="优点：">优点：</h4>
+<ul>
+<li>
+<p>客户端简单、健壮：客户端（Worker）可以随意启停、崩溃、扩展，对系统整体状态没有影响（除了短暂的劳动力损失）。</p>
+</li>
+<li>
+<p>逻辑集中：所有复杂的业务逻辑（如超时、重试、任务去重）都集中在 Master 处，易于管理和维护。</p>
+</li>
+</ul>
+<h4 id="缺点：">缺点：</h4>
+<p>服务端成为瓶颈：Master 成了“单点”，所有人都来问它要任务，它的并发和容错能力（SPOF - Single Point of Failure）要求极高。</p>
+<h3 id="模式二：客户端管理状态（Stateless-Server）-我们的-Push-模式（第一个例子）">模式二：客户端管理状态（Stateless Server）- 我们的 Push 模式（第一个例子）</h3>
+<p>谁管理？ 请求方（Master）。</p>
+<p>状态：Master（请求方）维护着任务列表，以及 Worker 的地址列表。它需要自己决定“任务1给Worker A，任务2给Worker B”。</p>
+<p>服务端（Worker）：无状态。它不记得 Master，它只是被动地接收一个请求，处理，然后返回。</p>
+<p>实例：</p>
+<p>我们的第一个 Push 示例。</p>
+<p>RESTful API (如 JWT 认证)：</p>
+<p>Server (API) 是无状态的。它不记得你是否登录。</p>
+<p>Client (App) 必须管理自己的状态（即保存 JWT Token），并在每一次请求时，都主动在 Header 中带上 Authorization: Bearer <token> 来证明自己的身份。</p>
+<p>函数计算 (Serverless)：云函数本身是无状态的，它被调用时，需要调用方（或事件源）提供所有必需的上下文数据。</p>
+<h4 id="优点：-2">优点：</h4>
+<p>服务端（Worker）极易扩展：因为 Worker 是无状态的，你可以轻松地从1个扩展到1000个，放在负载均衡器后面即可。</p>
+<h4 id="缺点：-2">缺点：</h4>
+<p>客户端（Master）逻辑复杂：Master 不仅要管理任务，还要管理 Worker 的“健康状态”和“地址列表”（即服务发现）。如果 Worker A 挂了，Master 怎么知道？它如何重试分配给 A 的任务？这非常复杂。</p>
+<h3 id="模式三：双方管理状态（Hybrid）">模式三：双方管理状态（Hybrid）</h3>
+<p>谁管理？ 双方都管理一部分。</p>
+<p>实例：TCP 连接。</p>
+<p>Server 和 Client 都必须维护一个关于连接状态（ESTABLISHED, FIN_WAIT, CLOSE_WAIT…）的“状态机”。如果一方的状态机与另一方不同步（例如一方认为连接已关闭，另一方还认为已连接），通信就会失败。</p>
+<h4 id="优点：-3">优点：</h4>
+<p>适用于需要持久、双向通信的场景。</p>
+<h4 id="缺点：-3">缺点：</h4>
+<p>复杂度极高，状态同步是分布式系统中最难的问题之一。应尽量避免。</p>
+<h3 id="结论与最佳实践">结论与最佳实践</h3>
+<p>对于“任务分发”这个场景：</p>
+<p>最佳实践永远是“模式一”（服务端管理状态，即我们的 Pull 模式）。</p>
+<p>让 Master 成为“状态的唯一事实来源 (Single Source of Truth)”，Worker 则是“无状态的劳动力 (Stateless Workforce)”。</p>
+<p>这种架构的弹性是最好的：</p>
+<p>Worker 挂了？ 没关系，Master 会通过超时机制把任务交给别人。</p>
+<p>要加100个 Worker？ 没关系，启动它们，它们会自动去 Master 领活。</p>
+<p>Master 挂了？ ……这才是你唯一需要担心的问题。你需要为 Master 做高可用（HA）集群（例如使用 Raft/Etcd 来保证 Master 状态的一致性），但这是另一个更高级的话题了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/11/16/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRPC%E5%85%A5%E9%97%A8/" rel="prev" title="Go语言之RPC实践学习笔记">
+                  <i class="fa fa-angle-left"></i> Go语言之RPC实践学习笔记
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/11/21/BSMT/" rel="next" title="Binary Sparse Merkle Tree (BSMT)">
+                  Binary Sparse Merkle Tree (BSMT) <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

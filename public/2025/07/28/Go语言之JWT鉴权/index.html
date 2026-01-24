@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之JWT鉴权 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用环境间以一种简洁、安全的方式传递信息，常用于身份认证与授权">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之JWT鉴权">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用环境间以一种简洁、安全的方式传递信息，常用于身份认证与授权">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-28T08:23:45.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.051Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/","path":"2025/07/28/Go语言之JWT鉴权/","title":"Go语言之JWT鉴权"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-%E4%B8%80%E3%80%81JWT-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">🧠 一、JWT 是什么？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JWT-%E4%B8%89%E4%B8%AA%E7%BB%84%E6%88%90%E9%83%A8%E5%88%86%E8%A7%A3%E9%87%8A%EF%BC%9A"><span class="nav-number">1.1.</span> <span class="nav-text">JWT 三个组成部分解释：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%90-%E4%BA%8C%E3%80%81JWT-%E9%89%B4%E6%9D%83%E5%8E%9F%E7%90%86%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="nav-number">2.</span> <span class="nav-text">🔐 二、JWT 鉴权原理流程图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9A%80-%E4%B8%89%E3%80%81%E9%A1%B9%E7%9B%AE%E5%AE%9E%E7%8E%B0%EF%BC%9AGin-JWT-%E9%89%B4%E6%9D%83%E7%B3%BB%E7%BB%9F"><span class="nav-number">3.</span> <span class="nav-text">🚀 三、项目实现：Gin + JWT 鉴权系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%81-%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84"><span class="nav-number">4.</span> <span class="nav-text">📁 目录结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%A7-%E5%9B%9B%E3%80%81%E4%BB%A3%E7%A0%81%E8%AF%A6%E8%A7%A3%E4%B8%8E%E8%AE%B2%E8%A7%A3"><span class="nav-number">5.</span> <span class="nav-text">🔧 四、代码详解与讲解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%B8%AD%E9%97%B4%E4%BB%B6%E9%83%A8%E5%88%86%EF%BC%88middleware-jwt-go%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">（1）中间件部分（middleware&#x2F;jwt.go）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%A8%A1%E6%8B%9F%E7%94%A8%E6%88%B7%E6%95%B0%E6%8D%AE%E5%BA%93%EF%BC%88model-user-go%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">（2）模拟用户数据库（model&#x2F;user.go）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E7%BB%9F%E4%B8%80%E5%93%8D%E5%BA%94%E6%A0%BC%E5%BC%8F%EF%BC%88response-response-go%EF%BC%89"><span class="nav-number">5.3.</span> <span class="nav-text">（3）统一响应格式（response&#x2F;response.go）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E7%94%A8%E6%88%B7%E6%8E%A7%E5%88%B6%E5%99%A8%EF%BC%88controller-user-go%EF%BC%89"><span class="nav-number">5.4.</span> <span class="nav-text">（4）用户控制器（controller&#x2F;user.go）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%885%EF%BC%89%E9%A1%B9%E7%9B%AE%E5%85%A5%E5%8F%A3%EF%BC%88main-go%EF%BC%89"><span class="nav-number">5.5.</span> <span class="nav-text">（5）项目入口（main.go）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%AC-%E4%BA%94%E3%80%81Postman-%E6%B5%8B%E8%AF%95%E6%B5%81%E7%A8%8B"><span class="nav-number">6.</span> <span class="nav-text">🔬 五、Postman 测试流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E7%99%BB%E5%BD%95%E8%8E%B7%E5%8F%96Token"><span class="nav-number">6.1.</span> <span class="nav-text">第一步：登录获取Token</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E6%90%BA%E5%B8%A6Token%E8%AF%B7%E6%B1%82%E5%8F%97%E4%BF%9D%E6%8A%A4%E6%8E%A5%E5%8F%A3"><span class="nav-number">6.2.</span> <span class="nav-text">第二步：携带Token请求受保护接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E5%85%AD%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E6%B1%87%E6%80%BB"><span class="nav-number">7.</span> <span class="nav-text">✅ 六、最佳实践汇总</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之JWT鉴权 | Hello there! I'm alan">
+      <meta itemprop="description" content="JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用环境间以一种简洁、安全的方式传递信息，常用于身份认证与授权">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之JWT鉴权
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-28 16:23:45" itemprop="dateCreated datePublished" datetime="2025-07-28T16:23:45+08:00">2025-07-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用环境间以一种简洁、安全的方式传递信息，常用于身份认证与授权</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="🧠-一、JWT-是什么？">🧠 一、JWT 是什么？</h2>
+<p>JWT（JSON Web Token）是一种开放标准（RFC 7519），用于在网络应用环境间以一种简洁、安全的方式传递信息，常用于身份认证与授权。它是一段由三部分组成的字符串，如下格式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;Header&gt;.&lt;Payload&gt;.&lt;Signature&gt;</span><br></pre></td></tr></table></figure>
+<p>举个例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.</span><br><span class="line">eyJ1c2VyX2lkIjoxLCJleHAiOjE3MDA4NzA1OTEsImlzcyI6ImdvLWpzIn0.</span><br><span class="line">hQ4jkHVz4x5cpQZKlyFP2rRokM8HxM1HxRXa4GZkGaQ</span><br></pre></td></tr></table></figure>
+<h3 id="JWT-三个组成部分解释：">JWT 三个组成部分解释：</h3>
+<table>
+<thead>
+<tr>
+<th>部分</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Header</td>
+<td>元数据，如算法类型</td>
+<td>通常为 <code>&#123;&quot;alg&quot;: &quot;HS256&quot;, &quot;typ&quot;: &quot;JWT&quot;&#125;</code></td>
+</tr>
+<tr>
+<td>Payload</td>
+<td>有效负载</td>
+<td>包括自定义字段如 <code>user_id</code>、<code>role</code>、<code>exp</code></td>
+</tr>
+<tr>
+<td>Signature</td>
+<td>签名</td>
+<td>用密钥对前两部分加密生成，防篡改</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="🔐-二、JWT-鉴权原理流程图">🔐 二、JWT 鉴权原理流程图</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[客户端提交登录信息]</span><br><span class="line">          ↓</span><br><span class="line">[服务端验证成功，生成JWT]</span><br><span class="line">          ↓</span><br><span class="line">[客户端拿到JWT并保存在Header中]</span><br><span class="line">          ↓</span><br><span class="line">[每次请求携带Authorization: Bearer &lt;token&gt;]</span><br><span class="line">          ↓</span><br><span class="line">[服务端中间件校验Token有效性]</span><br><span class="line">          ↓</span><br><span class="line">[Token有效：提取user_id放入上下文，继续处理]</span><br><span class="line">       无效：拒绝请求</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🚀-三、项目实现：Gin-JWT-鉴权系统">🚀 三、项目实现：Gin + JWT 鉴权系统</h2>
+<p>我们将实现一个包括：</p>
+<ul>
+<li>登录接口（生成Token）</li>
+<li>JWT中间件（验证Token）</li>
+<li>受保护接口（需要Token访问）</li>
+<li>统一响应结构</li>
+<li>用户模型（模拟数据库）</li>
+</ul>
+<hr>
+<h2 id="📁-目录结构">📁 目录结构</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">go-jwt-auth/</span><br><span class="line">├── main.go</span><br><span class="line">├── controller/</span><br><span class="line">│   └── user.go</span><br><span class="line">├── middleware/</span><br><span class="line">│   └── jwt.go</span><br><span class="line">├── model/</span><br><span class="line">│   └── user.go</span><br><span class="line">├── response/</span><br><span class="line">│   └── response.go</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🔧-四、代码详解与讲解">🔧 四、代码详解与讲解</h2>
+<hr>
+<h3 id="（1）中间件部分（middleware-jwt-go）">（1）中间件部分（middleware/jwt.go）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> middleware</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;strings&quot;</span></span><br><span class="line">    <span class="string">&quot;time&quot;</span></span><br><span class="line">    <span class="string">&quot;alan-snippet/response&quot;</span></span><br><span class="line">    <span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">    <span class="string">&quot;github.com/golang-jwt/jwt/v4&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> jwtSecret = []<span class="type">byte</span>(<span class="string">&quot;a_very_secret_key&quot;</span>) <span class="comment">// 推荐从配置文件或环境变量读取</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// MyClaims 自定义 JWT 的 Payload 部分</span></span><br><span class="line"><span class="keyword">type</span> MyClaims <span class="keyword">struct</span> &#123;</span><br><span class="line">    UserID <span class="type">uint</span> <span class="string">`json:&quot;user_id&quot;`</span></span><br><span class="line">    jwt.RegisteredClaims</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// JWTAuth 中间件：拦截请求并验证 JWT 的合法性</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">JWTAuth</span><span class="params">()</span></span> gin.HandlerFunc &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="keyword">func</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">        authHeader := c.GetHeader(<span class="string">&quot;Authorization&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> authHeader == <span class="string">&quot;&quot;</span> &#123;</span><br><span class="line">            response.Unauthorized(c, <span class="string">&quot;缺少Authorization头&quot;</span>)</span><br><span class="line">            c.Abort()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        parts := strings.SplitN(authHeader, <span class="string">&quot; &quot;</span>, <span class="number">2</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(parts) != <span class="number">2</span> || parts[<span class="number">0</span>] != <span class="string">&quot;Bearer&quot;</span> &#123;</span><br><span class="line">            response.Unauthorized(c, <span class="string">&quot;Token格式应为Bearer &#123;token&#125;&quot;</span>)</span><br><span class="line">            c.Abort()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        tokenStr := parts[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解析Token，并将结果写入自定义claims结构体</span></span><br><span class="line">        token, err := jwt.ParseWithClaims(tokenStr, &amp;MyClaims&#123;&#125;, <span class="function"><span class="keyword">func</span><span class="params">(token *jwt.Token)</span></span> (<span class="keyword">interface</span>&#123;&#125;, <span class="type">error</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> jwtSecret, <span class="literal">nil</span></span><br><span class="line">        &#125;)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> err != <span class="literal">nil</span> || !token.Valid &#123;</span><br><span class="line">            response.Unauthorized(c, <span class="string">&quot;Token无效或过期&quot;</span>)</span><br><span class="line">            c.Abort()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 解析成功，提取UserID注入上下文供后续handler使用</span></span><br><span class="line">        claims, ok := token.Claims.(*MyClaims)</span><br><span class="line">        <span class="keyword">if</span> !ok &#123;</span><br><span class="line">            response.Unauthorized(c, <span class="string">&quot;Token解析失败&quot;</span>)</span><br><span class="line">            c.Abort()</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        c.Set(<span class="string">&quot;userID&quot;</span>, claims.UserID)</span><br><span class="line">        c.Next()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GenerateToken 登录成功后调用，用于生成JWT</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GenerateToken</span><span class="params">(userID <span class="type">uint</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">    claims := MyClaims&#123;</span><br><span class="line">        UserID: userID,</span><br><span class="line">        RegisteredClaims: jwt.RegisteredClaims&#123;</span><br><span class="line">            ExpiresAt: jwt.NewNumericDate(time.Now().Add(<span class="number">7</span> * <span class="number">24</span> * time.Hour)), <span class="comment">// 7天有效期</span></span><br><span class="line">            Issuer:    <span class="string">&quot;go-jwt-auth&quot;</span>, <span class="comment">// 签发人</span></span><br><span class="line">        &#125;,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)</span><br><span class="line">    <span class="keyword">return</span> token.SignedString(jwtSecret)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="（2）模拟用户数据库（model-user-go）">（2）模拟用户数据库（model/user.go）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    ID       <span class="type">uint</span></span><br><span class="line">    Username <span class="type">string</span></span><br><span class="line">    Password <span class="type">string</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> users = <span class="keyword">map</span>[<span class="type">string</span>]User&#123;</span><br><span class="line">    <span class="string">&quot;alan&quot;</span>: &#123;ID: <span class="number">1</span>, Username: <span class="string">&quot;alan&quot;</span>, Password: <span class="string">&quot;123456&quot;</span>&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetUserByUsername</span><span class="params">(username <span class="type">string</span>)</span></span> (User, <span class="type">bool</span>) &#123;</span><br><span class="line">    user, ok := users[username]</span><br><span class="line">    <span class="keyword">return</span> user, ok</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="（3）统一响应格式（response-response-go）">（3）统一响应格式（response/response.go）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> response</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">    CodeSuccess      = <span class="number">0</span></span><br><span class="line">    CodeUnauthorized = <span class="number">401</span></span><br><span class="line">    CodeBadRequest   = <span class="number">400</span></span><br><span class="line">    CodeServerError  = <span class="number">500</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Success</span><span class="params">(c *gin.Context, data <span class="keyword">interface</span>&#123;&#125;, msg <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">    c.JSON(http.StatusOK, gin.H&#123;</span><br><span class="line">        <span class="string">&quot;code&quot;</span>: CodeSuccess,</span><br><span class="line">        <span class="string">&quot;msg&quot;</span>:  msg,</span><br><span class="line">        <span class="string">&quot;data&quot;</span>: data,</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Fail</span><span class="params">(c *gin.Context, code <span class="type">int</span>, msg <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">    c.JSON(http.StatusOK, gin.H&#123;</span><br><span class="line">        <span class="string">&quot;code&quot;</span>: code,</span><br><span class="line">        <span class="string">&quot;msg&quot;</span>:  msg,</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Unauthorized</span><span class="params">(c *gin.Context, msg <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">    Fail(c, CodeUnauthorized, msg)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="（4）用户控制器（controller-user-go）">（4）用户控制器（controller/user.go）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> controller</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;alan-snippet/middleware&quot;</span></span><br><span class="line">    <span class="string">&quot;alan-snippet/model&quot;</span></span><br><span class="line">    <span class="string">&quot;alan-snippet/response&quot;</span></span><br><span class="line">    <span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Login 用户登录接口</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Login</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> req <span class="keyword">struct</span> &#123;</span><br><span class="line">        Username <span class="type">string</span> <span class="string">`json:&quot;username&quot;`</span></span><br><span class="line">        Password <span class="type">string</span> <span class="string">`json:&quot;password&quot;`</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err := c.ShouldBindJSON(&amp;req); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        response.Fail(c, response.CodeBadRequest, <span class="string">&quot;请求参数错误&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    user, exists := model.GetUserByUsername(req.Username)</span><br><span class="line">    <span class="keyword">if</span> !exists || user.Password != req.Password &#123;</span><br><span class="line">        response.Unauthorized(c, <span class="string">&quot;用户名或密码错误&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    token, err := middleware.GenerateToken(user.ID)</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        response.Fail(c, response.CodeServerError, <span class="string">&quot;Token生成失败&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    response.Success(c, gin.H&#123;<span class="string">&quot;token&quot;</span>: token&#125;, <span class="string">&quot;登录成功&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// GetProfile 获取当前用户信息（需JWT认证）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetProfile</span><span class="params">(c *gin.Context)</span></span> &#123;</span><br><span class="line">    userID := c.GetUint(<span class="string">&quot;userID&quot;</span>)</span><br><span class="line">    response.Success(c, gin.H&#123;</span><br><span class="line">        <span class="string">&quot;user_id&quot;</span>: userID,</span><br><span class="line">        <span class="string">&quot;nickname&quot;</span>: <span class="string">&quot;Alan&quot;</span>,</span><br><span class="line">    &#125;, <span class="string">&quot;用户信息获取成功&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="（5）项目入口（main-go）">（5）项目入口（main.go）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;alan-snippet/controller&quot;</span></span><br><span class="line">    <span class="string">&quot;alan-snippet/middleware&quot;</span></span><br><span class="line">    <span class="string">&quot;github.com/gin-gonic/gin&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    r := gin.Default()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 登录路由，无需鉴权</span></span><br><span class="line">    r.POST(<span class="string">&quot;/login&quot;</span>, controller.Login)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 受保护路由，使用JWTAuth中间件</span></span><br><span class="line">    api := r.Group(<span class="string">&quot;/api&quot;</span>, middleware.JWTAuth())</span><br><span class="line">    &#123;</span><br><span class="line">        api.GET(<span class="string">&quot;/profile&quot;</span>, controller.GetProfile)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    r.Run(<span class="string">&quot;:8080&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🔬-五、Postman-测试流程">🔬 五、Postman 测试流程</h2>
+<h3 id="第一步：登录获取Token">第一步：登录获取Token</h3>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">POST /login</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;username&quot;: &quot;alan&quot;,</span><br><span class="line">  &quot;password&quot;: &quot;123456&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;登录成功&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;data&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;token&quot;</span><span class="punctuation">:</span> <span class="string">&quot;eyJhbGciOiJIUzI1NiIsInR...&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="第二步：携带Token请求受保护接口">第二步：携带Token请求受保护接口</h3>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GET /api/profile</span><br><span class="line"><span class="attribute">Authorization</span><span class="punctuation">: </span>Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6...</span><br></pre></td></tr></table></figure>
+<p>响应：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;code&quot;</span><span class="punctuation">:</span> <span class="number">0</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span> <span class="string">&quot;用户信息获取成功&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;data&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;user_id&quot;</span><span class="punctuation">:</span> <span class="number">1</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;nickname&quot;</span><span class="punctuation">:</span> <span class="string">&quot;Alan&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="✅-六、最佳实践汇总">✅ 六、最佳实践汇总</h2>
+<table>
+<thead>
+<tr>
+<th>方面</th>
+<th>建议</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>密钥管理</td>
+<td>使用 <code>.env</code> / 配置文件管理，不要硬编码</td>
+</tr>
+<tr>
+<td>Token 有效期</td>
+<td>7天为推荐值，支持RefreshToken更安全</td>
+</tr>
+<tr>
+<td>Token 签名算法</td>
+<td>推荐 HS256 或 RSA</td>
+</tr>
+<tr>
+<td>用户存储</td>
+<td>使用数据库如 MySQL/PostgreSQL</td>
+</tr>
+<tr>
+<td>密码存储</td>
+<td>使用 <code>bcrypt</code> 加密存储密码</td>
+</tr>
+<tr>
+<td>权限控制</td>
+<td>可结合 <code>Casbin</code> 或 RBAC 模型</td>
+</tr>
+<tr>
+<td>日志记录</td>
+<td>每次认证/失败建议记录日志，便于追踪</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/" rel="prev" title="Go语言之调试利器Air">
+                  <i class="fa fa-angle-left"></i> Go语言之调试利器Air
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/08/22/Go%E8%AF%AD%E8%A8%80%E4%B9%8BWire%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" rel="next" title="Go语言之Wire依赖注入">
+                  Go语言之Wire依赖注入 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之RESTful Routing | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="REST，全称 Representational State Transfer（表述性状态转移）">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之RESTful Routing">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="REST，全称 Representational State Transfer（表述性状态转移）">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-06T06:05:21.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/","path":"2025/06/06/go语言之RESTful/","title":"go语言之RESTful Routing"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%F0%9F%93%8C-%E4%BB%80%E4%B9%88%E6%98%AF-RESTful-Routing%EF%BC%9F%E4%B8%80%E6%96%87%E7%90%86%E8%A7%A3-Web-%E6%9E%B6%E6%9E%84%E7%9A%84%E2%80%9C%E9%BB%84%E9%87%91%E5%87%86%E5%88%99%E2%80%9D"><span class="nav-number">1.</span> <span class="nav-text">📌 什么是 RESTful Routing？一文理解 Web 架构的“黄金准则”</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%A0-%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-REST%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">🧠 一、什么是 REST？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%AD-%E4%BA%8C%E3%80%81RESTful-Routing-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.2.</span> <span class="nav-text">🧭 二、RESTful Routing 是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8F%97%EF%B8%8F-%E4%B8%89%E3%80%81%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8-RESTful-Routing%EF%BC%9F"><span class="nav-number">1.3.</span> <span class="nav-text">🏗️ 三、为什么使用 RESTful Routing？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%AA-%E5%9B%9B%E3%80%81%E5%9C%A8-Go-%E4%B8%AD%E5%AE%9E%E7%8E%B0-RESTful-Routing"><span class="nav-number">1.4.</span> <span class="nav-text">🧪 四、在 Go 中实现 RESTful Routing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E4%BD%BF%E7%94%A8-gorilla-mux-%E6%9E%84%E5%BB%BA-RESTful-%E7%94%A8%E6%88%B7%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.4.1.</span> <span class="nav-text">示例：使用 gorilla&#x2F;mux 构建 RESTful 用户接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E4%BA%94%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%E6%80%BB%E7%BB%93"><span class="nav-number">1.5.</span> <span class="nav-text">✅ 五、最佳实践总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%9A-%E6%80%BB%E7%BB%93"><span class="nav-number">1.6.</span> <span class="nav-text">🔚 总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8BRESTful/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之RESTful Routing | Hello there! I'm alan">
+      <meta itemprop="description" content="REST，全称 Representational State Transfer（表述性状态转移）">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之RESTful Routing
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-06 14:05:21" itemprop="dateCreated datePublished" datetime="2025-06-06T14:05:21+08:00">2025-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">REST，全称 Representational State Transfer（表述性状态转移）</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="📌-什么是-RESTful-Routing？一文理解-Web-架构的“黄金准则”">📌 什么是 RESTful Routing？一文理解 Web 架构的“黄金准则”</h1>
+<p>在 Web 开发中，如果你想写出清晰、易维护、符合标准的 API，那么你一定绕不开一个重要的概念——<strong>RESTful 路由（RESTful Routing）</strong>。它是一种约定俗成的资源路径设计方式，能够让你的接口直观、统一、专业。</p>
+<hr>
+<h2 id="🧠-一、什么是-REST？">🧠 一、什么是 REST？</h2>
+<p>REST，全称 <strong>Representational State Transfer</strong>（表述性状态转移），是一种软件架构风格，强调：</p>
+<ul>
+<li>资源（Resource）导向；</li>
+<li>无状态通信；</li>
+<li>使用标准的 HTTP 方法（GET、POST、PUT、DELETE）进行操作；</li>
+<li>统一接口设计。</li>
+</ul>
+<p>简单理解：<strong>一切皆资源</strong>，你对资源的操作应该用标准的方法来表达。</p>
+<hr>
+<h2 id="🧭-二、RESTful-Routing-是什么？">🧭 二、RESTful Routing 是什么？</h2>
+<p><strong>RESTful Routing</strong> 就是指按照 REST 原则设计 Web 应用的 URL 路由结构，它把 URL 当作“资源名词”，而不是“动作动词”。</p>
+<table>
+<thead>
+<tr>
+<th>HTTP 方法</th>
+<th>路径</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td><code>/users</code></td>
+<td>获取用户列表</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/users/42</code></td>
+<td>获取 id 为 42 的用户</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/users</code></td>
+<td>创建一个新用户</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/users/42</code></td>
+<td>更新指定用户</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/users/42</code></td>
+<td>删除指定用户</td>
+</tr>
+</tbody>
+</table>
+<p>✅ URL 描述资源位置<br>
+✅ HTTP 方法描述操作行为</p>
+<hr>
+<h2 id="🏗️-三、为什么使用-RESTful-Routing？">🏗️ 三、为什么使用 RESTful Routing？</h2>
+<ol>
+<li><strong>清晰</strong>：URL 设计统一、语义明确。</li>
+<li><strong>标准</strong>：便于协同开发、前后端约定一致。</li>
+<li><strong>可扩展</strong>：适用于大型 API 系统。</li>
+<li><strong>易测试</strong>：与工具如 Postman、curl、Swagger 协作更自然。</li>
+</ol>
+<hr>
+<h2 id="🧪-四、在-Go-中实现-RESTful-Routing">🧪 四、在 Go 中实现 RESTful Routing</h2>
+<p>Go 标准库 <code>net/http</code> 只支持基础路由，但我们可以借助路由库如 <code>gorilla/mux</code> 或 <code>chi</code> 来实现更复杂的 RESTful API。</p>
+<h3 id="示例：使用-gorilla-mux-构建-RESTful-用户接口">示例：使用 gorilla/mux 构建 RESTful 用户接口</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go get github.com/gorilla/mux</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;encoding/json&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">    <span class="string">&quot;github.com/gorilla/mux&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">    ID   <span class="type">string</span> <span class="string">`json:&quot;id&quot;`</span></span><br><span class="line">    Name <span class="type">string</span> <span class="string">`json:&quot;name&quot;`</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> users = []User&#123;</span><br><span class="line">    &#123;ID: <span class="string">&quot;1&quot;</span>, Name: <span class="string">&quot;Alice&quot;</span>&#125;,</span><br><span class="line">    &#123;ID: <span class="string">&quot;2&quot;</span>, Name: <span class="string">&quot;Bob&quot;</span>&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取所有用户</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getUsers</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    json.NewEncoder(w).Encode(users)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取指定用户</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getUser</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    params := mux.Vars(r)</span><br><span class="line">    <span class="keyword">for</span> _, u := <span class="keyword">range</span> users &#123;</span><br><span class="line">        <span class="keyword">if</span> u.ID == params[<span class="string">&quot;id&quot;</span>] &#123;</span><br><span class="line">            json.NewEncoder(w).Encode(u)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    http.NotFound(w, r)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建用户</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">createUser</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> user User</span><br><span class="line">    json.NewDecoder(r.Body).Decode(&amp;user)</span><br><span class="line">    users = <span class="built_in">append</span>(users, user)</span><br><span class="line">    json.NewEncoder(w).Encode(user)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 更新用户</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">updateUser</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    params := mux.Vars(r)</span><br><span class="line">    <span class="keyword">for</span> i, u := <span class="keyword">range</span> users &#123;</span><br><span class="line">        <span class="keyword">if</span> u.ID == params[<span class="string">&quot;id&quot;</span>] &#123;</span><br><span class="line">            json.NewDecoder(r.Body).Decode(&amp;users[i])</span><br><span class="line">            json.NewEncoder(w).Encode(users[i])</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    http.NotFound(w, r)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除用户</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">deleteUser</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    params := mux.Vars(r)</span><br><span class="line">    <span class="keyword">for</span> i, u := <span class="keyword">range</span> users &#123;</span><br><span class="line">        <span class="keyword">if</span> u.ID == params[<span class="string">&quot;id&quot;</span>] &#123;</span><br><span class="line">            users = <span class="built_in">append</span>(users[:i], users[i+<span class="number">1</span>:]...)</span><br><span class="line">            w.WriteHeader(http.StatusNoContent)</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    http.NotFound(w, r)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    r := mux.NewRouter()</span><br><span class="line"></span><br><span class="line">    r.HandleFunc(<span class="string">&quot;/users&quot;</span>, getUsers).Methods(<span class="string">&quot;GET&quot;</span>)</span><br><span class="line">    r.HandleFunc(<span class="string">&quot;/users/&#123;id&#125;&quot;</span>, getUser).Methods(<span class="string">&quot;GET&quot;</span>)</span><br><span class="line">    r.HandleFunc(<span class="string">&quot;/users&quot;</span>, createUser).Methods(<span class="string">&quot;POST&quot;</span>)</span><br><span class="line">    r.HandleFunc(<span class="string">&quot;/users/&#123;id&#125;&quot;</span>, updateUser).Methods(<span class="string">&quot;PUT&quot;</span>)</span><br><span class="line">    r.HandleFunc(<span class="string">&quot;/users/&#123;id&#125;&quot;</span>, deleteUser).Methods(<span class="string">&quot;DELETE&quot;</span>)</span><br><span class="line"></span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="✅-五、最佳实践总结">✅ 五、最佳实践总结</h2>
+<ol>
+<li><strong>URL 是名词，动作用方法表达</strong>：避免 <code>/getUser</code>, <code>/createUser</code>，而应使用 <code>/users</code> + <code>GET/POST</code>。</li>
+<li><strong>路径层级表达资源关系</strong>：例如 <code>/users/42/posts</code> 表示获取用户的所有帖子。</li>
+<li><strong>使用状态码反馈操作结果</strong>：200、201、204、400、404、500 等。</li>
+<li><strong>保持一致性与统一性</strong>：所有路由命名、风格、方法统一。</li>
+</ol>
+<hr>
+<h2 id="🔚-总结">🔚 总结</h2>
+<p>RESTful Routing 是现代 Web 开发的核心约定，Go 语言虽简洁，但配合路由库也能优雅实现 REST 风格接口。在团队协作、API 设计、文档生成等方面，它带来的价值是长期可见的。</p>
+<blockquote>
+<p>下一步：你可以尝试为一个博客系统设计 RESTful 接口 —— <code>/posts</code>、<code>/comments</code>、<code>/tags</code>……然后用 <code>mux</code> 或 <code>chi</code> 实现它们！</p>
+</blockquote>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/05/100gomistakes%E6%80%BB%E7%BB%9301/" rel="prev" title="100 go mistakes 总结01">
+                  <i class="fa fa-angle-left"></i> 100 go mistakes 总结01
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/06/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E4%BE%9D%E8%B5%96%E6%B3%A8%E5%85%A5/" rel="next" title="go语言之依赖注入">
+                  go语言之依赖注入 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

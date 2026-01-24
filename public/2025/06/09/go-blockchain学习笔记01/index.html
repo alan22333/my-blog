@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go-blockchain学习笔记01 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="使用 Golang 一步步构建一个基本的区块链系统的学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go-blockchain学习笔记01">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="使用 Golang 一步步构建一个基本的区块链系统的学习笔记">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-09T12:01:03.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta property="article:tag" content="区块链">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/","path":"2025/06/09/go-blockchain学习笔记01/","title":"go-blockchain学习笔记01"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AE%A4%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基本认识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E6%9C%BA%E5%88%B6"><span class="nav-number">2.</span> <span class="nav-text">哈希机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%8C%BA%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">创建区块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B1%E8%AF%86%E6%9C%BA%E5%88%B6%EF%BC%88POW-%E5%B7%A5%E4%BD%9C%E9%87%8F%E8%AF%81%E6%98%8E%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">共识机制（POW 工作量证明）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E6%98%93%E6%9C%BA%E5%88%B6%EF%BC%88UTXO%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">交易机制（UTXO）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E4%BA%A4%E6%98%93"><span class="nav-number">6.</span> <span class="nav-text">构建交易</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/09/go-blockchain%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go-blockchain学习笔记01 | Hello there! I'm alan">
+      <meta itemprop="description" content="使用 Golang 一步步构建一个基本的区块链系统的学习笔记">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go-blockchain学习笔记01
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-09 20:01:03" itemprop="dateCreated datePublished" datetime="2025-06-09T20:01:03+08:00">2025-06-09</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">使用 Golang 一步步构建一个基本的区块链系统的学习笔记</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>前言：近日看到一篇非常棒的中文文章，讲解使用 Golang 一步步构建一个基本的区块链系统，鼠鼠直接双厨狂喜，一口气看了小一半，受益匪浅。随着不断地更新代码，鼠鼠感觉有必要写一个总结记录一下这个很棒的项目，本文无 AI 总结，观点来自鼠鼠个人，请自行斟酌</p>
+<h3 id="基本认识">基本认识</h3>
+<p>首先，区块链顾名思义就是由区块构成的链表，而区块则作为区块链的基本元素。区块链的核心特性是<strong>去中心化、不可篡改和透明可追溯</strong>。那么该如何实现以上三个特性呢？具体到数据结构上来说可以总结为：</p>
+<ul>
+<li>
+<p><strong>去中心化：</strong></p>
+<ul>
+<li>
+<p><strong>分布式账本（Distributed Ledger）</strong></p>
+</li>
+<li>
+<p><strong>共识机制（Consensus Mechanism）</strong></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>不可篡改：</strong></p>
+<ul>
+<li>
+<p><strong>区块哈希（Hash Block）</strong></p>
+</li>
+<li>
+<p><strong>默克尔树（Merkle Tree）</strong></p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>透明可追溯：</strong></p>
+<ul>
+<li>
+<p><strong>区块头（Block Header）</strong></p>
+</li>
+<li>
+<p><strong>交易记录（Transaction Records）</strong></p>
+</li>
+<li>
+<p><strong>地址（Addresses）</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<p>其中关于分布式系统、默克尔树以及地址相关的内容后面再讨论，我们先设计一个最基本的区块链结构，首先是区块结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// block.go</span></span><br><span class="line"><span class="keyword">type</span> Block <span class="keyword">struct</span> &#123;</span><br><span class="line">	Timestamp <span class="type">int64</span></span><br><span class="line">	Hash      []<span class="type">byte</span></span><br><span class="line">	PrevHash  []<span class="type">byte</span></span><br><span class="line">	Target    []<span class="type">byte</span></span><br><span class="line">	Nonce     <span class="type">int64</span></span><br><span class="line">	<span class="comment">// Data      []byte</span></span><br><span class="line">	Transactions []*transaction.Transaction <span class="comment">// real data</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>区块中的关键元素：区块头（时间戳、区块哈希、前一块哈希、挖矿目标、随机数）+交易记录</p>
+<p>时间戳比较好理解，时间戳在区块链中是确保数据按时间顺序排列、防范双重支付、维护共识安全以及提供历史证据的关键数字印记。</p>
+<p>区块中的“哈希指针”是通过将前一区块的哈希值包含在当前区块中，形成了环环相扣的链式结构。任何对历史区块数据的微小改动都会导致其哈希值发生变化，进而导致后续所有区块的哈希值失效，从而被网络轻易检测到。</p>
+<p>之于挖矿目标和随机数后文涉及到再进行解释。</p>
+<p>然后我们定义区块链：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// blockchain.go</span></span><br><span class="line"><span class="keyword">type</span> BlockChain <span class="keyword">struct</span> &#123;</span><br><span class="line">	Blocks []*Block</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我们已经有了区块链系统的基本元素，下面就是让他动起来，赋予他们一些方法</p>
+<h3 id="哈希机制">哈希机制</h3>
+<p>哈希是区块之间逻辑上的连接手段，哈希结果也包含了区块的所有信息，所以哈希也可以作为区块的唯一表示（ID），这个思想也用在交易这个概念上，这个后面会提到。下面我们来具体看一下怎么创建区块和计算区块哈希的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// block.go</span></span><br><span class="line"><span class="comment">// package txs</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span> BackTrasactionSummary() []<span class="type">byte</span> &#123;</span><br><span class="line">	txIDs := <span class="built_in">make</span>([][]<span class="type">byte</span>, <span class="number">0</span>)</span><br><span class="line">	<span class="keyword">for</span> _, tx := <span class="keyword">range</span> b.Transactions &#123;</span><br><span class="line">		txIDs = <span class="built_in">append</span>(txIDs, tx.ID)</span><br><span class="line">	&#125;</span><br><span class="line">	summary := bytes.Join(txIDs, []<span class="type">byte</span>&#123;&#125;)</span><br><span class="line">	<span class="keyword">return</span> summary</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// compute and set block hash</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span> SetHash() &#123;</span><br><span class="line">	information := bytes.Join(</span><br><span class="line">		[][]<span class="type">byte</span>&#123;</span><br><span class="line">			utils.ToHexInt(b.Timestamp),</span><br><span class="line">			b.PrevHash,</span><br><span class="line">			utils.ToHexInt(b.Nonce),</span><br><span class="line">			b.Target,</span><br><span class="line">			b.BackTrasactionSummary(),</span><br><span class="line">		&#125;,</span><br><span class="line">		[]<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">	)</span><br><span class="line">	hash := sha256.Sum256(information)</span><br><span class="line">	b.Hash = hash[:]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实就是将信息打包，然后使用 sha256 算法进行哈希运算，其中 SHA-256 算法是一种<strong>广泛应用于加密货币和信息安全的哈希函数</strong>，它能将任意长度的输入数据转换成一个固定长度的 256 位（32 字节）哈希值，且该过程是单向的，微小的输入变化都会导致输出哈希值发生巨大改变</p>
+<h3 id="创建区块">创建区块</h3>
+<p>首先是普通区块的创建，需要前置哈希和交易信息，另外就是 POW 相关的两个参数，后面也会专门来介绍：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// block.go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">CreateBlock</span><span class="params">(prevhash []<span class="type">byte</span>, txs []*transaction.Transaction)</span></span> *Block &#123;</span><br><span class="line">	block := Block&#123;</span><br><span class="line">		Timestamp:    time.Now().Unix(),</span><br><span class="line">		Hash:         []<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">		PrevHash:     prevhash,</span><br><span class="line">		Target:       []<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">		Nonce:        <span class="number">0</span>,</span><br><span class="line">		Transactions: txs,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// compute target and hash</span></span><br><span class="line">	block.Target = block.GetTarget()</span><br><span class="line">	block.Nonce = block.FindNonce()</span><br><span class="line">	block.SetHash()</span><br><span class="line">	<span class="keyword">return</span> &amp;block</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而区块链中的第一个区块叫做“创世区块”，他是没有前驱的，我们来构建一个创世区块（先不用管交易相关）：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// block.go</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GenesisBlock</span><span class="params">()</span></span> *Block &#123;</span><br><span class="line">	<span class="comment">// make a base-tx: generate init coin for the God</span></span><br><span class="line">	tx := transaction.BaseTx([]<span class="type">byte</span>(<span class="string">&quot;alan&quot;</span>))</span><br><span class="line">	<span class="keyword">return</span> CreateBlock([]<span class="type">byte</span>&#123;&#125;, []*transaction.Transaction&#123;tx&#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="共识机制（POW-工作量证明）">共识机制（POW 工作量证明）</h3>
+<p>网络中所有节点都可以构造区块然后添加到链上，但是这是不可能，因为区块链是一条链表而不是树形结构，所以就需要一种机制来保证每次只能有一个区块产生并添加到链上，并且要让其他所有的节点都认可这个新产生的区块，这就是共识机制。这里采用的是最最最最经典的比特币的共识机制，即<strong>工作量证明（Proof Of Work）</strong>。</p>
+<p>采用原文的比喻就是“要在相对公平的条件下让想要添加自己的候选区块进区块链的节点内卷，通过竞争选择出一个大家公认的节点来添加它的区块进入区块链。整个共识机制被分为两部分，首先是竞争，然后是共识”。</p>
+<p>游戏的规则是这样的：所有的网络节点（矿工）都做同一种工作，像是一种竞赛（挖矿），率先完成的节点得到记账权，也就是打包发布区块的权利。既然是 game 就一定有奖励，而奖励就是发布区块的节点可以得到“出块奖励”，例如比特币，这也是大家争相内卷的原因。</p>
+<p>具体到工作的细节，这样一件工作非常的公平，比拼的因素只有一个就是算力，谁的算力高，谁就更有机会成为最终卷王，那么既然要求算力，计算过程究竟是什么呢？其实非常的简单，就是找一个随机数（nonce），把他打包到自己的候选区块中区进行哈希运算，转换成数之后和一个目标（target）对比，如果小于这个目标则视为计算成功，而这个目标则可以通过难度系数（difficulty）进行控制。</p>
+<p><strong>这个“区块寻找”游戏设计得非常精妙：</strong></p>
+<ul>
+<li>
+<p>首先，每个节点需要找到的 <strong>nonce</strong>只对它自己提议的区块有效，这杜绝了“抄袭”的可能，确保了每个节点都必须独立完成任务。</p>
+</li>
+<li>
+<p>其次，寻找这个 <strong>nonce</strong> 的过程是纯粹随机的，没有任何捷径可言；找到 <strong>nonce</strong> 的时间主要取决于网络设定的难度目标和节点自身的计算能力，但即使是性能较弱的节点，也有公平的机会赢得胜利。</p>
+</li>
+<li>
+<p>最后，虽然寻找 <strong>nonce</strong> 可能需要投入大量的时间和计算资源，但验证一个节点是否真的找到了正确的 <strong>nonce</strong> 却非常迅速且几乎不消耗资源。可以说，这个被找到的 <strong>nonce</strong> 就是该节点“实力”的直接证明。</p>
+</li>
+</ul>
+<p>说完了基本的规则，我们来看一下如何实现：</p>
+<p>首先我们设定一个难度值：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// constcoe.go</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	Difficulty = <span class="number">12</span></span><br><span class="line">	Initcoin = <span class="number">1_000</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>然后我们就可以计算目标了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// proofofwork.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// difficulty larger =&gt; target smaller</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span> GetTarget() []<span class="type">byte</span> &#123;</span><br><span class="line">	target := big.NewInt(<span class="number">1</span>)</span><br><span class="line">	target.Lsh(target, <span class="type">uint</span>(<span class="number">256</span>-constcoe.Difficulty))</span><br><span class="line">	<span class="keyword">return</span> target.Bytes()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>有了目标之后，我们就可以填入不同的 nonce 来进行“挖矿”竞争卷王了：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// proofofwork.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// join with nonce</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span> GetBase4Nonce(nonce <span class="type">int64</span>) []<span class="type">byte</span>&#123;</span><br><span class="line">	data := bytes.Join(</span><br><span class="line">		[][]<span class="type">byte</span>&#123;</span><br><span class="line">			utils.ToHexInt(b.Timestamp),</span><br><span class="line">			b.PrevHash,</span><br><span class="line">			utils.ToHexInt(<span class="type">int64</span>(nonce)),</span><br><span class="line">			b.Target,</span><br><span class="line">			b.BackTrasactionSummary(),</span><br><span class="line">		&#125;,</span><br><span class="line">		[]<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">	)</span><br><span class="line">	<span class="keyword">return</span> data</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// find right nonce (mine)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span>FindNonce() <span class="type">int64</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> intHash big.Int</span><br><span class="line">	<span class="keyword">var</span> intTarget big.Int</span><br><span class="line">	<span class="keyword">var</span> hash [<span class="number">32</span>]<span class="type">byte</span></span><br><span class="line">	<span class="keyword">var</span> nonce <span class="type">int64</span> = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">	intTarget.SetBytes(b.Target)</span><br><span class="line">	<span class="keyword">for</span> nonce &lt; math.MaxInt64 &#123;</span><br><span class="line">		data := b.GetBase4Nonce(nonce)</span><br><span class="line">		hash = sha256.Sum256(data)</span><br><span class="line">		intHash.SetBytes(hash[:])</span><br><span class="line">		<span class="keyword">if</span> intHash.Cmp(&amp;intTarget) == <span class="number">-1</span> &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">			nonce ++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> nonce</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其实过程非常非常简单，就是一个个的尝试 nonce 的值进行计算和 target 来比较，另外我们也可以是设置一个方法来验证区块的有效性，如上文所说校验是非常简单的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// proofofwork.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// validate the block: compare with the target</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(b *Block)</span></span> ValidatePoW() <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">var</span> intHash big.Int</span><br><span class="line">	<span class="keyword">var</span> intTarget big.Int</span><br><span class="line">	<span class="keyword">var</span> hash [<span class="number">32</span>]<span class="type">byte</span></span><br><span class="line">	intTarget.SetBytes(b.Target)</span><br><span class="line">	data := b.GetBase4Nonce(b.Nonce)</span><br><span class="line">	hash = sha256.Sum256(data)</span><br><span class="line">	intHash.SetBytes(hash[:])</span><br><span class="line">	<span class="keyword">if</span> intHash.Cmp(&amp;intTarget) == <span class="number">-1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>至此，我们的区块链系统已经初具雏形了</p>
+<h3 id="交易机制（UTXO）">交易机制（UTXO）</h3>
+<p>在上面的介绍中多次提到了交易，那么什么是交易？比特币系统中的交易又是什么样的呢？这一小节我来给大家介绍一下。</p>
+<p>传统意义上的交易指的是用户之间的转账记录，例如 A 给 B 转了 1 个 bitcoin。但随着这个区块链领域的不断发展，即使在金融领域之外，我们还是习惯把区块里有用的数据条目称为“交易信息”（txs）。</p>
+<p>一般来说，我们接触到的最常见的交易也许在银行，假设你有 100 ￥，你到银行转了 50 ￥给我，我去银行机器查看，发现余额多了 50 ￥，那么这样一次交易就完成了。但是，如果突然这个银行没了，那么如何证明我们之间的这笔交易存在呢？甚至该如何证明我们拥有资产？</p>
+<p>问题的关键就是有一样东西消失了，在这个例子中就是银行，他是中心化设施的代表，也就是说我们所有的用户相信它，我们的资产才得以存在价值。银行记录了记录了我们的资产信息，可以轻松验证所有交易的有效性，只需要查看银行余额，因为我们相信这个余额。</p>
+<p>那么，是否可以不要这样一个可信第三方，区块链就是旨在构建这样一个去中心化的分布式系统。而比特币系统就提出了这样一个模型：<strong>UTXO 模型</strong> 也就是“追溯历史交易”，要验证“A 转给 B 五块钱”是否有效，我们可以往前查找所有 A 作为接收方的交易记录，然后把这些交易中的金额加起来。如果总金额大于或等于 5，那么这笔转账就是有效的。</p>
+<p>对于 UTXO 建议移步鼠鼠的另一篇文章了解，站内搜索即可快速访问，这里不在赘述。</p>
+<p>我们直接用代码来构建“交易”，我会用大量的注释来代替讲解，聪明的你一定能看懂：</p>
+<p>首先是 UTXO 模型中的输入输出的定义：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// inoutput.go</span></span><br><span class="line"><span class="keyword">package</span> transaction</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;bytes&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TxOutput <span class="keyword">struct</span>&#123;</span><br><span class="line">	Value <span class="type">int</span> <span class="comment">// output amount</span></span><br><span class="line">	ToAddress []<span class="type">byte</span> <span class="comment">// output address</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> TxInput <span class="keyword">struct</span>&#123;</span><br><span class="line">	TxId []<span class="type">byte</span> <span class="comment">// pre-tx id</span></span><br><span class="line">	OutIdx <span class="type">int</span> <span class="comment">// index of pre-tx output</span></span><br><span class="line">	FromAddress []<span class="type">byte</span> <span class="comment">// input-from equals output-to</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// utils check address</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(in *TxInput)</span></span> FromAddressRight(address []<span class="type">byte</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> bytes.Equal(in.FromAddress, address)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(out *TxOutput)</span></span> ToAddressRight(address []<span class="type">byte</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> bytes.Equal(out.ToAddress, address)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>然后我们定义交易：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// transaction.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Transaction 表示一笔交易，包含交易 ID、输入和输出</span></span><br><span class="line"><span class="keyword">type</span> Transaction <span class="keyword">struct</span> &#123;</span><br><span class="line">	ID      []<span class="type">byte</span>     <span class="comment">// 交易 ID，是该交易内容的哈希值</span></span><br><span class="line">	Inputs  []TxInput  <span class="comment">// 输入数组（引用以前交易输出）</span></span><br><span class="line">	Outputs []TxOutput <span class="comment">// 输出数组（给哪些地址转了多少钱）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>设置交易哈希：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// transaction.go</span></span><br><span class="line"><span class="comment">// TxHash 计算当前交易的哈希值（即交易 ID）</span></span><br><span class="line"><span class="comment">// 哈希值是对整个交易序列化后求 sha256，保证内容唯一性和不可篡改</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Transaction)</span></span> TxHash() []<span class="type">byte</span> &#123;</span><br><span class="line">	<span class="keyword">var</span> encoded bytes.Buffer <span class="comment">// 存储序列化后的交易数据</span></span><br><span class="line">	<span class="keyword">var</span> hash [<span class="number">32</span>]<span class="type">byte</span>        <span class="comment">// 存储计算出的哈希结果</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 使用 gob 对交易结构体进行序列化（编码）</span></span><br><span class="line">	encoder := gob.NewEncoder(&amp;encoded)</span><br><span class="line">	err := encoder.Encode(tx)     <span class="comment">// 将 tx 编码写入 encoded 缓冲区</span></span><br><span class="line">	utils.Handle(err)             <span class="comment">// 错误统一处理函数（例如 panic）</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 对序列化后的字节进行 SHA-256 哈希</span></span><br><span class="line">	hash = sha256.Sum256(encoded.Bytes())</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 返回 hash 的切片（[:] 从数组变成切片）</span></span><br><span class="line">	<span class="keyword">return</span> hash[:]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Transaction)</span></span> SetID() &#123;</span><br><span class="line">	tx.ID = tx.TxHash()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样的，创世块里也打包了一个初始交易，他没有输入而凭空产生输出：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// transaction.go</span></span><br><span class="line"><span class="comment">// tx in gensis-block, mine init-coin for the god alan</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">BaseTx</span><span class="params">(ToAddress []<span class="type">byte</span>)</span></span> *Transaction&#123;</span><br><span class="line">	txIn := TxInput&#123;</span><br><span class="line">		TxId: []<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">		OutIdx: <span class="number">-1</span>,</span><br><span class="line">		FromAddress: []<span class="type">byte</span>&#123;&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	txOut := TxOutput&#123;</span><br><span class="line">		Value: constcoe.Initcoin,</span><br><span class="line">		ToAddress: ToAddress,</span><br><span class="line">	&#125;</span><br><span class="line">	tx := &amp;Transaction&#123;</span><br><span class="line">		ID: []<span class="type">byte</span>(<span class="string">&quot;This is base tx!&quot;</span>),</span><br><span class="line">		Inputs: []TxInput&#123;txIn&#125;,</span><br><span class="line">		Outputs: []TxOutput&#123;txOut&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> tx</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(tx *Transaction)</span></span> IsBase()<span class="type">bool</span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">len</span>(tx.Inputs) == <span class="number">1</span> &amp;&amp; tx.Inputs[<span class="number">0</span>].OutIdx == <span class="number">-1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样一来，再回头看之前的区块的相关定义，所有的信息都对上了。</p>
+<h3 id="构建交易">构建交易</h3>
+<p>万事俱备，现在我们来看如何构建一个交易并把它打包发布到区块链上。</p>
+<p>我们先明确一个思路：</p>
+<ul>
+<li>
+<p>我们直观上的一笔交易构成：发送者、接收者、数量</p>
+</li>
+<li>
+<p>而实际 UTXO 系统内部的数据结构构成：交易哈希（ID）、若干输入（TxInput）、若干输出（TxOutput）</p>
+</li>
+<li>
+<p>其中的<strong>输入是过往的一些交易的输出（这点是理解 UTXO 的关键）</strong>，并且是没有被花掉的输出，在 UTXO 的系统中我们没有余额的概念，我们在交易中使用的是当前地址没有使用过的某些输出。</p>
+</li>
+<li>
+<p>并且在 UTXO 中花费就意味着全部使用，例如 A 有一个 100 的输入，但是本次交易只需要 50，那么交易的输出则有两个：50 输出给目标 B，50 作为找零再输出给 A，而原本的 100 则视为用过，不在有效。</p>
+</li>
+</ul>
+<p>下面直接上代码，通过详细的注释，我想大家一定能弄懂：</p>
+<p>创建交易相关：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// blockchain.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Key: How To Create A Traction ?</span></span><br><span class="line"><span class="comment">// get user&#x27;s all unspent txs（交易图回溯算法）</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> FindUnspentTransactions(from []<span class="type">byte</span>) []transaction.Transaction &#123;</span><br><span class="line">	<span class="keyword">var</span> unSpentTxs []transaction.Transaction <span class="comment">// 用于记录当前用户的未使用交易切片</span></span><br><span class="line">	spentTxs := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>][]<span class="type">int</span>)       <span class="comment">// 用于标记交易的输出已经被使用（仅仅标记已经被使用），交易ID =&gt; &#123;输出的某个索引&#125;</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// range blocks in the blockchain</span></span><br><span class="line">	<span class="keyword">for</span> idx := <span class="built_in">len</span>(bc.Blocks) - <span class="number">1</span>; idx &gt;= <span class="number">0</span>; idx-- &#123; <span class="comment">// 从新到旧地遍历区块，避免重复访问</span></span><br><span class="line">		block := bc.Blocks[idx]</span><br><span class="line">		<span class="comment">// range txs in the block</span></span><br><span class="line">		<span class="keyword">for</span> _, tx := <span class="keyword">range</span> block.Transactions &#123;</span><br><span class="line">			txID := hex.EncodeToString(tx.ID)</span><br><span class="line"></span><br><span class="line">		IterOutputs:</span><br><span class="line">			<span class="keyword">for</span> outIdx, out := <span class="keyword">range</span> tx.Outputs &#123; <span class="comment">// 检查每一个交易的输出（目标：将没有使用过的加入切片）</span></span><br><span class="line">				<span class="keyword">if</span> spentTxs[txID] != <span class="literal">nil</span> &#123; <span class="comment">// 检查已经使用的输出的前提是，存在已经使用的输出，否则直接到下一个if</span></span><br><span class="line">					<span class="keyword">for</span> _, spentOut := <span class="keyword">range</span> spentTxs[txID] &#123; <span class="comment">// 检查当前交易中的每一个已经使用过的并标记过的输出（索引）</span></span><br><span class="line">						<span class="keyword">if</span> spentOut == outIdx &#123; <span class="comment">// 恰好为当前输出</span></span><br><span class="line">							<span class="keyword">continue</span> IterOutputs <span class="comment">// 则不用添加，直接检查下一个输出即可，label语法用于跳出\跳过多层循环</span></span><br><span class="line">						&#125;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">if</span> out.ToAddressRight(from) &#123; <span class="comment">// 检查是否是输出到当前用户，否则和当前用户无关</span></span><br><span class="line">					unSpentTxs = <span class="built_in">append</span>(unSpentTxs, *tx) <span class="comment">// 添加到当前用户的未使用交易的切片中</span></span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">if</span> !tx.IsBase() &#123;</span><br><span class="line">				<span class="keyword">for</span> _, in := <span class="keyword">range</span> tx.Inputs &#123; <span class="comment">// 检查每一个交易的输入（目标：将每一个源输出标记为已经使用过）</span></span><br><span class="line">					<span class="keyword">if</span> in.FromAddressRight(from) &#123; <span class="comment">// 前提是当前用户的源输出，否则和当前用户无关</span></span><br><span class="line">						inTxID := hex.EncodeToString(in.TxId)</span><br><span class="line">						spentTxs[inTxID] = <span class="built_in">append</span>(spentTxs[inTxID], in.OutIdx) <span class="comment">// 将过去那个输出标记为已经使用</span></span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> unSpentTxs</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get user&#x27;s all unspent-outputs(UTXOs)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> FindUTXOs(address []<span class="type">byte</span>) (<span class="type">int</span>, <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>) &#123;</span><br><span class="line">	unspentOuts := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>)               <span class="comment">// 当前用户所有未使用的输出（交易ID+输出索引 确定一个输出）</span></span><br><span class="line">	unspentTxs := bc.FindUnspentTransactions(address) <span class="comment">// 当前用户所有未使用的交易</span></span><br><span class="line">	accumulated := <span class="number">0</span></span><br><span class="line">Work:</span><br><span class="line">	<span class="keyword">for</span> _, tx := <span class="keyword">range</span> unspentTxs &#123;</span><br><span class="line">		txID := hex.EncodeToString(tx.ID)</span><br><span class="line">		<span class="keyword">for</span> index, out := <span class="keyword">range</span> tx.Outputs &#123;</span><br><span class="line">			<span class="keyword">if</span> out.ToAddressRight(address) &#123;</span><br><span class="line">				accumulated += out.Value</span><br><span class="line">				unspentOuts[txID] = index</span><br><span class="line">				<span class="comment">// one transaction can only have one output referred to adderss</span></span><br><span class="line">				<span class="comment">// so rediect to next tx ,then check its outputs</span></span><br><span class="line">				<span class="comment">// use lable to cross serveral for</span></span><br><span class="line">				<span class="keyword">continue</span> Work</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> accumulated, unspentOuts</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// get user&#x27;s target unspent-outputs(UTXOs) for a tx-amount</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> FindSpendableOutputs(address []<span class="type">byte</span>, amount <span class="type">int</span>) (<span class="type">int</span>, <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>) &#123;</span><br><span class="line">	unspentOuts := <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">int</span>)</span><br><span class="line">	unspentTxs := bc.FindUnspentTransactions(address)</span><br><span class="line">	accumulated := <span class="number">0</span></span><br><span class="line">Work:</span><br><span class="line">	<span class="keyword">for</span> _, tx := <span class="keyword">range</span> unspentTxs &#123;</span><br><span class="line">		txID := hex.EncodeToString(tx.ID)</span><br><span class="line">		<span class="keyword">for</span> index, out := <span class="keyword">range</span> tx.Outputs &#123;</span><br><span class="line">			<span class="keyword">if</span> out.ToAddressRight(address) &#123;</span><br><span class="line">				accumulated += out.Value</span><br><span class="line">				unspentOuts[txID] = index</span><br><span class="line">				<span class="comment">// enough</span></span><br><span class="line">				<span class="keyword">if</span> accumulated &gt;= amount &#123;</span><br><span class="line">					<span class="keyword">break</span> Work</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="keyword">continue</span> Work</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> accumulated, unspentOuts</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// create a new tx</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> CreateTransaction(from, to []<span class="type">byte</span>, amount <span class="type">int</span>) (*transaction.Transaction, <span class="type">bool</span>) &#123;</span><br><span class="line">	<span class="comment">// 直观上的一笔交易构成：发送者、接收者、数量</span></span><br><span class="line">	<span class="comment">// 实际UTXO系统内部的数据结构构成：交易哈希（ID）、若干输入（TxInput）、若干输出（TxOutput）</span></span><br><span class="line"></span><br><span class="line">	txInputs := <span class="built_in">make</span>([]transaction.TxInput, <span class="number">0</span>)</span><br><span class="line">	txOutputs := <span class="built_in">make</span>([]transaction.TxOutput, <span class="number">0</span>)</span><br><span class="line">	<span class="comment">// 1. build TxInputs: inputs come from outputs(UTXOs)</span></span><br><span class="line">	total, unspentOuts := bc.FindSpendableOutputs(from, amount)</span><br><span class="line">	<span class="keyword">if</span> total &lt; amount &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;Not enough coins!&quot;</span>)</span><br><span class="line">		<span class="comment">// return nil,false (this is better actually)</span></span><br><span class="line">		<span class="keyword">return</span> &amp;transaction.Transaction&#123;&#125;, <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> txId, outIndex := <span class="keyword">range</span> unspentOuts &#123;</span><br><span class="line">		id, err := hex.DecodeString(txId)</span><br><span class="line">		utils.Handle(err)</span><br><span class="line">		txInput := transaction.TxInput&#123;</span><br><span class="line">			TxId:        id,</span><br><span class="line">			OutIdx:      outIndex,</span><br><span class="line">			FromAddress: from,</span><br><span class="line">		&#125;</span><br><span class="line">		txInputs = <span class="built_in">append</span>(txInputs, txInput)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 2. build TxOutputs: output can divde into change-back and sent-amount</span></span><br><span class="line">	txOutputs = <span class="built_in">append</span>(txOutputs, transaction.TxOutput&#123;</span><br><span class="line">		Value:     amount,</span><br><span class="line">		ToAddress: to,</span><br><span class="line">	&#125;)</span><br><span class="line">	<span class="keyword">if</span> total &gt; amount &#123;</span><br><span class="line">		txOutputs = <span class="built_in">append</span>(txOutputs, transaction.TxOutput&#123;</span><br><span class="line">			Value:     total - amount,</span><br><span class="line">			ToAddress: from,</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 3. set hash</span></span><br><span class="line">	tx := transaction.Transaction&#123;</span><br><span class="line">		<span class="comment">// ID: []byte&#123;&#125;,</span></span><br><span class="line">		ID:      <span class="literal">nil</span>,</span><br><span class="line">		Inputs:  txInputs,</span><br><span class="line">		Outputs: txOutputs,</span><br><span class="line">	&#125;</span><br><span class="line">	tx.SetID()</span><br><span class="line">	<span class="keyword">return</span> &amp;tx, <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>打包发布相关：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// blockchain.go</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// add new block into blockchain(package txs)</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> AddBlock(txs []*transaction.Transaction) &#123;</span><br><span class="line">	newBlock := CreateBlock(bc.Blocks[<span class="built_in">len</span>(bc.Blocks)<span class="number">-1</span>].Hash, txs)</span><br><span class="line">	bc.Blocks = <span class="built_in">append</span>(bc.Blocks, newBlock)</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// simulate packaging and mining</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(bc *BlockChain)</span></span> Mine(txs []*transaction.Transaction) &#123;</span><br><span class="line">	bc.AddBlock(txs)</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>也许查询 UTXO 的地方会比较难，如果是第一次接触的话确实不好理解，不过如果真的静下心来研究的话其实并不复杂。</p>
+<p>至此，一个简易的区块链系统就完成了，主要实现了：<strong>基本区块哈希结构的定义</strong>、<strong>POW 共识机制的实现</strong>和<strong>UTXO 交易机制的实现</strong></p>
+<p>后面鼠鼠继续学习再更新，再探再报。。。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+              <a href="/tags/%E5%8C%BA%E5%9D%97%E9%93%BE/" rel="tag"># 区块链</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/09/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E7%A9%BA%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%80%89%E6%8B%A9/" rel="prev" title="go语言之空返回值的选择">
+                  <i class="fa fa-angle-left"></i> go语言之空返回值的选择
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/15/%E7%A1%95%E5%AF%BC%E5%8F%8C%E9%80%89%E5%A5%87%E9%81%87%E8%AE%B0/" rel="next" title="硕导双选奇遇记">
+                  硕导双选奇遇记 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

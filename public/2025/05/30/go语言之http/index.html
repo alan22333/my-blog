@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之http | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Go 语言内置了功能强大的 &#96;net&#x2F;http&#96; 包，用于构建 高性能 HTTP 服务 和 客户端请求">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之http">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Go 语言内置了功能强大的 &#96;net&#x2F;http&#96; 包，用于构建 高性能 HTTP 服务 和 客户端请求">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-30T13:07:30.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.063Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/","path":"2025/05/30/go语言之http/","title":"go语言之http"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E4%B8%80%E3%80%81%E8%83%8C%E6%99%AF%E4%BB%8B%E7%BB%8D%EF%BC%9AGo-HTTP-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">📌 一、背景介绍：Go HTTP 是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9A%80-%E4%BA%8C%E3%80%81%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%BC%80%E5%8F%91%EF%BC%9A%E5%BF%AB%E9%80%9F%E6%90%AD%E5%BB%BA%E4%B8%80%E4%B8%AA-HTTP-%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-number">2.</span> <span class="nav-text">🚀 二、服务端开发：快速搭建一个 HTTP 服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%88%9B%E5%BB%BA%E4%B8%80%E4%B8%AA%E5%9F%BA%E6%9C%AC-HTTP-%E6%9C%8D%E5%8A%A1"><span class="nav-number">2.1.</span> <span class="nav-text">✅ 示例：创建一个基本 HTTP 服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%F0%9F%93%98-%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="nav-number">2.2.</span> <span class="nav-text">📘 说明：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%84-%E4%B8%89%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E8%B7%AF%E7%94%B1%E4%B8%8E%E5%A4%9A%E8%B7%AF%E5%BE%84%E5%A4%84%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">🔄 三、自定义路由与多路径处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%B1-%E5%9B%9B%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89-http-Handler-%E5%AE%9E%E7%8E%B0%E6%9B%B4%E5%A4%8D%E6%9D%82%E9%80%BB%E8%BE%91"><span class="nav-number">4.</span> <span class="nav-text">🧱 四、自定义 http.Handler 实现更复杂逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%B0-%E4%BA%94%E3%80%81%E4%B8%AD%E9%97%B4%E4%BB%B6%E6%9C%BA%E5%88%B6%EF%BC%88Logging%E3%80%81Auth-%E7%AD%89%EF%BC%89"><span class="nav-number">5.</span> <span class="nav-text">🧰 五、中间件机制（Logging、Auth 等）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8C%90-%E5%85%AD%E3%80%81HTTP-%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%EF%BC%88GET-POST%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">🌐 六、HTTP 客户端请求（GET&#x2F;POST）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-GET-%E8%AF%B7%E6%B1%82"><span class="nav-number">6.1.</span> <span class="nav-text">✅ GET 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%9C%85-POST-%E8%AF%B7%E6%B1%82"><span class="nav-number">6.2.</span> <span class="nav-text">✅ POST 请求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%8F%B1-%E4%B8%83%E3%80%81%E7%BB%93%E5%90%88-context-%E5%A4%84%E7%90%86%E8%B6%85%E6%97%B6%E4%B8%8E%E5%8F%96%E6%B6%88"><span class="nav-number">7.</span> <span class="nav-text">⏱ 七、结合 context 处理超时与取消</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%94%92-%E5%85%AB%E3%80%81%E7%94%9F%E4%BA%A7%E5%9C%BA%E6%99%AF%E6%8E%A8%E8%8D%90%E9%85%8D%E7%BD%AE%EF%BC%88%E5%90%AB%E8%B6%85%E6%97%B6%EF%BC%89"><span class="nav-number">8.</span> <span class="nav-text">🔒 八、生产场景推荐配置（含超时）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E4%B9%9D%E3%80%81%E5%AE%9E%E9%99%85%E5%BC%80%E5%8F%91%E4%B8%AD-HTTP-%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">9.</span> <span class="nav-text">✅ 九、实际开发中 HTTP 最佳实践</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之http | Hello there! I'm alan">
+      <meta itemprop="description" content="Go 语言内置了功能强大的 `net/http` 包，用于构建 高性能 HTTP 服务 和 客户端请求">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之http
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-30 21:07:30" itemprop="dateCreated datePublished" datetime="2025-05-30T21:07:30+08:00">2025-05-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Go 语言内置了功能强大的 `net/http` 包，用于构建 高性能 HTTP 服务 和 客户端请求</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Go 语言内置了功能强大的 <code>net/http</code> 包，用于构建 <strong>高性能 HTTP 服务</strong> 和 <strong>客户端请求</strong>。这是 Go 成为服务端开发热门语言的核心原因之一。</p>
+<p>本文从背景、服务端开发、客户端请求、处理常见需求等多个方面 <strong>系统讲解 Go HTTP 的相关知识与实际用法</strong></p>
+<hr>
+<h2 id="📌-一、背景介绍：Go-HTTP-是什么？">📌 一、背景介绍：Go HTTP 是什么？</h2>
+<p>Go 的 <code>net/http</code> 是标准库的一部分，包含：</p>
+<table>
+<thead>
+<tr>
+<th>模块</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>http.Server</code></td>
+<td>用于创建 Web 服务器</td>
+</tr>
+<tr>
+<td><code>http.Handler</code></td>
+<td>接口，处理 HTTP 请求</td>
+</tr>
+<tr>
+<td><code>http.Client</code></td>
+<td>发起 HTTP 请求</td>
+</tr>
+<tr>
+<td><code>http.Request</code></td>
+<td>客户端请求的信息封装</td>
+</tr>
+<tr>
+<td><code>http.ResponseWriter</code></td>
+<td>服务端写入响应的接口</td>
+</tr>
+</tbody>
+</table>
+<p><strong>特性：</strong></p>
+<ul>
+<li>开箱即用，不依赖第三方框架</li>
+<li>支持中间件、自定义路由</li>
+<li>支持并发请求（默认支持）</li>
+<li>可配合 <code>context</code> 实现超时控制、取消等高级功能</li>
+</ul>
+<hr>
+<h2 id="🚀-二、服务端开发：快速搭建一个-HTTP-服务器">🚀 二、服务端开发：快速搭建一个 HTTP 服务器</h2>
+<h3 id="✅-示例：创建一个基本-HTTP-服务">✅ 示例：创建一个基本 HTTP 服务</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">helloHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    fmt.Fprintln(w, <span class="string">&quot;Hello, Go HTTP!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/&quot;</span>, helloHandler) <span class="comment">// 注册路由</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;Listening on :8080&quot;</span>)</span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>) <span class="comment">// 启动服务器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="📘-说明：">📘 说明：</h3>
+<ul>
+<li><code>HandleFunc</code> 将 URL 路径 <code>/</code> 绑定到处理函数</li>
+<li><code>http.ListenAndServe</code> 启动服务器并监听端口</li>
+<li>每一个请求都会在 goroutine 中处理（自动并发）</li>
+</ul>
+<hr>
+<h2 id="🔄-三、自定义路由与多路径处理">🔄 三、自定义路由与多路径处理</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">aboutHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    fmt.Fprintln(w, <span class="string">&quot;This is the about page.&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/&quot;</span>, helloHandler)</span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/about&quot;</span>, aboutHandler)</span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, <span class="literal">nil</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🧱-四、自定义-http-Handler-实现更复杂逻辑">🧱 四、自定义 <code>http.Handler</code> 实现更复杂逻辑</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> myHandler <span class="keyword">struct</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h myHandler)</span></span> ServeHTTP(w http.ResponseWriter, r *http.Request) &#123;</span><br><span class="line">    <span class="comment">// 任何 URL 都由这个 Handler 处理</span></span><br><span class="line">    fmt.Fprintf(w, <span class="string">&quot;Handled by custom handler: %s\n&quot;</span>, r.URL.Path)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    handler := myHandler&#123;&#125;                     <span class="comment">// 实例化自定义 handler</span></span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, handler)      <span class="comment">// 使用自定义 handler 启动服务</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🧰-五、中间件机制（Logging、Auth-等）">🧰 五、中间件机制（Logging、Auth 等）</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 定义一个中间件函数，打印每次访问的路径</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">logger</span><span class="params">(next http.Handler)</span></span> http.Handler &#123;</span><br><span class="line">    <span class="keyword">return</span> http.HandlerFunc(<span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">        fmt.Printf(<span class="string">&quot;Received request: %s\n&quot;</span>, r.URL.Path)</span><br><span class="line">        next.ServeHTTP(w, r) <span class="comment">// 调用下一个 handler</span></span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">hello</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    fmt.Fprintln(w, <span class="string">&quot;Hello with middleware!&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    mux := http.NewServeMux()          <span class="comment">// 创建多路复用器</span></span><br><span class="line">    mux.HandleFunc(<span class="string">&quot;/&quot;</span>, hello)         <span class="comment">// 注册路由处理函数</span></span><br><span class="line">    http.ListenAndServe(<span class="string">&quot;:8080&quot;</span>, logger(mux)) <span class="comment">// 启用中间件</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🌐-六、HTTP-客户端请求（GET-POST）">🌐 六、HTTP 客户端请求（GET/POST）</h2>
+<h3 id="✅-GET-请求">✅ GET 请求</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;fmt&quot;</span></span><br><span class="line">    <span class="string">&quot;io&quot;</span></span><br><span class="line">    <span class="string">&quot;log&quot;</span></span><br><span class="line">    <span class="string">&quot;net/http&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    resp, err := http.Get(<span class="string">&quot;https://httpbin.org/get&quot;</span>) <span class="comment">// 发起 GET 请求</span></span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        log.Fatal(err) <span class="comment">// 请求失败则打印错误</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">defer</span> resp.Body.Close() <span class="comment">// 确保释放资源</span></span><br><span class="line"></span><br><span class="line">    body, _ := io.ReadAll(resp.Body) <span class="comment">// 读取响应体内容</span></span><br><span class="line">    fmt.Println(<span class="type">string</span>(body))        <span class="comment">// 打印响应</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="✅-POST-请求">✅ POST 请求</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">resp, err := http.Post(<span class="string">&quot;https://httpbin.org/post&quot;</span>, <span class="string">&quot;application/json&quot;</span>, bytes.NewBuffer([]<span class="type">byte</span>(<span class="string">`&#123;&quot;name&quot;:&quot;go&quot;&#125;`</span>)))</span><br><span class="line"><span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">    log.Fatal(err)</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">defer</span> resp.Body.Close()</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="⏱-七、结合-context-处理超时与取消">⏱ 七、结合 context 处理超时与取消</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">slowHandler</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">    ctx := r.Context() <span class="comment">// 获取请求上下文</span></span><br><span class="line">    fmt.Println(<span class="string">&quot;Handler started&quot;</span>)</span><br><span class="line">    <span class="keyword">defer</span> fmt.Println(<span class="string">&quot;Handler ended&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">select</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> &lt;-time.After(<span class="number">5</span> * time.Second):</span><br><span class="line">        fmt.Fprintln(w, <span class="string">&quot;Finished work&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> &lt;-ctx.Done(): <span class="comment">// 客户端取消请求</span></span><br><span class="line">        http.Error(w, <span class="string">&quot;Request canceled&quot;</span>, http.StatusRequestTimeout)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🔒-八、生产场景推荐配置（含超时）">🔒 八、生产场景推荐配置（含超时）</h2>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    srv := &amp;http.Server&#123;</span><br><span class="line">        Addr:         <span class="string">&quot;:8080&quot;</span>,      <span class="comment">// 服务监听端口</span></span><br><span class="line">        Handler:      http.DefaultServeMux,</span><br><span class="line">        ReadTimeout:  <span class="number">5</span> * time.Second, <span class="comment">// 读请求最大时间</span></span><br><span class="line">        WriteTimeout: <span class="number">10</span> * time.Second, <span class="comment">// 写响应最大时间</span></span><br><span class="line">        IdleTimeout:  <span class="number">15</span> * time.Second, <span class="comment">// Keep-alive 空闲连接最大时间</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    http.HandleFunc(<span class="string">&quot;/&quot;</span>, <span class="function"><span class="keyword">func</span><span class="params">(w http.ResponseWriter, r *http.Request)</span></span> &#123;</span><br><span class="line">        fmt.Fprintln(w, <span class="string">&quot;Hello with timeout!&quot;</span>)</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    log.Fatal(srv.ListenAndServe()) <span class="comment">// 启动服务器</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="✅-九、实际开发中-HTTP-最佳实践">✅ 九、实际开发中 HTTP 最佳实践</h2>
+<table>
+<thead>
+<tr>
+<th>实践</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ 路由封装</td>
+<td>使用 <code>ServeMux</code> 或第三方框架如 <code>chi</code>、<code>gorilla/mux</code></td>
+</tr>
+<tr>
+<td>✅ 中间件设计</td>
+<td>封装日志、认证、限流等</td>
+</tr>
+<tr>
+<td>✅ context 控制</td>
+<td>控制取消、超时（防止内存泄露）</td>
+</tr>
+<tr>
+<td>✅ 合理使用缓存</td>
+<td>设置 <code>Cache-Control</code> 头、ETag</td>
+</tr>
+<tr>
+<td>✅ 日志记录</td>
+<td>打印响应耗时、状态码等</td>
+</tr>
+<tr>
+<td>✅ 优雅关闭</td>
+<td>使用 <code>context</code> 和 <code>os/signal</code> 优雅退出</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/" rel="prev" title="go语言之日志">
+                  <i class="fa fa-angle-left"></i> go语言之日志
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/02/UniswappV2%E7%AE%97%E6%B3%95%E6%A6%82%E8%BF%B0/" rel="next" title="UniswapV2算法概述">
+                  UniswapV2算法概述 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

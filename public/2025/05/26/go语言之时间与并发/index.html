@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之时间与并发 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Go 语言中 Timer 和 Ticker 的原理和用法，它们都基于 Go 的 Goroutine 和 Channel 实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之时间与并发">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Go 语言中 Timer 和 Ticker 的原理和用法，它们都基于 Go 的 Goroutine 和 Channel 实现">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-26T01:55:39.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/","path":"2025/05/26/go语言之时间与并发/","title":"go语言之时间与并发"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%90%86%E8%AE%BA%E9%83%A8%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">理论部分</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">实例部分</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%B6%E9%97%B4%E4%B8%8E%E5%B9%B6%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之时间与并发 | Hello there! I'm alan">
+      <meta itemprop="description" content="Go 语言中 Timer 和 Ticker 的原理和用法，它们都基于 Go 的 Goroutine 和 Channel 实现">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之时间与并发
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-26 09:55:39" itemprop="dateCreated datePublished" datetime="2025-05-26T09:55:39+08:00">2025-05-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Go 语言中 Timer 和 Ticker 的原理和用法，它们都基于 Go 的 Goroutine 和 Channel 实现</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="理论部分">理论部分</h1>
+<p><strong>核心概念：时间与并发</strong></p>
+<p>在 Go 语言中，处理时间相关的任务通常会涉及到并发，因为我们不希望等待某个时间点的到来或者周期性地执行任务阻塞了主程序的运行。<code>Timer</code> 和 <code>Ticker</code> 正好是 Go 并发模型中处理时间事件的利器。它们都基于 Go 的 Goroutine 和 Channel 实现。</p>
+<p><strong>1. <code>time.Timer</code>：一次性定时器</strong></p>
+<p><strong>原理：</strong></p>
+<p><code>time.Timer</code> 代表一个<strong>在未来某个时刻</strong>触发的事件。当你创建一个 <code>Timer</code> 时，你需要指定一个延迟时间。当这个延迟时间到达后，<code>Timer</code> 会向其内部的 Channel 发送一个 <code>time.Time</code> 类型的值。之后，这个 <code>Timer</code> 通常就完成了它的使命（除非你显式地重置它，但这不常用）。</p>
+<p>你可以将 <code>Timer</code> 想象成一个闹钟，你设置好闹钟在某个时间响起一次。</p>
+<p><strong>关键点：</strong></p>
+<ul>
+<li><strong>一次性触发：</strong> <code>Timer</code> 主要用于在指定的延迟后执行一次操作。</li>
+<li><strong>Channel 通信：</strong> 它通过自身的 Channel (<code>C</code>) 来通知事件的发生。你需要从这个 Channel 中接收值。</li>
+<li><strong>需要显式停止：</strong> 如果你创建了一个 <code>Timer</code> 但在它触发之前就不再需要了，你应该调用它的 <code>Stop()</code> 方法来释放相关资源。如果不停止，这个 Goroutine 可能会一直存在。</li>
+</ul>
+<p><strong>实际应用示例：延迟执行任务</strong></p>
+<p>假设你想在 2 秒后打印一条消息。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;程序启动...&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个 2 秒后触发的 Timer</span></span><br><span class="line">	timer := time.NewTimer(<span class="number">2</span> * time.Second)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 等待 Timer 触发</span></span><br><span class="line">	&lt;-timer.C</span><br><span class="line">	fmt.Println(<span class="string">&quot;2 秒过去了，Timer 触发了！&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 注意：timer 在触发后，其内部的 Goroutine 可能会继续尝试发送，</span></span><br><span class="line">	<span class="comment">// 所以即使已经触发，如果不再使用，最好也 Stop() 一下（虽然在这个简单例子中不一定必要）。</span></span><br><span class="line">	timer.Stop()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>更细致的解释：</strong></p>
+<ol>
+<li><code>time.NewTimer(2 * time.Second)</code> 创建了一个新的 <code>Timer</code>。内部会启动一个 Goroutine，这个 Goroutine 会等待 2 秒。</li>
+<li><code>&lt;-timer.C</code> 阻塞了当前的 Goroutine（主 Goroutine），直到 <code>timer.C</code> 这个 Channel 接收到值。当 2 秒过去后，<code>Timer</code> 内部的 Goroutine 会向 <code>timer.C</code> 发送当前的时间。</li>
+<li>一旦 <code>timer.C</code> 接收到值，阻塞解除，<code>fmt.Println(&quot;2 秒过去了，Timer 触发了！&quot;)</code> 这行代码就会被执行。</li>
+<li><code>timer.Stop()</code> 用于停止 Timer。如果 Timer 尚未触发，<code>Stop()</code> 会阻止它发送事件到 Channel，并返回 <code>true</code>。如果 Timer 已经触发或者已经被停止，<code>Stop()</code> 返回 <code>false</code>。</li>
+</ol>
+<p><strong>2. <code>time.Ticker</code>：周期性定时器</strong></p>
+<p><strong>原理：</strong></p>
+<p><code>time.Ticker</code> 代表一个<strong>以固定时间间隔</strong>重复触发的事件。当你创建一个 <code>Ticker</code> 时，你需要指定一个时间间隔。之后，<code>Ticker</code> 会每隔这个时间间隔就向其内部的 Channel 发送一个 <code>time.Time</code> 类型的值。</p>
+<p>你可以将 <code>Ticker</code> 想象成一个节拍器，它会按照固定的节奏发出信号。</p>
+<p><strong>关键点：</strong></p>
+<ul>
+<li><strong>周期性触发：</strong> <code>Ticker</code> 用于以固定的时间间隔重复执行操作。</li>
+<li><strong>Channel 通信：</strong> 它也通过自身的 Channel (<code>C</code>) 来通知每次事件的发生。你需要在一个循环中从这个 Channel 中接收值。</li>
+<li><strong>需要显式停止：</strong> 当你不再需要 <code>Ticker</code> 时，<strong>必须</strong>调用它的 <code>Stop()</code> 方法来停止底层的 Goroutine，否则这个 Goroutine 会一直运行下去，导致资源泄漏。</li>
+</ul>
+<p><strong>实际应用示例：每隔一段时间执行任务</strong></p>
+<p>假设你想每隔 1 秒打印一次当前时间，持续一段时间。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;程序启动，开始周期性打印时间...&quot;</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个每隔 1 秒触发一次的 Ticker</span></span><br><span class="line">	ticker := time.NewTicker(<span class="number">1</span> * time.Second)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop() <span class="comment">// 确保在函数退出时停止 Ticker</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 持续 5 秒打印时间</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;</span><br><span class="line">		currentTime := &lt;-ticker.C</span><br><span class="line">		fmt.Println(<span class="string">&quot;当前时间:&quot;</span>, currentTime)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(<span class="string">&quot;5 秒结束，停止打印。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>更细致的解释：</strong></p>
+<ol>
+<li><code>time.NewTicker(1 * time.Second)</code> 创建了一个新的 <code>Ticker</code>。内部会启动一个 Goroutine，这个 Goroutine 会每隔 1 秒向 <code>ticker.C</code> 发送当前时间。</li>
+<li><code>defer ticker.Stop()</code> 是一个良好的习惯，它确保在 <code>main</code> 函数退出时 <code>ticker.Stop()</code> 会被调用，从而释放 <code>Ticker</code> 占用的资源。</li>
+<li><code>for i := 0; i &lt; 5; i++ &#123; currentTime := &lt;-ticker.C ... &#125;</code> 这个循环会执行 5 次。每次循环都会阻塞在 <code>&lt;-ticker.C</code>，直到 <code>Ticker</code> 发送一个新的时间值。接收到值后，打印当前时间。</li>
+</ol>
+<p><strong>总结对比：</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th><code>time.Timer</code></th>
+<th><code>time.Ticker</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>触发次数</td>
+<td>一次性</td>
+<td>周期性 (重复)</td>
+</tr>
+<tr>
+<td>主要用途</td>
+<td>延迟执行任务</td>
+<td>定期执行任务</td>
+</tr>
+<tr>
+<td>停止</td>
+<td>建议在不再需要时调用 <code>Stop()</code></td>
+<td><strong>必须</strong>在不再需要时调用 <code>Stop()</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>实际应用场景举例：</strong></p>
+<ul>
+<li><strong><code>time.Timer</code>:</strong>
+<ul>
+<li>实现请求超时机制。</li>
+<li>延迟重试某个操作。</li>
+<li>在用户空闲一段时间后执行某些清理工作。</li>
+</ul>
+</li>
+<li><strong><code>time.Ticker</code>:</strong>
+<ul>
+<li>定期上报系统状态或监控数据。</li>
+<li>实现心跳机制。</li>
+<li>周期性地刷新缓存。</li>
+</ul>
+</li>
+</ul>
+<h1 id="实例部分">实例部分</h1>
+<p>好的，我们来针对你提到的实际场景给出 <code>time.Timer</code> 和 <code>time.Ticker</code> 的代码讲解和示例。</p>
+<p><strong>1. <code>time.Timer</code>: 实现请求超时机制</strong></p>
+<p><strong>场景描述:</strong> 当向外部服务发起请求时，为了避免长时间等待无响应，我们需要设置一个超时时间。如果在指定时间内没有收到响应，就认为请求失败。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;net/http&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">fetchDataFromExternalService</span><span class="params">(url <span class="type">string</span>)</span></span> (<span class="type">string</span>, <span class="type">error</span>) &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;正在请求: %s\n&quot;</span>, url)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个结果 Channel 和一个错误 Channel</span></span><br><span class="line">	result := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">string</span>, <span class="number">1</span>)</span><br><span class="line">	errChan := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">error</span>, <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 启动一个 Goroutine 来执行实际的 HTTP 请求</span></span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		resp, err := http.Get(url)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			errChan &lt;- err</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line"></span><br><span class="line">		<span class="comment">// 模拟读取响应</span></span><br><span class="line">		<span class="comment">// 这里为了简化，直接发送一个成功的消息</span></span><br><span class="line">		result &lt;- <span class="string">&quot;成功获取数据&quot;</span></span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 创建一个超时 Timer</span></span><br><span class="line">	timeout := time.NewTimer(<span class="number">3</span> * time.Second)</span><br><span class="line">	<span class="keyword">defer</span> timeout.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 使用 select 监听不同的事件</span></span><br><span class="line">	<span class="keyword">select</span> &#123;</span><br><span class="line">	<span class="keyword">case</span> data := &lt;-result:</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求成功:&quot;</span>, data)</span><br><span class="line">		<span class="keyword">return</span> data, <span class="literal">nil</span></span><br><span class="line">	<span class="keyword">case</span> err := &lt;-errChan:</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求失败:&quot;</span>, err)</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, err</span><br><span class="line">	<span class="keyword">case</span> &lt;-timeout.C:</span><br><span class="line">		fmt.Println(<span class="string">&quot;请求超时！&quot;</span>)</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot;&quot;</span>, fmt.Errorf(<span class="string">&quot;请求超时&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	_, err := fetchDataFromExternalService(<span class="string">&quot;https://example.com/api/data&quot;</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;处理请求失败:&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟超时的情况</span></span><br><span class="line">	_, err = fetchDataFromExternalService(<span class="string">&quot;https://slow.example.com/api/data&quot;</span>) <span class="comment">// 假设这个地址响应很慢</span></span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;处理慢请求:&quot;</span>, err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 为了让慢请求的 Goroutine 有机会执行（虽然会超时），我们等待一小段时间</span></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>fetchDataFromExternalService</code> 函数模拟向外部服务发起请求。</li>
+<li>我们创建了两个 Channel：<code>result</code> 用于接收成功的数据，<code>errChan</code> 用于接收错误信息。</li>
+<li>在一个新的 Goroutine 中执行实际的 HTTP 请求。</li>
+<li><code>timeout := time.NewTimer(3 * time.Second)</code> 创建了一个 3 秒后触发的 <code>Timer</code>。</li>
+<li><code>select</code> 语句用于同时监听 <code>result</code> Channel、<code>errChan</code> Channel 和 <code>timeout.C</code> Channel。
+<ul>
+<li>如果从 <code>result</code> 接收到数据，说明请求成功。</li>
+<li>如果从 <code>errChan</code> 接收到错误，说明请求失败。</li>
+<li>如果 <code>timeout.C</code> 接收到值，说明 3 秒超时时间已到，请求超时。</li>
+</ul>
+</li>
+</ol>
+<p><strong>2. <code>time.Timer</code>: 延迟重试某个操作</strong></p>
+<p><strong>场景描述:</strong> 当某个操作失败时，我们不立即放弃，而是等待一段时间后进行重试。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;math/rand&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">attemptOperation</span><span class="params">(attempt <span class="type">int</span>)</span></span> <span class="type">error</span> &#123;</span><br><span class="line">	<span class="comment">// 模拟一个可能失败的操作</span></span><br><span class="line">	<span class="keyword">if</span> rand.Intn(<span class="number">3</span>) != <span class="number">0</span> &#123; <span class="comment">// 大约 2/3 的概率失败</span></span><br><span class="line">		fmt.Printf(<span class="string">&quot;尝试 %d 失败\n&quot;</span>, attempt)</span><br><span class="line">		<span class="keyword">return</span> fmt.Errorf(<span class="string">&quot;操作失败&quot;</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;尝试 %d 成功\n&quot;</span>, attempt)</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">retryOperationWithDelay</span><span class="params">(maxRetries <span class="type">int</span>, delay time.Duration)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt;= maxRetries; i++ &#123;</span><br><span class="line">		err := attemptOperation(i)</span><br><span class="line">		<span class="keyword">if</span> err == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> i &lt; maxRetries &#123;</span><br><span class="line">			fmt.Printf(<span class="string">&quot;等待 %s 后重试...\n&quot;</span>, delay)</span><br><span class="line">			timer := time.NewTimer(delay)</span><br><span class="line">			&lt;-timer.C</span><br><span class="line">			timer.Stop() <span class="comment">// 记得停止 Timer</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;达到最大重试次数，操作失败。&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	retryOperationWithDelay(<span class="number">3</span>, <span class="number">2</span>*time.Second)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>attemptOperation</code> 函数模拟一个可能失败的操作。</li>
+<li><code>retryOperationWithDelay</code> 函数接收最大重试次数和延迟时间。</li>
+<li>在一个循环中尝试执行操作。如果操作失败且未达到最大重试次数，则创建一个 <code>time.NewTimer(delay)</code>，等待 <code>delay</code> 时间后继续下一次尝试。</li>
+</ol>
+<p><strong>3. <code>time.Timer</code>: 在用户空闲一段时间后执行某些清理工作</strong></p>
+<p><strong>场景描述:</strong> 例如，在一个交互式应用中，如果用户长时间没有操作，我们可能需要清理一些资源或执行登出操作。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">simulateUserActivity</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="number">5</span>; i++ &#123;</span><br><span class="line">		fmt.Println(<span class="string">&quot;用户正在操作...&quot;</span>)</span><br><span class="line">		<span class="comment">// 模拟用户操作的间隔</span></span><br><span class="line">		sleepTime := time.Duration(rand.Intn(<span class="number">3</span>)) * time.Second</span><br><span class="line">		time.Sleep(sleepTime)</span><br><span class="line">		resetIdleTimer() <span class="comment">// 用户活动后重置空闲计时器</span></span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(<span class="string">&quot;用户停止活动。&quot;</span>)</span><br><span class="line">	<span class="comment">// 即使用户停止活动，空闲清理的 Goroutine 仍然可能在运行，需要考虑如何优雅地关闭</span></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	stopIdleCheck()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> idleTimer *time.Timer</span><br><span class="line"><span class="keyword">var</span> idleDuration = <span class="number">5</span> * time.Second</span><br><span class="line"><span class="keyword">var</span> idleStop = <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">idleCleanup</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;启动空闲状态检测...&quot;</span>)</span><br><span class="line">	idleTimer = time.NewTimer(idleDuration)</span><br><span class="line">	<span class="keyword">defer</span> idleTimer.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-idleTimer.C:</span><br><span class="line">			fmt.Println(<span class="string">&quot;用户长时间未活动，执行清理操作...&quot;</span>)</span><br><span class="line">			<span class="comment">// 在这里执行清理逻辑</span></span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-idleStop:</span><br><span class="line">			fmt.Println(<span class="string">&quot;停止空闲状态检测。&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">resetIdleTimer</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> !idleTimer.Stop() &amp;&amp; <span class="built_in">len</span>(idleTimer.C) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		&lt;-idleTimer.C</span><br><span class="line">	&#125;</span><br><span class="line">	idleTimer.Reset(idleDuration)</span><br><span class="line">	fmt.Println(<span class="string">&quot;空闲计时器已重置。&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">stopIdleCheck</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="built_in">close</span>(idleStop)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	rand.Seed(time.Now().UnixNano())</span><br><span class="line">	<span class="keyword">go</span> idleCleanup()</span><br><span class="line">	simulateUserActivity()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>idleCleanup</code> 函数启动一个 Goroutine，使用 <code>time.NewTimer</code> 检测用户是否空闲超过 <code>idleDuration</code>。</li>
+<li><code>resetIdleTimer</code> 函数在用户活动时被调用，它会停止之前的 Timer 并重新启动一个新的 Timer。</li>
+<li><code>simulateUserActivity</code> 模拟用户的操作，并在每次操作后调用 <code>resetIdleTimer</code>。</li>
+<li><code>stopIdleCheck</code> 用于停止空闲检测的 Goroutine。</li>
+</ol>
+<p><strong>4. <code>time.Ticker</code>: 定期上报系统状态或监控数据</strong></p>
+<p><strong>场景描述:</strong> 系统需要定期向监控中心发送自身的运行状态。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;runtime&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reportSystemStats</span><span class="params">(interval time.Duration)</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(interval)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> <span class="keyword">range</span> ticker.C &#123;</span><br><span class="line">		<span class="keyword">var</span> mem runtime.MemStats</span><br><span class="line">		runtime.ReadMemStats(&amp;mem)</span><br><span class="line">		fmt.Printf(<span class="string">&quot;[%s] Goroutines: %d, HeapAlloc: %d bytes\n&quot;</span>,</span><br><span class="line">			time.Now().Format(time.RFC3339), runtime.NumGoroutine(), mem.HeapAlloc)</span><br><span class="line">		<span class="comment">// 在这里可以将这些数据发送到监控系统</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;开始定期上报系统状态...&quot;</span>)</span><br><span class="line">	reportSystemStats(<span class="number">2</span> * time.Second)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 为了让程序运行一段时间，我们 Sleep 一下</span></span><br><span class="line">	time.Sleep(<span class="number">10</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;停止上报。&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>reportSystemStats</code> 函数接收一个时间间隔。</li>
+<li><code>ticker := time.NewTicker(interval)</code> 创建一个每隔 <code>interval</code> 时间触发一次的 <code>Ticker</code>。</li>
+<li><code>for range ticker.C</code> 循环会持续从 <code>ticker.C</code> 接收时间，并在每次接收到时获取并打印当前的 Goroutine 数量和堆内存分配情况。</li>
+</ol>
+<p><strong>5. <code>time.Ticker</code>: 实现心跳机制</strong></p>
+<p><strong>场景描述:</strong> 在分布式系统中，服务之间需要定期发送心跳包，以告知对方自己仍然存活。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sendHeartbeat</span><span class="params">(serviceName <span class="type">string</span>, interval time.Duration, quit &lt;-<span class="keyword">chan</span> <span class="type">bool</span>)</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(interval)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-ticker.C:</span><br><span class="line">			fmt.Printf(<span class="string">&quot;[%s] 发送心跳: %s\n&quot;</span>, time.Now().Format(time.RFC3339), serviceName)</span><br><span class="line">			<span class="comment">// 在这里可以将心跳发送给其他服务</span></span><br><span class="line">		<span class="keyword">case</span> &lt;-quit:</span><br><span class="line">			fmt.Printf(<span class="string">&quot;[%s] 停止发送心跳: %s\n&quot;</span>, time.Now().Format(time.RFC3339), serviceName)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)</span><br><span class="line">	<span class="keyword">go</span> sendHeartbeat(<span class="string">&quot;ServiceA&quot;</span>, <span class="number">1</span>*time.Second, quit)</span><br><span class="line">	<span class="keyword">go</span> sendHeartbeat(<span class="string">&quot;ServiceB&quot;</span>, <span class="number">2</span>*time.Second, quit)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟运行一段时间</span></span><br><span class="line">	time.Sleep(<span class="number">5</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;停止发送心跳。&quot;</span>)</span><br><span class="line">	<span class="built_in">close</span>(quit) <span class="comment">// 通知心跳 Goroutine 停止</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// 等待心跳 Goroutine 退出</span></span><br><span class="line">	time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>sendHeartbeat</code> 函数接收服务名称、心跳间隔和一个退出 Channel。</li>
+<li><code>ticker := time.NewTicker(interval)</code> 创建一个定期触发的 <code>Ticker</code>。</li>
+<li><code>select</code> 语句用于监听 <code>ticker.C</code>（发送心跳）和 <code>quit</code> Channel（停止心跳）。</li>
+</ol>
+<p><strong>6. <code>time.Ticker</code>: 周期性地刷新缓存</strong></p>
+<p><strong>场景描述:</strong> 为了保证数据的时效性，我们需要定期地从数据源加载最新的数据到缓存中。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟缓存</span></span><br><span class="line"><span class="keyword">var</span> cache <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">loadDataFromSource</span><span class="params">()</span></span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span> &#123;</span><br><span class="line">	fmt.Println(<span class="string">&quot;从数据源加载最新数据...&quot;</span>)</span><br><span class="line">	<span class="comment">// 实际场景中会连接数据库或 API</span></span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>&#123;</span><br><span class="line">		<span class="string">&quot;user:1&quot;</span>: fmt.Sprintf(<span class="string">&quot;User 1 - Updated at %s&quot;</span>, time.Now().Format(time.RFC3339)),</span><br><span class="line">		<span class="string">&quot;item:1&quot;</span>: fmt.Sprintf(<span class="string">&quot;Item 1 - Updated at %s&quot;</span>, time.Now().Format(time.RFC3339)),</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">refreshCache</span><span class="params">(interval time.Duration, quit &lt;-<span class="keyword">chan</span> <span class="type">bool</span>)</span></span> &#123;</span><br><span class="line">	ticker := time.NewTicker(interval)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> &lt;-ticker.C:</span><br><span class="line">			fmt.Println(<span class="string">&quot;开始刷新缓存...&quot;</span>)</span><br><span class="line">			cache = loadDataFromSource()</span><br><span class="line">			fmt.Println(<span class="string">&quot;缓存刷新完成:&quot;</span>, cache)</span><br><span class="line">		<span class="keyword">case</span> &lt;-quit:</span><br><span class="line">			fmt.Println(<span class="string">&quot;停止缓存刷新。&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	cache = <span class="built_in">make</span>(<span class="keyword">map</span>[<span class="type">string</span>]<span class="type">string</span>)</span><br><span class="line">	quit := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="type">bool</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">go</span> refreshCache(<span class="number">5</span>*time.Second, quit)</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 模拟一段时间的应用运行</span></span><br><span class="line">	time.Sleep(<span class="number">15</span> * time.Second)</span><br><span class="line">	fmt.Println(<span class="string">&quot;停止缓存刷新。&quot;</span>)</span><br><span class="line">	<span class="built_in">close</span>(quit)</span><br><span class="line">	time.Sleep(<span class="number">1</span> * time.Second)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>代码讲解:</strong></p>
+<ol>
+<li><code>loadDataFromSource</code> 函数模拟从数据源加载最新数据。</li>
+<li><code>refreshCache</code> 函数使用 <code>time.NewTicker</code> 定期触发缓存刷新操作，调用 <code>loadDataFromSource</code> 更新全局的 <code>cache</code> 变量。</li>
+</ol>
+<p>在 Go 语言的 <code>time</code> 包中，<code>time.Tick()</code> 和 <code>time.NewTicker()</code> 都用于以固定的时间间隔产生事件，但它们之间存在一些关键的区别。</p>
+<p><strong><code>time.Tick()</code></strong></p>
+<ul>
+<li><strong>功能:</strong> <code>time.Tick(d Duration)</code> 是一个<strong>便利的封装函数</strong>，它返回一个只读的 <code>&lt;-chan Time</code>。这个 channel 会以 <code>d</code> 指定的时间间隔发送当时的时间。</li>
+<li><strong>用法:</strong> 它通常在 <code>for range</code> 循环中使用，以便在每个时间间隔执行某些操作。</li>
+<li><strong>资源管理:</strong> <strong>在 Go 1.23 之前</strong>，由 <code>time.Tick()</code> 创建的底层的 <code>Ticker</code> 不会被垃圾回收，除非程序结束。因此，如果不再需要这个 ticker，<strong>在 Go 1.23 之前</strong>推荐使用 <code>time.NewTicker()</code> 并调用其 <code>Stop()</code> 方法来释放资源。<strong>从 Go 1.23 开始</strong>，垃圾回收器可以回收不再被引用的 tickers，即使它们没有被停止。因此，现在 <code>time.Tick()</code> 在不需要显式停止 ticker 的场景下也更方便。</li>
+<li><strong>无法停止:</strong> 你无法显式地停止由 <code>time.Tick()</code> 创建的 ticker。它会一直发送 tick，直到包含它的 goroutine 结束。</li>
+<li><strong>返回值:</strong> 返回一个 <code>&lt;-chan Time</code>。如果 <code>d &lt;= 0</code>，<code>time.Tick()</code> 会返回 <code>nil</code>。</li>
+</ul>
+<p><strong><code>time.NewTicker()</code></strong></p>
+<ul>
+<li><strong>功能:</strong> <code>time.NewTicker(d Duration)</code> 创建并返回一个新的 <code>*Ticker</code>。<code>Ticker</code> 类型包含一个 channel <code>C</code> (也是 <code>&lt;-chan Time</code>)，它会以 <code>d</code> 指定的时间间隔发送时间。<code>Ticker</code> 类型还包含一个 <code>Stop()</code> 方法，用于显式停止 ticker 并释放相关资源.</li>
+<li><strong>用法:</strong> 你需要创建一个 <code>Ticker</code> 实例，然后通过访问其 <code>C</code> 字段来接收 tick。当不再需要时，应该调用 <code>Stop()</code> 方法。</li>
+<li><strong>资源管理:</strong> 使用 <code>time.NewTicker()</code> 可以让你显式地控制 ticker 的生命周期，通过调用 <code>Stop()</code> 来释放资源，这在长时间运行的程序中很重要，<strong>尤其是在 Go 1.23 之前</strong>。</li>
+<li><strong>可以停止:</strong> 你可以通过调用 <code>ticker.Stop()</code> 来停止 <code>NewTicker()</code> 创建的 ticker。</li>
+<li><strong>返回值:</strong> 返回一个指向 <code>Ticker</code> 类型的指针 <code>*Ticker</code>。如果 <code>d &lt;= 0</code>，<code>time.NewTicker()</code> 会 panic。</li>
+</ul>
+<p><strong>总结:</strong></p>
+<table>
+<thead>
+<tr>
+<th>特性</th>
+<th><code>time.Tick()</code></th>
+<th><code>time.NewTicker()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>返回值</td>
+<td><code>&lt;-chan Time</code></td>
+<td><code>*Ticker</code> (包含 <code>C</code> 字段和 <code>Stop()</code> 方法)</td>
+</tr>
+<tr>
+<td>停止</td>
+<td>无法显式停止</td>
+<td>可以通过 <code>ticker.Stop()</code> 停止</td>
+</tr>
+<tr>
+<td>资源管理</td>
+<td><strong>Go 1.23 之前:</strong> 可能导致资源泄漏，不适合长时间运行且需要停止的场景。<strong>Go 1.23 之后:</strong> GC 可以回收。</td>
+<td>需要显式调用 <code>Stop()</code> 来释放资源 (在 Go 1.23 之前更重要)</td>
+</tr>
+<tr>
+<td>用途</td>
+<td>简单的周期性任务，不需要停止 ticker 的场景</td>
+<td>需要更精细控制 ticker 生命周期和资源管理的场景</td>
+</tr>
+<tr>
+<td><code>d &lt;= 0</code></td>
+<td>返回 <code>nil</code></td>
+<td>panic</td>
+</tr>
+</tbody>
+</table>
+<p><strong>用法示例:</strong></p>
+<p><strong><code>time.Tick()</code> 示例:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 每秒 tick 一次</span></span><br><span class="line">	ticker := time.Tick(<span class="number">1</span> * time.Second)</span><br><span class="line">	done := time.After(<span class="number">5</span> * time.Second) <span class="comment">// 5 秒后结束</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> t := &lt;-ticker:</span><br><span class="line">			fmt.Println(<span class="string">&quot;Tick at&quot;</span>, t)</span><br><span class="line">		<span class="keyword">case</span> &lt;-done:</span><br><span class="line">			fmt.Println(<span class="string">&quot;Done!&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong><code>time.NewTicker()</code> 示例:</strong></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;time&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// 每 500 毫秒 tick 一次</span></span><br><span class="line">	ticker := time.NewTicker(<span class="number">500</span> * time.Millisecond)</span><br><span class="line">	<span class="keyword">defer</span> ticker.Stop() <span class="comment">// 确保在函数退出时停止 ticker</span></span><br><span class="line"></span><br><span class="line">	done := time.After(<span class="number">3</span> * time.Second) <span class="comment">// 3 秒后结束</span></span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		<span class="keyword">select</span> &#123;</span><br><span class="line">		<span class="keyword">case</span> t := &lt;-ticker.C:</span><br><span class="line">			fmt.Println(<span class="string">&quot;Ticker at&quot;</span>, t)</span><br><span class="line">		<span class="keyword">case</span> &lt;-done:</span><br><span class="line">			fmt.Println(<span class="string">&quot;Done!&quot;</span>)</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上面的 <code>time.NewTicker()</code> 示例中，我们使用了 <code>defer ticker.Stop()</code> 来确保在 <code>main</code> 函数结束时调用 <code>Stop()</code> 方法，释放 ticker 占用的资源。这在长时间运行的程序中是一个良好的实践。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/26/go%E8%AF%AD%E8%A8%80%E4%B9%8Bselect%E6%8C%87%E5%8D%97/" rel="prev" title="go语言之select指南">
+                  <i class="fa fa-angle-left"></i> go语言之select指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/27/go%E8%AF%AD%E8%A8%80%E4%B9%8BStatefulGoroutine/" rel="next" title="go语言之Stateful Goroutine">
+                  go语言之Stateful Goroutine <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

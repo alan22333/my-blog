@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之日志 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Go 语言内置了基本的日志库 log，自 Go 1.21 起又引入了更现代、结构化的日志库 log&#x2F;slog">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之日志">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Go 语言内置了基本的日志库 log，自 Go 1.21 起又引入了更现代、结构化的日志库 log&#x2F;slog">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-30T10:38:52.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.064Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/","path":"2025/05/30/go语言之日志/","title":"go语言之日志"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%A7%B1-%E4%B8%80%E3%80%81%E6%A0%87%E5%87%86%E5%BA%93-log-%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">🧱 一、标准库 log 简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%96%B9%E6%B3%95"><span class="nav-number">1.1.</span> <span class="nav-text">常用方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%97%A5%E5%BF%97%E5%B1%9E%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">设置日志属性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%92%A1-%E4%BA%8C%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95%E5%99%A8-log-New"><span class="nav-number">2.</span> <span class="nav-text">💡 二、自定义日志记录器 (log.New)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%8C%9F-%E4%B8%89%E3%80%81%E7%BB%93%E6%9E%84%E5%8C%96%E6%97%A5%E5%BF%97%E5%BA%93-log-slog%EF%BC%88Go-1-21-%EF%BC%89"><span class="nav-number">3.</span> <span class="nav-text">🌟 三、结构化日志库 log&#x2F;slog（Go 1.21+）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E7%82%B9"><span class="nav-number">3.1.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%EF%BC%9A%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95"><span class="nav-number">3.2.</span> <span class="nav-text">示例：基本用法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%81-%E5%9B%9B%E3%80%81%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5%EF%BC%9A%E6%9E%84%E5%BB%BA%E9%80%9A%E7%94%A8%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97%EF%BC%88%E6%8E%A8%E8%8D%90%E7%94%A8%E4%BA%8E%E5%AE%9E%E9%99%85%E9%A1%B9%E7%9B%AE%EF%BC%89"><span class="nav-number">4.</span> <span class="nav-text">📁 四、最佳实践：构建通用日志模块（推荐用于实际项目）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#logger-logger-go"><span class="nav-number">4.1.</span> <span class="nav-text">logger&#x2F;logger.go</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%97%A5%E5%BF%97%E6%A8%A1%E5%9D%97"><span class="nav-number">4.2.</span> <span class="nav-text">使用日志模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%9B%A0%EF%B8%8F-%E4%BA%94%E3%80%81%E8%BF%9B%E9%98%B6%E7%94%A8%E6%B3%95%E4%B8%8E%E5%BB%BA%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">🛠️ 五、进阶用法与建议</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%99%E5%85%A5%E6%96%87%E4%BB%B6%EF%BC%88%E4%BD%BF%E7%94%A8-io-MultiWriter%EF%BC%89"><span class="nav-number">5.1.</span> <span class="nav-text">写入文件（使用 io.MultiWriter）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%85%A5%E6%97%A5%E5%BF%97%E7%BA%A7%E5%88%AB%EF%BC%88%E6%A0%87%E5%87%86%E5%BA%93%E4%B8%8D%E6%94%AF%E6%8C%81%EF%BC%8C%E9%9C%80%E8%A6%81%E8%87%AA%E5%B7%B1%E5%AE%9E%E7%8E%B0%E6%88%96%E7%94%A8-slog%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">加入日志级别（标准库不支持，需要自己实现或用 slog）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%AC%AC%E4%B8%89%E6%96%B9%E5%BA%93%EF%BC%88%E5%A6%82-zerolog%E3%80%81zap%EF%BC%89"><span class="nav-number">5.3.</span> <span class="nav-text">使用第三方库（如 zerolog、zap）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%F0%9F%93%8C-%E5%85%AD%E3%80%81%E6%8E%A8%E8%8D%90%E6%97%A5%E5%BF%97%E7%AD%96%E7%95%A5%EF%BC%88%E5%BC%80%E5%8F%91%E5%BB%BA%E8%AE%AE%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">📌 六、推荐日志策略（开发建议）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E2%9C%85-%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">✅ 总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%97%A5%E5%BF%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之日志 | Hello there! I'm alan">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之日志
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-30 18:38:52" itemprop="dateCreated datePublished" datetime="2025-05-30T18:38:52+08:00">2025-05-30</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>Go 语言内置了基本的日志库 <code>log</code>，自 Go 1.21 起又引入了更现代、结构化的日志库 <code>log/slog</code></p>
+<span id="more"></span>
+<h2 id="🧱-一、标准库-log-简介">🧱 一、标准库 <code>log</code> 简介</h2>
+<p>Go 标准库中的 <code>log</code> 提供了基本的同步日志功能。适合简单项目或单机程序，特点是：</p>
+<ul>
+<li>支持日志前缀（Prefix）</li>
+<li>支持设置时间戳、文件路径等输出信息（通过 <code>SetFlags</code>）</li>
+<li>支持自定义输出目的地（Writer）</li>
+</ul>
+<h3 id="常用方法">常用方法</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">log.Print(<span class="string">&quot;普通日志&quot;</span>)</span><br><span class="line">log.Println(<span class="string">&quot;自动换行&quot;</span>)</span><br><span class="line">log.Printf(<span class="string">&quot;格式化日志: %d&quot;</span>, <span class="number">100</span>)</span><br><span class="line">log.Fatal(<span class="string">&quot;打印后调用 os.Exit(1)&quot;</span>)</span><br><span class="line">log.Panic(<span class="string">&quot;打印后 panic()&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="设置日志属性">设置日志属性</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">log.SetPrefix(<span class="string">&quot;DEBUG: &quot;</span>)                     <span class="comment">// 设置日志前缀</span></span><br><span class="line">log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile) <span class="comment">// 显示日期、时间、文件名:行号</span></span><br><span class="line">log.SetOutput(os.Stdout)                     <span class="comment">// 改变输出目标（默认是 stderr）</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="💡-二、自定义日志记录器-log-New">💡 二、自定义日志记录器 (<code>log.New</code>)</h2>
+<p>用于模块化日志输出、写入文件或缓存等：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">file, _ := os.Create(<span class="string">&quot;app.log&quot;</span>)</span><br><span class="line">logger := log.New(file, <span class="string">&quot;APP: &quot;</span>, log.LstdFlags|log.Lshortfile)</span><br><span class="line"></span><br><span class="line">logger.Println(<span class="string">&quot;hello from logger&quot;</span>)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🌟-三、结构化日志库-log-slog（Go-1-21-）">🌟 三、结构化日志库 <code>log/slog</code>（Go 1.21+）</h2>
+<h3 id="特点">特点</h3>
+<ul>
+<li>支持 <strong>JSON 格式</strong> 输出</li>
+<li>支持 <strong>键值对结构化日志</strong></li>
+<li>可插拔的日志后端（可用于发送到远程、文件、服务等）</li>
+</ul>
+<h3 id="示例：基本用法">示例：基本用法</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;log/slog&quot;</span></span><br><span class="line">    <span class="string">&quot;os&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    handler := slog.NewJSONHandler(os.Stdout, <span class="literal">nil</span>)</span><br><span class="line">    logger := slog.New(handler)</span><br><span class="line"></span><br><span class="line">    logger.Info(<span class="string">&quot;user logged in&quot;</span>, <span class="string">&quot;userID&quot;</span>, <span class="number">1234</span>, <span class="string">&quot;ip&quot;</span>, <span class="string">&quot;192.168.1.1&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出如下（JSON 格式）：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span><span class="attr">&quot;time&quot;</span><span class="punctuation">:</span><span class="string">&quot;2025-05-30T12:00:00Z&quot;</span><span class="punctuation">,</span><span class="attr">&quot;level&quot;</span><span class="punctuation">:</span><span class="string">&quot;INFO&quot;</span><span class="punctuation">,</span><span class="attr">&quot;msg&quot;</span><span class="punctuation">:</span><span class="string">&quot;user logged in&quot;</span><span class="punctuation">,</span><span class="attr">&quot;userID&quot;</span><span class="punctuation">:</span><span class="number">1234</span><span class="punctuation">,</span><span class="attr">&quot;ip&quot;</span><span class="punctuation">:</span><span class="string">&quot;192.168.1.1&quot;</span><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="📁-四、最佳实践：构建通用日志模块（推荐用于实际项目）">📁 四、最佳实践：构建通用日志模块（推荐用于实际项目）</h2>
+<h3 id="logger-logger-go"><code>logger/logger.go</code></h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> logger</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;log/slog&quot;</span></span><br><span class="line">    <span class="string">&quot;os&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> Log *slog.Logger</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(env <span class="type">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">var</span> handler slog.Handler</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> env == <span class="string">&quot;dev&quot;</span> &#123;</span><br><span class="line">        handler = slog.NewTextHandler(os.Stdout, <span class="literal">nil</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        handler = slog.NewJSONHandler(os.Stdout, <span class="literal">nil</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Log = slog.New(handler)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="使用日志模块">使用日志模块</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// main.go</span></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">&quot;yourapp/logger&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    logger.Init(<span class="string">&quot;dev&quot;</span>)</span><br><span class="line">    logger.Log.Info(<span class="string">&quot;server started&quot;</span>, <span class="string">&quot;port&quot;</span>, <span class="number">8080</span>)</span><br><span class="line">    logger.Log.Error(<span class="string">&quot;failed to connect DB&quot;</span>, <span class="string">&quot;error&quot;</span>, <span class="string">&quot;timeout&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="🛠️-五、进阶用法与建议">🛠️ 五、进阶用法与建议</h2>
+<h3 id="写入文件（使用-io-MultiWriter）">写入文件（使用 <code>io.MultiWriter</code>）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">file, _ := os.OpenFile(<span class="string">&quot;app.log&quot;</span>, os.O_APPEND|os.O_CREATE|os.O_WRONLY, <span class="number">0644</span>)</span><br><span class="line">multi := io.MultiWriter(os.Stdout, file)</span><br><span class="line">log.SetOutput(multi)</span><br></pre></td></tr></table></figure>
+<h3 id="加入日志级别（标准库不支持，需要自己实现或用-slog）">加入日志级别（标准库不支持，需要自己实现或用 slog）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">log.Println(<span class="string">&quot;[INFO] service started&quot;</span>)</span><br><span class="line">log.Println(<span class="string">&quot;[ERROR] database unavailable&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="使用第三方库（如-zerolog、zap）">使用第三方库（如 zerolog、zap）</h3>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用 zap</span></span><br><span class="line">logger, _ := zap.NewProduction()</span><br><span class="line"><span class="keyword">defer</span> logger.Sync()</span><br><span class="line">logger.Info(<span class="string">&quot;hello zap&quot;</span>, zap.String(<span class="string">&quot;user&quot;</span>, <span class="string">&quot;Alice&quot;</span>), zap.Int(<span class="string">&quot;age&quot;</span>, <span class="number">25</span>))</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="📌-六、推荐日志策略（开发建议）">📌 六、推荐日志策略（开发建议）</h2>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>建议做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本地开发</td>
+<td>使用 <code>slog.TextHandler</code>，方便阅读</td>
+</tr>
+<tr>
+<td>生产环境</td>
+<td>使用 <code>slog.JSONHandler</code>，适合日志采集与分析工具（ELK、Loki）</td>
+</tr>
+<tr>
+<td>多模块项目</td>
+<td>自定义日志模块，统一日志格式与等级</td>
+</tr>
+<tr>
+<td>需要性能或日志量极大</td>
+<td>使用 <code>zap</code>（Uber）或 <code>zerolog</code>（高性能）</td>
+</tr>
+<tr>
+<td>日志等级控制</td>
+<td><code>slog.Level</code> 支持 DEBUG、INFO、WARN、ERROR 可设置过滤</td>
+</tr>
+<tr>
+<td>测试中使用</td>
+<td>写入 <code>bytes.Buffer</code>，便于断言日志输出</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="✅-总结">✅ 总结</h2>
+<table>
+<thead>
+<tr>
+<th>日志方式</th>
+<th>优点</th>
+<th>缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>log</code></td>
+<td>简单快速，内置</td>
+<td>无结构化、不支持等级</td>
+</tr>
+<tr>
+<td><code>log.New</code></td>
+<td>可自定义输出</td>
+<td>管理复杂、功能有限</td>
+</tr>
+<tr>
+<td><code>log/slog</code></td>
+<td>结构化日志、JSON/文本输出</td>
+<td>Go 1.21+ 限制</td>
+</tr>
+<tr>
+<td><code>zap/zerolog</code></td>
+<td>高性能、等级控制、生产级</td>
+<td>引入外部依赖，API 学习成本</td>
+</tr>
+</tbody>
+</table>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E6%B5%8B%E8%AF%95%E4%B8%8E%E5%9F%BA%E5%87%86%E6%B5%8B%E8%AF%95%E5%85%A5%E9%97%A8/" rel="prev" title="go语言之测试与基准测试入门">
+                  <i class="fa fa-angle-left"></i> go语言之测试与基准测试入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/30/go%E8%AF%AD%E8%A8%80%E4%B9%8Bhttp/" rel="next" title="go语言之http">
+                  go语言之http <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

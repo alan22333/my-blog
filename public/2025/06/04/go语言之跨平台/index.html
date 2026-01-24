@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>go语言之跨平台 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="为什么 Go 可以跨平台？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="go语言之跨平台">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="为什么 Go 可以跨平台？">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-04T06:30:38.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.065Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/","path":"2025/06/04/go语言之跨平台/","title":"go语言之跨平台"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88-Go-%E5%8F%AF%E4%BB%A5%E8%B7%A8%E5%B9%B3%E5%8F%B0%EF%BC%9F%E4%B8%80%E6%96%87%E8%AE%B2%E9%80%8F%E5%BA%95%E5%B1%82%E5%8E%9F%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">为什么 Go 可以跨平台？一文讲透底层原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E8%B7%A8%E5%B9%B3%E5%8F%B0%EF%BC%9F"><span class="nav-number">1.1.</span> <span class="nav-text">一、什么是跨平台？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Go-%E6%98%AF%E7%BC%96%E8%AF%91%E5%9E%8B%E8%AF%AD%E8%A8%80%EF%BC%8C%E7%94%9F%E6%88%90%E5%8E%9F%E7%94%9F%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.2.</span> <span class="nav-text">二、Go 是编译型语言，生成原生程序</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Go-%E7%9A%84%E8%B7%A8%E5%B9%B3%E5%8F%B0%E7%A5%9E%E5%99%A8%EF%BC%9AGOOS-%E5%92%8C-GOARCH"><span class="nav-number">1.3.</span> <span class="nav-text">三、Go 的跨平台神器：GOOS 和 GOARCH</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BE%E4%B8%AA%E4%BE%8B%E5%AD%90%EF%BC%9A"><span class="nav-number">1.3.1.</span> <span class="nav-text">举个例子：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%AF%E6%8C%81%E5%B9%B3%E5%8F%B0%E4%B8%80%E8%A7%88%EF%BC%88%E9%83%A8%E5%88%86%EF%BC%89%EF%BC%9A"><span class="nav-number">1.3.2.</span> <span class="nav-text">支持平台一览（部分）：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Go-%E5%86%85%E7%BD%AE%E6%A0%87%E5%87%86%E5%BA%93%E5%B7%B2%E9%80%82%E9%85%8D%E5%A4%9A%E5%B9%B3%E5%8F%B0"><span class="nav-number">1.4.</span> <span class="nav-text">四、Go 内置标准库已适配多平台</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81Go-%E5%B7%A5%E5%85%B7%E9%93%BE%E5%86%85%E7%BD%AE%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E6%94%AF%E6%8C%81"><span class="nav-number">1.5.</span> <span class="nav-text">五、Go 工具链内置交叉编译支持</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E8%B4%B4%E5%A3%AB%EF%BC%9A"><span class="nav-number">1.5.1.</span> <span class="nav-text">小贴士：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81Go-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E8%B7%A8%E5%B9%B3%E5%8F%B0%E6%80%BB%E7%BB%93%E4%B8%80%E4%B8%8B%EF%BC%9A"><span class="nav-number">1.6.</span> <span class="nav-text">六、Go 为什么能跨平台总结一下：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">1.7.</span> <span class="nav-text">七、一句话总结：</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/06/04/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B7%A8%E5%B9%B3%E5%8F%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="go语言之跨平台 | Hello there! I'm alan">
+      <meta itemprop="description" content="为什么 Go 可以跨平台？">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          go语言之跨平台
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-04 14:30:38" itemprop="dateCreated datePublished" datetime="2025-06-04T14:30:38+08:00">2025-06-04</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">为什么 Go 可以跨平台？</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="为什么-Go-可以跨平台？一文讲透底层原理">为什么 Go 可以跨平台？一文讲透底层原理</h1>
+<blockquote>
+<p>Go（Golang）是一门被称为“现代 C 语言”的编程语言，不仅语法简洁，还具备强大的跨平台能力。那么，Go 是如何实现跨平台的？本文将从实用层到底层机制，一步步为你揭开答案。</p>
+</blockquote>
+<hr>
+<h2 id="一、什么是跨平台？">一、什么是跨平台？</h2>
+<p>跨平台的意思是：<strong>同一套代码可以在多个操作系统上运行</strong>，比如 Linux、Windows、macOS，甚至是 Android 和 iOS。</p>
+<p>Go 的跨平台支持非常优秀：</p>
+<ul>
+<li>你可以在 mac 上开发，打包一个 Linux 可执行文件；</li>
+<li>也可以编译出适用于 Windows 的 <code>.exe</code> 文件；</li>
+<li>甚至可以为嵌入式系统或 WebAssembly 生成程序。</li>
+</ul>
+<p>这到底是怎么做到的呢？</p>
+<hr>
+<h2 id="二、Go-是编译型语言，生成原生程序">二、Go 是编译型语言，生成原生程序</h2>
+<p>首先要明确一点：<strong>Go 是编译型语言，不依赖虚拟机</strong>。</p>
+<p>不像 Java 或 Python 那样运行在 JVM 或解释器中，Go 的程序在编译后就是一个操作系统可以直接运行的“原生二进制文件”。比如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go build -o app main.go</span><br></pre></td></tr></table></figure>
+<p>上面这条命令会生成一个 <code>app</code> 可执行文件，直接运行即可。</p>
+<blockquote>
+<p>✅ 不需要额外环境、不依赖虚拟机 —— 这是 Go 能高效跨平台的第一步。</p>
+</blockquote>
+<hr>
+<h2 id="三、Go-的跨平台神器：GOOS-和-GOARCH">三、Go 的跨平台神器：<code>GOOS</code> 和 <code>GOARCH</code></h2>
+<p>Go 提供了两个非常重要的环境变量：</p>
+<table>
+<thead>
+<tr>
+<th>变量</th>
+<th>含义</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GOOS</code></td>
+<td>目标操作系统</td>
+<td>linux、windows</td>
+</tr>
+<tr>
+<td><code>GOARCH</code></td>
+<td>目标系统架构</td>
+<td>amd64、arm64 等</td>
+</tr>
+</tbody>
+</table>
+<p>只需设置这两个变量，Go 就可以为对应平台交叉编译程序！</p>
+<h3 id="举个例子：">举个例子：</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GOOS=windows GOARCH=amd64 go build -o hello.exe main.go</span><br></pre></td></tr></table></figure>
+<p>这条命令在 macOS 或 Linux 上执行时，会生成一个 <strong>适用于 Windows 64 位系统</strong> 的 <code>.exe</code> 文件！</p>
+<p>Go 编译器会：</p>
+<ul>
+<li>根据 <code>GOOS</code> 和 <code>GOARCH</code> 查找对应平台的标准库和系统调用实现；</li>
+<li>选择合适的汇编代码生成器；</li>
+<li>编译出目标平台可直接运行的二进制文件。</li>
+</ul>
+<h3 id="支持平台一览（部分）：">支持平台一览（部分）：</h3>
+<ul>
+<li>操作系统（<code>GOOS</code>）：<code>linux</code>、<code>windows</code>、<code>darwin</code>（mac）、<code>android</code>、<code>ios</code></li>
+<li>架构（<code>GOARCH</code>）：<code>amd64</code>、<code>arm64</code>、<code>386</code>、<code>wasm</code> 等</li>
+</ul>
+<hr>
+<h2 id="四、Go-内置标准库已适配多平台">四、Go 内置标准库已适配多平台</h2>
+<p>Go 的标准库，比如 <code>net</code>, <code>os</code>, <code>syscall</code>, <code>runtime</code>，内部使用了大量的“<strong>条件编译</strong>”和“<strong>平台特定文件</strong>”。</p>
+<p>比如 <code>os</code> 包中，文件结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">os/</span><br><span class="line">├── file_unix.go</span><br><span class="line">├── file_windows.go</span><br><span class="line">├── file_darwin.go</span><br></pre></td></tr></table></figure>
+<ul>
+<li>文件名后缀（如 <code>_windows.go</code>）决定了该文件只在特定平台编译；</li>
+<li>源码中也使用了 <code>// +build windows</code> 这样的条件编译标志；</li>
+<li>Go 编译器会自动选择匹配的文件进行编译。</li>
+</ul>
+<p>因此，无需手动处理各种系统差异，Go 已经帮我们做好了平台适配。</p>
+<hr>
+<h2 id="五、Go-工具链内置交叉编译支持">五、Go 工具链内置交叉编译支持</h2>
+<p>不同于 C/C++ 需要复杂的交叉工具链，<strong>Go 从诞生之初就内置了交叉编译功能</strong>。你不需要为不同平台安装专门的编译器，只要设置环境变量即可。</p>
+<p>这一点大大降低了多平台开发的门槛。</p>
+<h3 id="小贴士：">小贴士：</h3>
+<p>你还可以使用 <code>go env</code> 查看所有支持的目标平台：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go tool dist list</span><br></pre></td></tr></table></figure>
+<p>会列出所有支持的 <code>GOOS/GOARCH</code> 组合。</p>
+<hr>
+<h2 id="六、Go-为什么能跨平台总结一下：">六、Go 为什么能跨平台总结一下：</h2>
+<table>
+<thead>
+<tr>
+<th>原因</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>✅ 编译型语言</td>
+<td>编译后生成目标平台的本地二进制</td>
+</tr>
+<tr>
+<td>✅ 内置交叉编译</td>
+<td><code>GOOS</code> 和 <code>GOARCH</code> 控制输出平台</td>
+</tr>
+<tr>
+<td>✅ 平台适配完善</td>
+<td>标准库用条件编译实现跨平台代码</td>
+</tr>
+<tr>
+<td>✅ 无外部依赖</td>
+<td>不依赖 JVM 或解释器，运行环境简单</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="七、一句话总结：">七、一句话总结：</h2>
+<blockquote>
+<p><strong>Go 跨平台的本质，就是通过编译器直接为目标系统生成原生程序，而不是依赖额外的运行时。</strong></p>
+</blockquote>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/06/04/gowebexamples%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B001/" rel="prev" title="gowebexamples学习笔记01">
+                  <i class="fa fa-angle-left"></i> gowebexamples学习笔记01
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/06/05/go%E8%AF%AD%E8%A8%80%E4%B9%8B%E9%A1%B9%E7%9B%AE%E5%B8%83%E5%B1%80/" rel="next" title="go语言之项目布局">
+                  go语言之项目布局 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

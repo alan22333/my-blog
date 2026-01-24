@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Foundry上手指南 | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Foundry 是一个开源的以太坊智能合约开发工具包，旨在提供快速、便携、模块化的开发体验。Foundry 完全用 Rust 编写，避免了繁重的 Node.js 依赖，性能暴打Hardhat">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Foundry上手指南">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/05/05/Foundry%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Foundry 是一个开源的以太坊智能合约开发工具包，旨在提供快速、便携、模块化的开发体验。Foundry 完全用 Rust 编写，避免了繁重的 Node.js 依赖，性能暴打Hardhat">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-05T11:03:16.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.050Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="web3">
+<meta property="article:tag" content="Foundry">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/05/05/Foundry%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/05/05/Foundry%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/","path":"2025/05/05/Foundry上手指南/","title":"Foundry上手指南"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/05/05/Foundry%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Foundry-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-number">1.</span> <span class="nav-text">Foundry 是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">核心特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E-Hardhat-%E7%9A%84%E5%8C%BA%E5%88%AB%E5%92%8C%E8%BF%81%E7%A7%BB%E8%80%83%E9%87%8F"><span class="nav-number">3.</span> <span class="nav-text">与 Hardhat 的区别和迁移考量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85%E5%92%8C%E5%88%9D%E5%A7%8B%E5%8C%96%E9%A1%B9%E7%9B%AE"><span class="nav-number">4.</span> <span class="nav-text">安装和初始化项目</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E7%BB%93%E6%9E%84%E8%AF%B4%E6%98%8E"><span class="nav-number">5.</span> <span class="nav-text">项目结构说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E5%86%99%E5%92%8C%E8%BF%90%E8%A1%8C%E6%B5%8B%E8%AF%95"><span class="nav-number">6.</span> <span class="nav-text">编写和运行测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Cheatcodes"><span class="nav-number">7.</span> <span class="nav-text">使用 Cheatcodes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8-Fuzz-Testing-%E5%92%8C%E5%B1%9E%E6%80%A7%E6%B5%8B%E8%AF%95"><span class="nav-number">8.</span> <span class="nav-text">使用 Fuzz Testing 和属性测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%88%E7%BA%A6%E9%83%A8%E7%BD%B2%E5%92%8C%E4%B8%8E%E5%89%8D%E7%AB%AF%E4%BA%A4%E4%BA%92%E6%96%B9%E5%BC%8F%E7%AE%80%E4%BB%8B"><span class="nav-number">9.</span> <span class="nav-text">合约部署和与前端交互方式简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"><span class="nav-number">10.</span> <span class="nav-text">最佳实践</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/05/05/Foundry%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Foundry上手指南 | Hello there! I'm alan">
+      <meta itemprop="description" content="Foundry 是一个开源的以太坊智能合约开发工具包，旨在提供快速、便携、模块化的开发体验。Foundry 完全用 Rust 编写，避免了繁重的 Node.js 依赖，性能暴打Hardhat">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Foundry上手指南
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-05 19:03:16" itemprop="dateCreated datePublished" datetime="2025-05-05T19:03:16+08:00">2025-05-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Cyfrin-Updraft/" itemprop="url" rel="index"><span itemprop="name">Cyfrin Updraft</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Foundry 是一个开源的以太坊智能合约开发工具包，旨在提供快速、便携、模块化的开发体验。Foundry 完全用 Rust 编写，避免了繁重的 Node.js 依赖，性能暴打Hardhat</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Foundry-是什么">Foundry 是什么</h2>
+<p>Foundry 是一个开源的以太坊智能合约开发工具包，由 Paradigm 等团队开发，旨在提供<strong>快速、便携、模块化</strong>的开发体验。Foundry 完全用 Rust 编写，避免了繁重的 Node.js 依赖，支持多种 Solidity 版本。它主要包含四个组件：</p>
+<ul>
+<li>
+<p><strong>Forge</strong>：测试框架（类似于 Truffle/Hardhat），可直接用 Solidity 编写测试合约。</p>
+</li>
+<li>
+<p><strong>Cast</strong>：多功能命令行工具，可执行以太坊 RPC 调用、查询链上数据和发送交易。</p>
+</li>
+<li>
+<p><strong>Anvil</strong>：本地 EVM 节点（类似于 Ganache 或 Hardhat Network），支持快速启动和主网状态分叉（fork）测试。</p>
+</li>
+<li>
+<p><strong>Chisel</strong>：Solidity 解释器（REPL），方便交互式调试和尝试合约代码。</p>
+</li>
+</ul>
+<p>总体而言，Foundry 适合专注于智能合约本身的开发场景，尤其是需要高效测试、模糊测试以及本地链调试的项目。</p>
+<h2 id="核心特性">核心特性</h2>
+<ul>
+<li>
+<p><strong>原生支持 Solidity 编译与测试</strong>：Foundry 的工具链直接调用本地 <code>solc</code> 编译合约，并允许在 Solidity 中编写测试，无需 JavaScript/TypeScript 环境。</p>
+</li>
+<li>
+<p><strong>极快的编译和测试速度</strong>：基于 Rust 的二进制程序，编译和运行测试速度远超传统的 Hardhat/Truffle 等 JS 工具。对于大型项目或频繁迭代而言，这带来了明显效率提升。</p>
+</li>
+<li>
+<p><strong>内置模糊测试（Fuzz Testing）</strong>：支持属性（property-based）测试，只要测试函数带有参数（如 <code>function testFuzz_XXX(uint256 x)</code>），Forge 会自动生成随机输入进行测试。如果找到失败的输入，还会给出最小化的反例，帮助发现边界问题。</p>
+</li>
+<li>
+<p><strong>丰富的 Cheatcodes</strong>：提供多种“作弊码”用于修改测试时的区块链状态。例如，可以使用 <code>vm.prank(address)</code> 伪造交易发送者、<code>vm.warp(uint)</code> 修改区块时间戳、<code>vm.roll(uint)</code> 改变区块高度、<code>vm.deal(address, amount)</code> 设定地址余额、<code>vm.expectRevert(...)</code> 预期下一次调用回退等。这些功能可以大幅简化测试场景，如设置账户余额、时间推进等操作无需真实链交互。</p>
+</li>
+<li>
+<p><strong>与 EVM 的高度一致性</strong>：Anvil 作为本地节点，与官方客户端行为高度相符，支持如 Hardhat 那样的主网分叉。测试时可直接以当前或指定区块高度的主网状态作为基础，更真实地模拟生产环境。</p>
+</li>
+</ul>
+<h2 id="与-Hardhat-的区别和迁移考量">与 Hardhat 的区别和迁移考量</h2>
+<p>Foundry 和 Hardhat 都是主流的以太坊开发框架，但在设计理念和生态上有明显差别：</p>
+<ul>
+<li>
+<p><strong>语言和依赖</strong>：Hardhat 以 JavaScript/TypeScript 为主，依赖大量 Node.js 包；而 Foundry 是用 Rust 编写的 CLI 工具，不依赖 JS 环境。这意味着 Foundry 安装包更轻量、跨平台性好，但如果项目需要使用 JS 工具链（如前端脚本或第三方 JS 库），可能需要额外集成。</p>
+</li>
+<li>
+<p><strong>测试框架</strong>：Hardhat 测试基于 Mocha/Chai 和 ethers.js，需要编写 JS 脚本来部署合约、发送交易和断言结果；Foundry 测试在 Solidity 内部进行，使用 <code>DSTest</code> 或 <code>forge-std</code> 标准库中的断言函数，测试代码更贴近合约本身。这对于纯 Solidity 团队来说，上手更快、避免了语言上下文切换。</p>
+</li>
+<li>
+<p><strong>性能</strong>：Foundry 的编译和测试速度显著高于 Hardhat。如果项目测试规模大、迭代频繁，Foundry 可以节省大量时间。</p>
+</li>
+<li>
+<p><strong>生态和插件</strong>：Hardhat 拥有成熟的插件生态，可与各种工具（如 Gas 报告、安全检查、前端框架等）无缝集成；Foundry 生态相对新兴，但也支持部分集成（例如官方提供了 Hardhat 插件，可在同一个项目中同时使用两者）。选择时应考虑团队技术栈：如果以 JS/TS 开发前端和自动化脚本为主，Hardhat 更方便；如果团队主要关心合约逻辑和高效测试，Foundry 更具吸引力。</p>
+</li>
+<li>
+<p><strong>迁移注意</strong>：从 Hardhat 迁移到 Foundry 时，需要将测试代码从 JS 重写为 Solidity 脚本，并将配置文件从 <code>hardhat.config.js</code> 转换为 <code>foundry.toml</code>。依赖管理也有所不同，Foundry 使用 <code>forge install</code> 将依赖以 Git 子模块形式安装到 <code>lib/</code> 目录。</p>
+</li>
+</ul>
+<h2 id="安装和初始化项目">安装和初始化项目</h2>
+<ul>
+<li>
+<p><strong>安装 Foundryup</strong>：Foundry 官方提供了安装脚本。执行以下命令即可安装 Foundryup 管理工具：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -L https://foundry.paradigm.xyz | bash</span><br></pre></td></tr></table></figure>
+<p>按提示完成安装后，即可在终端使用 <code>foundryup</code> 命令。运行 <code>foundryup</code> 将自动下载并安装最新稳定版本的 Forge、Cast、Anvil、Chisel 等组件。若要安装最新夜间版，可使用 <code>foundryup --install nightly</code>。<strong>注意</strong>：在 Windows 上应通过 Git Bash 或 WSL 环境执行此脚本。</p>
+</li>
+<li>
+<p><strong>初始化新项目</strong>：安装完成后，可以使用 <code>forge init</code> 创建新项目。比如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forge init hello_foundry</span><br></pre></td></tr></table></figure>
+<p>上述命令会在当前目录下创建 <code>hello_foundry</code> 文件夹，并根据模板生成项目结构。默认情况下，它还会初始化一个 Git 仓库并安装所需子模块。若不需要 Git 仓库，可加上 <code>--no-git</code> 参数。</p>
+</li>
+</ul>
+<h2 id="项目结构说明">项目结构说明</h2>
+<p>默认模板创建的 Foundry 项目结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── foundry.toml       // Foundry 配置文件</span><br><span class="line">├── src                // 智能合约源代码目录</span><br><span class="line">├── test               // 测试合约目录</span><br><span class="line">├── lib                // 依赖库目录（git 子模块）</span><br><span class="line">└── script             // Solidity 脚本目录</span><br></pre></td></tr></table></figure>
+<ul>
+<li>
+<p><strong>foundry.toml</strong>：项目配置文件，可在其中指定编译器版本、文件路径、编译参数等。</p>
+</li>
+<li>
+<p><strong>src/</strong>：存放待部署的 Solidity 合约源文件，所有最终部署的合约都应放在此目录下。</p>
+</li>
+<li>
+<p><strong>test/</strong>：存放测试合约，文件名通常以 <code>.t.sol</code> 结尾。Forge 会编译此目录中的合约，并运行所有函数名以 <code>test</code> 开头的函数。例如，<code>MyContract.t.sol</code> 中的 <code>function testFoo()</code> 会被识别为一个测试用例。</p>
+</li>
+<li>
+<p><strong>lib/</strong>：存放项目依赖的库代码，以 Git 子模块方式管理。例如通过 <code>forge install</code> 安装 OpenZeppelin 库时，会将其放在 <code>lib/openzeppelin-contracts</code> 子目录中。</p>
+</li>
+<li>
+<p><strong>script/</strong>：通常放置使用 Solidity 编写的脚本文件（后缀 <code>.s.sol</code>），用于与链交互（如部署合约或执行操作）。这些脚本可以通过 <code>forge script</code> 命令运行，将生成事务并发送到指定网络。</p>
+</li>
+</ul>
+<p>以上目录结构可以通过 <code>foundry.toml</code> 或命令行参数进行自定义。同时，Foundry 支持使用 <code>--hh</code> 参数来兼容 Hardhat 项目结构（自动设置 <code>--lib-paths node_modules --contracts contracts</code>）。</p>
+<h2 id="编写和运行测试">编写和运行测试</h2>
+<p>Foundry 允许直接用 Solidity 编写测试合约。通常在测试文件中导入 Forge 标准库，然后让测试合约继承 <code>Test</code>（或 <code>DSTest</code>）基类。下面是一个简单示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">import &quot;forge-std/Test.sol&quot;;</span><br><span class="line">contract MyContractTest is Test &#123;</span><br><span class="line">    MyContract c;</span><br><span class="line">    function setUp() public &#123;</span><br><span class="line">        c = new MyContract();</span><br><span class="line">    &#125;</span><br><span class="line">    function testFunctionality() public &#123;</span><br><span class="line">        // 在这里进行断言</span><br><span class="line">        assertTrue(c.value() == 42);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码在 <code>test/</code> 目录下，例如命名为 <code>MyContract.t.sol</code>。<code>setUp()</code> 函数会在每个测试运行前调用，用于初始化状态（类似于 JS 测试中的 <code>beforeEach</code>）。以 <code>test</code> 开头的函数（如 <code>testFunctionality</code>）会被 Forge 自动识别为测试。测试内部可使用 <code>assertEq</code>、<code>assertTrue</code>、<code>assertRevert</code> 等函数进行断言，无需手动捕捉异常。</p>
+<p>运行测试非常简单：在项目根目录运行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forge test</span><br></pre></td></tr></table></figure>
+<p>Forge 会自动编译 <code>src/</code> 和 <code>test/</code> 目录下的合约，并执行所有测试用例。测试输出会列出每个测试的执行结果及 Gas 消耗情况。如果测试失败，会展示失败信息和回溯调用栈。</p>
+<p>与 Hardhat 不同，Foundry 测试过程不依赖 Mocha/Chai，也不需要启动额外节点，完全在本地进行，运行速度更快。而且测试代码与合约语言一致，Solidity 开发者无需切换语言即可编写和调试测试。</p>
+<h2 id="使用-Cheatcodes">使用 Cheatcodes</h2>
+<p>Foundry 的测试框架内置了大量“作弊码”，用于在测试中修改链上状态或检查行为。这些作弊码通过一个预设地址（<code>0x7109...DD12D</code>）暴露，通常通过 <code>vm</code> 变量调用。例如：</p>
+<ul>
+<li>
+<p><code>vm.prank(address)</code>：将下一笔交易的发送者伪造为指定地址。</p>
+</li>
+<li>
+<p><code>vm.startPrank(address)</code> / <code>vm.stopPrank()</code>：连续伪造后续多笔交易的发送者。</p>
+</li>
+<li>
+<p><code>vm.warp(uint256 timestamp)</code>：设置区块的时间戳。</p>
+</li>
+<li>
+<p><code>vm.roll(uint256 blockNumber)</code>：设置区块高度。</p>
+</li>
+<li>
+<p><code>vm.deal(address who, uint256 amount)</code>：为指定地址设置以太币余额。</p>
+</li>
+<li>
+<p><code>vm.load(address who, bytes32 slot)</code> / <code>vm.store(address who, bytes32 slot, bytes32 val)</code>：直接读写任意地址的存储槽。</p>
+</li>
+<li>
+<p><code>vm.expectRevert() / vm.expectRevert(bytes4) / vm.expectRevert(string)</code>：预期下一次合约调用会回退（可指定错误选择子或错误信息）。</p>
+</li>
+<li>
+<p><code>vm.expectEmit(bool,bool,bool,bool)</code>：预期下一笔交易会发出某个事件，并可部分匹配事件的索引参数。</p>
+</li>
+</ul>
+<p>例如，下面的测试片段使用 <code>expectRevert</code> 和 <code>prank</code> 来断言非合约所有者调用失败：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">function test_RevertWhen_CallerIsNotOwner() public &#123;</span><br><span class="line">    vm.expectRevert(Unauthorized.selector);</span><br><span class="line">    vm.prank(address(0));</span><br><span class="line">    upOnly.increment();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过这些 Cheatcodes，测试可以方便地模拟各种链上操作（例如快速推进时间、设置账户余额、模拟外部合约调用等），从而覆盖更多场景。</p>
+<h2 id="使用-Fuzz-Testing-和属性测试">使用 Fuzz Testing 和属性测试</h2>
+<p>Foundry 支持“属性测试”（Property-Based Testing），即模糊测试。如果测试函数带有至少一个参数，Forge 会将其视为模糊测试，并自动生成随机输入执行多次测试。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">function testFuzz_Withdraw(uint256 amount) public &#123;</span><br><span class="line">    payable(address(safe)).transfer(amount);</span><br><span class="line">    uint256 pre = address(this).balance;</span><br><span class="line">    safe.withdraw();</span><br><span class="line">    uint256 post = address(this).balance;</span><br><span class="line">    assertEq(pre + amount, post);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上例中，<code>testFuzz_Withdraw</code> 会被 Forge 多次调用，每次传入不同的随机 <code>amount</code> 值。Forge 会寻找导致测试失败的输入，并给出经过“缩小”处理（minimal counterexample）的反例。这种方法有助于自动发现边界情况和潜在错误，使得测试覆盖更全面。测试函数名可以以 <code>testFuzz_</code> 开头（或者任何 <code>test</code> 前缀带参数的函数都会自动 fuzz），也可配合分支条件等，以明确表示这是一个模糊测试场景。</p>
+<h2 id="合约部署和与前端交互方式简介">合约部署和与前端交互方式简介</h2>
+<p>Foundry 提供了 <code>forge</code> 和 <code>cast</code> 两个命令行工具来进行部署和与链交互：</p>
+<ul>
+<li>
+<p><strong>部署合约</strong>：使用 <code>forge create</code> 命令。例如：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">forge create MyContract --private-key &lt;YOUR_PRIVATE_KEY&gt; --rpc-url &lt;RPC_URL&gt;</span><br></pre></td></tr></table></figure>
+<p>这会编译 <code>MyContract</code> 合约并使用指定的私钥在指定网络（通过 <code>--rpc-url</code>）上部署该合约。可以通过 <code>--constructor-args</code> 传入构造函数参数，通过 <code>--verify</code> 启用 Etherscan 等服务的源码验证。</p>
+</li>
+<li>
+<p><strong>读取链上数据（只读调用）</strong>：使用 <code>cast call</code>，无需私钥。例如，可以调用一个 ERC20 合约的 <code>balanceOf</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cast call 0x6B175474E89094C44Da98b954EedeAC495271d0F &quot;balanceOf(address)(uint256)&quot; --rpc-url &lt;RPC_URL&gt;</span><br></pre></td></tr></table></figure>
+<p>该命令通过 ABI 编码并调用合约函数，然后输出返回结果。</p>
+</li>
+<li>
+<p><strong>发送交易</strong>：使用 <code>cast send</code> 并提供私钥。比如向 ERC20 合约发送一笔 <code>transfer</code> 交易：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cast send --private-key &lt;YOUR_PRIVATE_KEY&gt; 0xTOKEN_ADDRESS &quot;transfer(address,uint256)&quot; 0xRECIPIENT 100</span><br></pre></td></tr></table></figure>
+<p><code>cast send</code> 会使用指定私钥签名并发送交易，可通过 <code>--rpc-url</code> 指定节点。这些工具使得在脚本或命令行下即可完成链上交互，无需像 Hardhat 那样启动整个框架环境。</p>
+</li>
+</ul>
+<h2 id="最佳实践">最佳实践</h2>
+<ul>
+<li>
+<p><strong>测试组织</strong>：测试合约文件一般与源合约同名（<code>MyContract.sol</code> 对应 <code>MyContract.t.sol</code>）。可以为同一个合约创建多个测试合约或分组：一种方式是按功能拆分小的测试合约；另一种方式是每个待测合约对应一个测试合约，内含多个测试函数。无论采用哪种，都建议保持一致的结构便于维护。</p>
+</li>
+<li>
+<p><strong>命名规范</strong>：统一的函数命名有助于管理测试。常见约定如 <code>testXXX</code>（一般测试）、<code>testFuzz_XXX</code>（模糊测试）、<code>test_RevertIfYYY</code>（预期发生回退）等。例如，可使用 <code>testFork_...</code> 前缀表示需要主网分叉的测试。遵循这些模式可以在运行 <code>forge test</code> 时方便地筛选测试用例。</p>
+</li>
+<li>
+<p><strong>代码格式和静态检查</strong>：建议使用 <code>forge fmt</code> 格式化代码，保持代码风格统一。Foundry 还提供静态分析工具（如 <code>forge check</code>）检查可能的错误。此外，尽量编写清晰可读的合约和测试代码，例如使用有意义的变量名、避免冗余逻辑、将相关代码放在一起等。</p>
+</li>
+<li>
+<p><strong>持续集成（CI）</strong>：在 CI 流水线中集成 Foundry 通常只需安装 Rust 环境并运行 <code>forge test</code>。官方文档提供了 GitHub Actions、Travis CI、GitLab CI 等示例配置。例如，在 GitHub Actions 中可在 push 时触发，安装 Foundry 后执行 <code>forge test</code> 验证所有测试通过即可。通过自动化 CI，可确保每次代码提交都经过 Foundry 测试套件的检查。</p>
+</li>
+</ul>
+<p><strong>参考资料：</strong> Foundry 官方文档和示例等。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/web3/" rel="tag"># web3</a>
+              <a href="/tags/Foundry/" rel="tag"># Foundry</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/04/Hardhat%E4%B8%8A%E6%89%8B%E6%8C%87%E5%8D%97/" rel="prev" title="Hardhat上手指南">
+                  <i class="fa fa-angle-left"></i> Hardhat上手指南
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/10/%E7%BC%96%E7%A8%8B%E4%B8%AD%E9%97%AD%E5%8C%85%E7%9A%84%E6%A6%82%E5%BF%B5/" rel="next" title="编程中闭包的概念">
+                  编程中闭包的概念 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>

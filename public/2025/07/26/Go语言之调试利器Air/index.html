@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go语言之调试利器Air | Hello there! I'm alan</title> 
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.css" integrity="sha256-zM8WXtG4eUn7dKKNMTuoWZub++VnSfaOpA/8PJfvTBo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/themes/blue/pace-theme-minimal.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.2.4/pace.min.js" integrity="sha256-gqd7YTjg/BtfqWSwsJOvndl0Bxc8gFImLEkXQT8+qj0=" crossorigin="anonymous" defer></script>
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"alan-blog.netlify.app","root":"/","images":"/images","scheme":"Muse","darkmode":false,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":true,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":true}}</script><script src="/js/config.js" defer></script>
+
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css"
+/>
+
+    <meta name="description" content="Air是一个专为 Go 应用打造的热重载工具。它能够在你保存代码时，自动帮你完成编译、重启应用的流程，让你专注于代码开发，无需手动操作重启程序。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言之调试利器Air">
+<meta property="og:url" content="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/index.html">
+<meta property="og:site_name" content="Hello there! I&#39;m alan">
+<meta property="og:description" content="Air是一个专为 Go 应用打造的热重载工具。它能够在你保存代码时，自动帮你完成编译、重启应用的流程，让你专注于代码开发，无需手动操作重启程序。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-07-26T15:46:46.000Z">
+<meta property="article:modified_time" content="2026-01-20T13:16:31.058Z">
+<meta property="article:author" content="Alan">
+<meta property="article:tag" content="go">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/","path":"2025/07/26/Go语言之调试利器Air/","title":"Go语言之调试利器Air"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fancyapps-ui/5.0.36/fancybox/fancybox.umd.js" integrity="sha256-hiUEBwFEpLF6DlB8sGXlKo4kPZ46Ui4qGpd0vrVkOm4=" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lozad.js/1.16.0/lozad.min.js" integrity="sha256-mOFREFhqmHeQbXpK2lp4nA3qooVgACfh88fpJftLBbc=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+  <script src="/js/third-party/fancybox.js" defer></script>
+
+  <script src="/js/third-party/pace.js" defer></script>
+
+  <script src="/js/third-party/addtoany.js" defer></script>
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quicklink/2.3.0/quicklink.umd.js" integrity="sha256-yvJQOINiH9fWemHn0vCA5lsHWJaHs6/ZmO+1Ft04SvM=" crossorigin="anonymous" defer></script>
+  <script class="next-config" data-name="quicklink" type="application/json">{"enable":true,"home":true,"archive":true,"delay":true,"timeout":3000,"priority":true,"url":"https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/"}</script>
+  <script src="/js/third-party/quicklink.js" defer></script>
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+<link rel="alternate" href="/atom.xml" title="Hello there! I'm alan" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  
+
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Hello there! I'm alan</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">这是我的博客，欢迎交流学习</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags<span class="badge">22</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories<span class="badge">12</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives<span class="badge">92</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Air-%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">一、Air 是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Air-%E7%9A%84%E6%A0%B8%E5%BF%83%E7%89%B9%E6%80%A7"><span class="nav-number">2.</span> <span class="nav-text">二、Air 的核心特性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%A6%82%E4%BD%95%E5%AE%89%E8%A3%85-Air%EF%BC%9F"><span class="nav-number">3.</span> <span class="nav-text">三、如何安装 Air？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A%E4%BD%BF%E7%94%A8-Go-%E5%AE%89%E8%A3%85%EF%BC%88%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">方式一：使用 Go 安装（推荐）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9A%E4%BD%BF%E7%94%A8-Homebrew%EF%BC%88macOS%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">方式二：使用 Homebrew（macOS）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B"><span class="nav-number">4.</span> <span class="nav-text">四、快速上手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E8%87%AA%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE%EF%BC%9A-air-toml"><span class="nav-number">5.</span> <span class="nav-text">五、自定义配置：.air.toml</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%A1%B9%E7%9B%AE%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84%E5%BB%BA%E8%AE%AE"><span class="nav-number">6.</span> <span class="nav-text">六、项目目录结构建议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E9%85%8D%E5%90%88-Gin-%E7%AD%89-Web-%E6%A1%86%E6%9E%B6%E4%BD%BF%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">七、配合 Gin 等 Web 框架使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81Air-vs-%E5%85%B6%E4%BB%96%E7%83%AD%E9%87%8D%E8%BD%BD%E5%B7%A5%E5%85%B7"><span class="nav-number">8.</span> <span class="nav-text">八、Air vs 其他热重载工具</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Alan"
+      src="/images/av1.jpg">
+  <p class="site-author-name" itemprop="name">Alan</p>
+  <div class="site-description" itemprop="description">一个喜欢探索的技术小白，目前正在读研</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">92</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">12</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://gitee.com/alan223" title="Gitee → https:&#x2F;&#x2F;gitee.com&#x2F;alan223" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>Gitee</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:alan_root@outlook.com" title="E-Mail → mailto:alan_root@outlook.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title"><i class="fa fa-globe fa-fw"></i>
+          Links
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="https://ghost-him.netlify.app/" title="https:&#x2F;&#x2F;ghost-him.netlify.app&#x2F;" rel="noopener" target="_blank">ghost-him</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://alan-blog.netlify.app/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8B%E8%B0%83%E8%AF%95%E5%88%A9%E5%99%A8Air/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/av1.jpg">
+      <meta itemprop="name" content="Alan">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hello there! I'm alan">
+      <meta itemprop="description" content="一个喜欢探索的技术小白，目前正在读研">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Go语言之调试利器Air | Hello there! I'm alan">
+      <meta itemprop="description" content="Air是一个专为 Go 应用打造的热重载工具。它能够在你保存代码时，自动帮你完成编译、重启应用的流程，让你专注于代码开发，无需手动操作重启程序。">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Go语言之调试利器Air
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-07-26 23:46:46" itemprop="dateCreated datePublished" datetime="2025-07-26T23:46:46+08:00">2025-07-26</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">In</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/" itemprop="url" rel="index"><span itemprop="name">go</span></a>
+        </span>
+          , 
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/go/basic/" itemprop="url" rel="index"><span itemprop="name">basic</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="Views" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">Views: </span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+            <div class="post-description">Air是一个专为 Go 应用打造的热重载工具。它能够在你保存代码时，自动帮你完成编译、重启应用的流程，让你专注于代码开发，无需手动操作重启程序。</div>
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="一、Air-是什么？">一、Air 是什么？</h2>
+<p><a target="_blank" rel="noopener" href="https://github.com/cosmtrek/air">Air</a> 是一个专为 Go 应用打造的 <strong>热重载工具</strong>。它能够在你保存代码时，自动帮你完成编译、重启应用的流程，让你专注于代码开发，无需手动操作重启程序。</p>
+<p>使用 Air，就像在 Node.js 世界中使用 nodemon、在前端使用 webpack 的 watch 模式，极大地提升了开发体验。</p>
+<hr>
+<h2 id="二、Air-的核心特性">二、Air 的核心特性</h2>
+<ul>
+<li>✅ 自动监听 <code>.go</code> 文件变更并重启程序</li>
+<li>✅ 支持自定义构建命令和路径</li>
+<li>✅ 支持忽略特定目录或文件（如 <code>vendor/</code>、<code>test/</code>）</li>
+<li>✅ 支持 <code>.toml</code> 格式配置文件，易读易写</li>
+<li>✅ 无需修改代码，开箱即用</li>
+</ul>
+<hr>
+<h2 id="三、如何安装-Air？">三、如何安装 Air？</h2>
+<h3 id="方式一：使用-Go-安装（推荐）">方式一：使用 Go 安装（推荐）</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">go install github.com/cosmtrek/air@latest</span><br></pre></td></tr></table></figure>
+<p>注意：确保 <code>$GOPATH/bin</code> 或 <code>~/go/bin</code> 已加入环境变量 <code>$PATH</code>。</p>
+<h3 id="方式二：使用-Homebrew（macOS）">方式二：使用 Homebrew（macOS）</h3>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install air</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="四、快速上手">四、快速上手</h2>
+<p>在你的 Go 项目根目录下，直接运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">air</span><br></pre></td></tr></table></figure>
+<p>如果第一次运行，会自动生成 <code>.air.toml</code> 配置文件。</p>
+<p>Air 会自动监听你的 Go 源文件（如 <code>main.go</code>），并在检测到变动后自动构建和运行程序。</p>
+<hr>
+<h2 id="五、自定义配置：-air-toml">五、自定义配置：<code>.air.toml</code></h2>
+<p>Air 支持通过 <code>.air.toml</code> 文件来自定义行为，比如构建命令、忽略目录等。以下是一个常见的示例配置：</p>
+<figure class="highlight toml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># .air.toml</span></span><br><span class="line"></span><br><span class="line"><span class="section">[build]</span></span><br><span class="line">  <span class="attr">cmd</span> = <span class="string">&quot;go build -o tmp/app .&quot;</span>    <span class="comment"># 构建命令</span></span><br><span class="line">  <span class="attr">bin</span> = <span class="string">&quot;tmp/app&quot;</span>                  <span class="comment"># 编译后的二进制路径</span></span><br><span class="line">  <span class="attr">include_ext</span> = [<span class="string">&quot;go&quot;</span>, <span class="string">&quot;tpl&quot;</span>, <span class="string">&quot;html&quot;</span>]   <span class="comment"># 监听这些扩展名</span></span><br><span class="line">  <span class="attr">exclude_dir</span> = [<span class="string">&quot;vendor&quot;</span>, <span class="string">&quot;tmp&quot;</span>, <span class="string">&quot;logs&quot;</span>]  <span class="comment"># 忽略目录</span></span><br><span class="line">  <span class="attr">exclude_file</span> = [<span class="string">&quot;*_test.go&quot;</span>]     <span class="comment"># 忽略文件</span></span><br><span class="line">  <span class="attr">delay</span> = <span class="number">1000</span>                     <span class="comment"># 防抖延迟（ms）</span></span><br><span class="line"></span><br><span class="line"><span class="section">[log]</span></span><br><span class="line">  <span class="attr">time</span> = <span class="literal">true</span>                      <span class="comment"># 显示时间戳</span></span><br></pre></td></tr></table></figure>
+<p>然后运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">air -c .air.toml</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="六、项目目录结构建议">六、项目目录结构建议</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">your-project/</span><br><span class="line">├── main.go</span><br><span class="line">├── go.mod</span><br><span class="line">├── .air.toml</span><br><span class="line">└── ...</span><br></pre></td></tr></table></figure>
+<p>推荐在项目根目录放置 <code>.air.toml</code> 文件。</p>
+<hr>
+<h2 id="七、配合-Gin-等-Web-框架使用">七、配合 Gin 等 Web 框架使用</h2>
+<p>Air 非常适合用于开发基于 Gin、Fiber、Echo 等 Web 框架的应用。只要你把入口文件设置正确（一般是 <code>main.go</code>），Air 就能帮你自动热重载，非常适合调试接口、Web 服务等项目。</p>
+<hr>
+<h2 id="八、Air-vs-其他热重载工具">八、Air vs 其他热重载工具</h2>
+<table>
+<thead>
+<tr>
+<th>工具名</th>
+<th>语言适配</th>
+<th>热重载</th>
+<th>配置支持</th>
+<th>社区活跃</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Air</strong></td>
+<td>Go</td>
+<td>✅</td>
+<td><code>.toml</code></td>
+<td>非常活跃</td>
+</tr>
+<tr>
+<td>fresh</td>
+<td>Go</td>
+<td>✅</td>
+<td>简单</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>reflex</td>
+<td>通用</td>
+<td>✅</td>
+<td>正则匹配</td>
+<td>一般</td>
+</tr>
+<tr>
+<td>CompileDaemon</td>
+<td>Go</td>
+<td>✅</td>
+<td>简单</td>
+<td>一般</td>
+</tr>
+</tbody>
+</table>
+<p>在 Go 项目中，<strong>Air 是目前最推荐的选择</strong>。</p>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/go/" rel="tag"># go</a>
+          </div>
+
+        
+  <div class="social-like a2a_kit a2a_kit_size_32 a2a_default_style">
+    <a class="a2a_dd" target="_blank" rel="noopener" href="https://www.addtoany.com/share"></a>
+      <a class="a2a_button_facebook"></a>
+      <a class="a2a_button_twitter"></a>
+  </div>
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/07/26/Go%E8%AF%AD%E8%A8%80%E4%B9%8BRedis%E5%85%A5%E9%97%A8/" rel="prev" title="Go语言之Redis入门">
+                  <i class="fa fa-angle-left"></i> Go语言之Redis入门
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/07/28/Go%E8%AF%AD%E8%A8%80%E4%B9%8BJWT%E9%89%B4%E6%9D%83/" rel="next" title="Go语言之JWT鉴权">
+                  Go语言之JWT鉴权 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2026</span>
+    <span class="with-love">
+      <i class="fa-solid fa-face-smile"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Alan</span>
+  </div>
+<div class="busuanzi-count">
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/muse/" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+</body>
+</html>
