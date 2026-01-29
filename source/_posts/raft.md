@@ -5,6 +5,8 @@ tags: ['raft']
 toc: false
 date: 2026-01-28 21:49:20
 categories:
+    - go
+    - project
 ---
 
 ## Part-A: 选主
