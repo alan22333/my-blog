@@ -179,8 +179,7 @@ links_settings:
   layout: block
 
 links:
-  ghost-him-no.1: https://ghost-him.netlify.app/
-  ghost-him-no.2: https://ghost-him.github.io/
+  ghost-him: https://ghost-him.github.io/
 
 # 侧边栏中的目录
 # Front-matter 变量（不支持 wrap expand_all）
