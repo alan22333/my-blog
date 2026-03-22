@@ -778,3 +778,342 @@ Raft 如何保证成千上万条日志在所有节点上顺序完全一致？
 
 ### 实现思路
 
+首先考虑一下数据结构，日志长什么样？想要实现日志复制还需要哪些属性？可以从论文的图2轻易找到，然后我们来分析一下他们的作用
+
+![](https://pic1.imgdb.cn/item/698f191306a66cedfb333ccf.png)
+
+```Go
+type Raft struct {
+	mu        sync.Mutex
+	peers     []*labrpc.ClientEnd 
+	persister *tester.Persister   
+	me        int                 
+	dead      int32               
+
+	// Part-A
+	currentTerm       int
+	votedFor          int
+	state             State
+	lastElectionReset time.Time // 上一次重制计时器的时间\
+
+	// Part-B
+	Log         []LogEntry // 本地日志记录
+	nextIndex   []int      // 追随者们可能需要更新的日志位置（乐观猜测指针）
+	matchIndex  []int      // 追随者们已经更新的日志位置（实际情况指针），永远在追乐观指针
+	commitIndex int        // 已经同步的索引，指的是多数节点已经更新到的位置
+	lastApplied int        // 已经提交的索引，标记已经应用到状态机的安全部分
+
+	applyCh chan raftapi.ApplyMsg // 用来应用的
+}
+
+type LogEntry struct {
+	Term    int         // 也就是 Command 产生时的Leader任期
+	Command interface{} // 具体指令 (interface{} 代表可以是任何类型)
+}
+
+```
+
+然后我们梳理一下流程，日志复制的第一步是客户端给到Leader的指令，然后Leader将指令封装并“本地追加”,
+对应的接口是“Start”
+
+```Go
+// 返回值：
+// 1. index: 该命令如果被提交，将出现在日志的哪个索引位置。
+// 2. term: 当前任期。
+// 3. isLeader: 当前节点是否相信自己是 Leader。
+func (rf *Raft) Start(command interface{}) (int, int, bool) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	// 检查一下是不是Leader
+	if rf.state != StateLeader {
+		return -1, -1, false
+	}
+
+	// 构造一条Log
+	log := &LogEntry{
+		Term:    rf.currentTerm,
+		Command: command,
+	}
+
+	// 本地日志追加
+	rf.Log = append(rf.Log, *log)
+
+	return len(rf.Log) - 1, rf.currentTerm, true
+}
+```
+
+然后，Leader需要给给追随者进行广播，Leader 说了：“在位置 3，任期 2，写下 x=5。”
+
+> 这里我发现自己在做Part-A时候的一个误区，我认为心跳和日志复制应该是两个不同的行为，在不同的携程上运行
+> 事实上本质上这是同一个东西。你既可以说”心跳“是特殊的”日志复制“，也可以说”日志复制“是特殊的”心跳“，他们都要使用Append的RPC来实现。
+
+所以，我们重新分析一下AppendEntriesRpc该怎么设计，
+
+首先是从发送方Leader的角度：
+上文提到，日志和心跳应同属一种行为，所以是同一个接口。那么开始开始发送心跳的时机也是开发送日志的时机，也就是Leader刚刚上任的时候：
+
+```Go
+func (rf *Raft) startElection() {
+
+	// ...
+
+	// 检查投票
+	if reply.VoteGranted {
+		votes++
+		if votes > len(rf.peers)/2 { // 当选成功
+
+			rf.state = StateLeader
+			// Leader需要维护的两个指针表：乐观指针、实际指针
+			rf.nextIndex = make([]int, len(rf.peers))
+			for i := range rf.nextIndex {
+				rf.nextIndex[i] = len(rf.Log)
+			}
+			rf.matchIndex = make([]int, len(rf.peers))
+
+			// 开始广播心跳/日志复制
+			go rf.broadcastAppend()
+		}
+	}
+}
+
+```
+
+然后我们看一下这个Rpc还需要什么参数，同样看一下论文图2
+![](https://pic1.imgdb.cn/item/698f228306a66cedfb336ea1.png)
+
+参数中需要一个用于检查的锚点（想像成拉链的最底端一节）和Leader提交的索引
+
+```Go
+type AppendEntriesArgs struct {
+	Term    int
+	Leader  int
+	Entries []LogEntry
+
+	// 一致性检查：上一个任期、上一个日志索引
+	PrevLogIndex int
+	PrevLogTerm  int
+
+	LeaderCommit int
+}
+```
+
+知道了参数，就可以开始在广播中构造：
+
+```Go
+func (rf *Raft) broadcastAppend() {
+	rf.mu.Lock()
+	// 快照一下当前状态，确保后面逻辑一致性
+	savedTerm := rf.currentTerm
+	if rf.state != StateLeader {
+		rf.mu.Unlock()
+		return
+	}
+	rf.mu.Unlock()
+
+	for peer := range rf.peers {
+		if peer == rf.me {
+			continue
+		}
+		go func(server int) {
+			rf.mu.Lock()
+			// 再次检查状态，因为协程启动有延迟
+			if rf.state != StateLeader {
+				rf.mu.Unlock()
+				return
+			}
+
+			// 期望更新的索引（乐观）
+			nextIdx := rf.nextIndex[peer]
+
+			// 根据期待构造检查锚点
+			preIdx := nextIdx - 1          // 锚点索引
+			preTerm := rf.Log[preIdx].Term // 锚点任期
+
+			// 根据有没有新日志来确定发送“心跳”还是“日志复制”
+			var entries []LogEntry
+			if nextIdx < len(rf.Log) {
+				entries = rf.Log[nextIdx:]
+			} else {
+				entries = nil
+			}
+
+			args := &AppendEntriesArgs{
+				Term:         savedTerm,
+				Leader:       rf.me,
+				PrevLogIndex: preIdx,
+				PrevLogTerm:  preTerm,
+				Entries:      entries,
+				LeaderCommit: rf.commitIndex,
+			}
+			reply := &AppendEntriesReply{}
+
+			rf.mu.Unlock()
+			// 注意无锁发送
+			if rf.sendAppendEntries(server, args, reply) {
+				// 处理结果
+				rf.mu.Lock()
+				defer rf.mu.Unlock()
+
+				// 江山易主，社稷不在
+				if rf.state != StateLeader || rf.currentTerm != savedTerm {
+					return
+				}
+
+				// 退位条件：遇到更新的任期，更新状态
+				if reply.Term > rf.currentTerm {
+					rf.currentTerm = reply.Term
+					rf.state = StateFollower
+					rf.votedFor = -1
+					rf.lastElectionReset = time.Now()
+				}
+
+				if reply.Success {
+					
+					rf.matchIndex[peer] = args.PrevLogIndex + len(args.Entries)
+					rf.nextIndex[peer] = rf.matchIndex[peer] + 1
+
+					// 检测是否更新提交（同步大于半数的位置）
+					rf.updateCommitIndex()
+
+				} else {
+					// 注意：不用手动调用来进行重试，而是等下一轮自动重试
+					// 降低乐观程度，往回倒
+					if rf.nextIndex[server] > 1 {
+						rf.nextIndex[server]--
+					}
+				}
+			}
+		}(peer)
+	}
+}
+```
+
+下面是接收方的处理，也就是跟随者怎么复制日志：
+
+```Go
+func (rf *Raft) AppendEntries(args *AppendEntriesArgs, reply *AppendEntriesReply) {
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	// 先判断是否认可leader
+	if args.Term < rf.currentTerm {
+		reply.Term = rf.currentTerm
+		reply.Success = false
+		return
+	}
+
+	// 部分状态更新
+	rf.currentTerm = args.Term
+	rf.state = StateFollower
+	rf.votedFor = -1
+	rf.lastElectionReset = time.Now()
+
+	// 一致性检查
+	if args.PrevLogIndex >= len(rf.Log) {
+		reply.Term = rf.currentTerm
+		reply.Success = false
+		return
+	}
+
+	if rf.Log[args.PrevLogIndex].Term != args.PrevLogTerm {
+		reply.Term = rf.currentTerm
+		reply.Success = false
+		return
+	}
+
+	// 日志复制
+	if len(args.Entries) > 0 {
+		// 找到插入点（锚点后一个）
+		insertIdx := args.PrevLogIndex + 1
+
+		for i, entry := range args.Entries {
+			targetIdx := insertIdx + i
+			// 如果超出当前日志长度，直接追加
+			if targetIdx >= len(rf.Log) {
+				rf.Log = append(rf.Log, args.Entries[i:]...)
+				break
+			}
+			// 如果有冲突，截断并追加剩余部分
+			if rf.Log[targetIdx].Term != entry.Term {
+				rf.Log = rf.Log[:targetIdx]
+				rf.Log = append(rf.Log, args.Entries[i:]...)
+				break
+			}
+			// 否则跳过（日志已经一致）
+		}
+	}
+
+	// 实事求是，Leader最强
+	if args.LeaderCommit > rf.commitIndex {
+		rf.commitIndex = min(args.LeaderCommit, len(rf.Log)-1)
+	}
+
+	// 回复
+	reply.Term = rf.currentTerm
+	reply.Success = true
+}
+
+```
+
+复制完了之后就是“提交”操作：
+
+Leader 收到**超过半数 (Quorum)** 节点的成功回复。
+Leader 此时将这条日志标记为 **Committed**。
+
+```Go
+func (rf *Raft) updateCommitIndex() {
+	// 拷贝一下省的加锁了?
+	matchIndexes := make([]int, len(rf.peers))
+	copy(matchIndexes, rf.matchIndex)
+	matchIndexes[rf.me] = len(rf.Log) - 1
+
+	// 排序找同步数的中位数（大多数可以提交）
+	sort.Ints(matchIndexes)
+	N := matchIndexes[len(rf.peers)/2]
+
+	// 注意：安全性要求，只能提交自己任期的！！！
+	if N > rf.commitIndex && rf.Log[N].Term == rf.currentTerm {
+		// 提交状态更新到大多数同步状态
+		rf.commitIndex = N
+	}
+
+}
+```
+
+最后就是应用，这个我们单独起一个Goroutine来定时检查、应用：
+
+```Go
+func (rf *Raft) applier() {
+	for rf.killed() == false {
+		time.Sleep(10 * time.Millisecond)
+
+		rf.mu.Lock()
+		if rf.lastApplied >= rf.commitIndex {
+			rf.mu.Unlock()
+			continue
+		}
+
+		// 存个状态，要解锁了
+		commitIndex := rf.commitIndex
+		lastApplied := rf.lastApplied
+		entries := make([]LogEntry, commitIndex-lastApplied)
+		copy(entries, rf.Log[lastApplied+1:commitIndex+1])
+		rf.mu.Unlock()
+
+		// 通过lab给的通道写入
+		for i, entry := range entries {
+			rf.applyCh <- raftapi.ApplyMsg{
+				CommandValid: true,
+				Command:      entry.Command,
+				CommandIndex: lastApplied + 1 + i,
+			}
+		}
+
+		// 并发环境下，一行也要加锁
+		rf.mu.Lock()
+		rf.lastApplied = commitIndex
+		rf.mu.Unlock()
+	}
+}
+```
